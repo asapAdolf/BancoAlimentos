@@ -1,0 +1,239 @@
+/* LOGIN Y REGISTRO */
+.auth {
+  min-height: calc(100vh - 72px);
+  display: grid;
+  place-items: center;
+  padding: 48px 16px;
+  background: radial-gradient(circle at 10% 10%, var(--verde-claro), transparent 50%);
+}
+
+.auth-tarjeta {
+  width: 100%;
+  max-width: 460px;
+  background: var(--blanco);
+  border-radius: 28px;
+  padding: 36px 32px;
+  box-shadow: var(--sombra);
+  border: 1px solid var(--borde);
+}
+
+.auth-ancha {
+  max-width: 680px;
+}
+
+.auth-encabezado {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.auth-encabezado .logo-icono {
+  margin: 0 auto 14px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+}
+
+.auth-encabezado h1 {
+  font-size: 1.8rem;
+  color: var(--verde-oscuro);
+}
+
+.auth-encabezado p {
+  color: var(--texto-suave);
+  margin-top: 6px;
+}
+
+.campo {
+  margin-bottom: 18px;
+}
+
+.campo > label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.92rem;
+  margin-bottom: 6px;
+}
+
+.campo-entrada {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 50px;
+  border: 2px solid var(--borde);
+  border-radius: 14px;
+  background: var(--crema);
+  color: var(--texto-suave);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.campo-entrada:focus-within {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 4px var(--verde-claro);
+  background: var(--blanco);
+}
+
+.campo-entrada.con-error {
+  border-color: #d64545;
+}
+
+.campo-entrada input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--texto);
+}
+
+.btn-ojo {
+  background: none;
+  border: none;
+  color: var(--texto-suave);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.btn-ojo:hover {
+  color: var(--verde);
+}
+
+.error-texto {
+  display: block;
+  color: #c03636;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.alerta-error {
+  background: #fdeaea;
+  color: #a62d2d;
+  border: 1px solid #f3c2c2;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.btn-completo {
+  width: 100%;
+  justify-content: center;
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+
+.auth-pie {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--texto-suave);
+}
+
+.auth-pie a {
+  color: var(--verde);
+  font-weight: 800;
+}
+
+.auth-pie a:hover {
+  text-decoration: underline;
+}
+
+.caja-demo {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 14px 16px;
+  background: #fff6e8;
+  border: 1px dashed var(--naranja);
+  border-radius: 14px;
+  color: var(--naranja-oscuro);
+  font-size: 0.88rem;
+}
+
+.caja-demo svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.caja-demo p {
+  color: var(--texto-suave);
+}
+
+.rejilla-dos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+/* Selector de tipo de usuario */
+.tipos-usuario {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.tipo-opcion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border: 2px solid var(--borde);
+  border-radius: 14px;
+  background: var(--crema);
+  color: var(--texto-suave);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tipo-opcion:hover {
+  border-color: var(--verde);
+}
+
+.tipo-opcion.seleccionado {
+  border-color: var(--verde);
+  background: var(--verde-claro);
+  color: var(--verde-oscuro);
+}
+
+/* Botones del Navbar con sesión iniciada */
+.usuario-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--verde-oscuro);
+}
+
+.usuario-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--naranja);
+  color: var(--blanco);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+@media (max-width: 560px) {
+  .auth-tarjeta {
+    padding: 28px 20px;
+  }
+  .rejilla-dos {
+    grid-template-columns: 1fr;
+  }
+  .tipos-usuario {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
