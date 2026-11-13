@@ -1,0 +1,26 @@
+{
+  "name": "rescate-alimentario-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Back-End de Rescate Alimentario (patrones Factory Method y Adapter)",
+  "scripts": {
+    "dev": "tsx watch src/servidor.ts",
+    "build": "tsc",
+    "start": "node dist/servidor.js",
+    "typecheck": "tsc --noEmit",
+    "demo:factory": "tsx src/demo/MainFactory.ts",
+    "demo:adapter": "tsx src/demo/MainAdapter.ts"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
