@@ -5,14 +5,14 @@ color 0E
 
 echo =======================================================
 echo     RESCATE ALIMENTARIO - INICIO COMPLETO
-echo   (PostgreSQL + Back-End Flask + Front-End Vite)
+echo        (PostgreSQL + Flask: front-end y API)
 echo =======================================================
 echo.
 
 cd /d "%~dp0"
 
 :: 1. PostgreSQL
-echo [1/3] Verificando PostgreSQL...
+echo [1/2] Verificando PostgreSQL...
 sc query postgresql-x64-17 2>nul | findstr /I "RUNNING" >nul
 if %ERRORLEVEL% equ 0 (
     echo       [OK] PostgreSQL en ejecución (5432).
@@ -21,13 +21,13 @@ if %ERRORLEVEL% equ 0 (
     net start postgresql-x64-17 2>nul
 )
 
-:: 2. Flask en ventana independiente
-echo [2/3] Levantando Servidor Flask (puerto 5000)...
-start "Flask API" cmd /k "python app.py"
-
-:: 3. Front-End Vite
-echo [3/3] Levantando Front-End Vite (puerto 5173)...
+:: 2. Flask (sirve las pantallas y la API /api en el puerto 5000)
+echo [2/2] Levantando Servidor Flask (puerto 5000)...
 echo.
-echo Presiona Ctrl+C para detener el Front-End.
+echo  Front-End:  http://127.0.0.1:5000
+echo  API salud:  http://127.0.0.1:5000/api/salud
 echo.
-npm run dev -- --open
+echo Presiona Ctrl+C para detener el servidor.
+echo.
+start "" http://127.0.0.1:5000
+python run.py

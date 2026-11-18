@@ -1,5 +1,5 @@
 from datetime import datetime
-from database import db
+from .database import db
 
 class Rol(db.Model):
     __tablename__ = 'roles'

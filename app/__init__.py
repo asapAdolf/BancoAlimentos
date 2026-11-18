@@ -1,18 +1,25 @@
 from flask import Flask, g, render_template, request, session
+from flask_cors import CORS
 
 from . import store, utils
+from .config import Config
+from .database import db
 
 
 def create_app():
     app = Flask(__name__)
-    # Clave solo para firmar la cookie de sesión de la DEMO. En un sistema real va en una variable de entorno.
-    app.config['SECRET_KEY'] = 'clave-solo-para-demostracion'
+    # Configuración (SECRET_KEY y conexión a PostgreSQL) tomada del archivo .env
+    app.config.from_object(Config)
+
+    # Extensiones: CORS para la API y SQLAlchemy para PostgreSQL
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    db.init_app(app)
 
     store.reset()
     utils.registrar(app)
 
-    from .blueprints import admin, auth, cliente, empresa, panel, publico, transportista
-    for modulo in (publico, auth, panel, cliente, empresa, transportista, admin):
+    from .blueprints import admin, api, auth, cliente, empresa, panel, publico, transportista
+    for modulo in (publico, auth, panel, cliente, empresa, transportista, admin, api):
         app.register_blueprint(modulo.bp)
 
     @app.before_request

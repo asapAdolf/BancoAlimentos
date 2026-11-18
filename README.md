@@ -47,3 +47,13 @@ app/
   static/          css (mismo de React + flask.css) y js/app.js
 tests/test_rutas.py
 ```
+
+## Base de datos (PostgreSQL) y API
+
+- Esquema: `Database/schema.sql` (generado a partir de `BaseDatosFinal.png`).
+- Conexión: se configura en un archivo `.env` en la raíz (`DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`
+  o `DATABASE_URL`). Lo lee `app/config.py`; el `.env` no se sube al repositorio.
+- Código: `app/database.py` (SQLAlchemy), `app/models.py` (modelos) y `app/blueprints/api.py` (rutas `/api`).
+- Rutas: `/api/salud`, `/api/roles`, `/api/categorias`, `/api/unidades`, `/api/usuarios`, `/api/publicaciones`
+  y `POST /api/seed` (carga los catálogos iniciales).
+- `arrancar_todo.bat` inicia PostgreSQL y el servidor Flask (`python run.py`) y abre el navegador.
