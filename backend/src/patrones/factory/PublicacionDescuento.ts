@@ -2,7 +2,9 @@ import { IllegalArgumentException } from '../../errores/Excepciones.js'
 import type { Alimento } from '../../modelos/Alimento.js'
 import type { Establecimiento } from '../../modelos/Establecimiento.js'
 import type { HorarioRecoleccion } from '../../modelos/HorarioRecoleccion.js'
-import type { EstadoPublicacion, EstrategiaDescuento, Modalidad } from '../../modelos/tipos.js'
+import type { EstadoPublicacion, Modalidad } from '../../modelos/tipos.js'
+import { crearEstrategia } from '../strategy/crearEstrategia.js'
+import { DESCUENTO_MAXIMO, DESCUENTO_MINIMO, type DescuentoStrategy } from '../strategy/DescuentoStrategy.js'
 import {
   redondear,
   type DatosPublicacion,
@@ -10,11 +12,23 @@ import {
   type PublicacionDTO,
 } from './PublicacionAlimento.js'
 
-export const DESCUENTO_MINIMO = 1
-export const DESCUENTO_MAXIMO = 90
+export { DESCUENTO_MAXIMO, DESCUENTO_MINIMO }
 
 // PATRÓN FACTORY METHOD — Producto concreto (como "Arquero implements Personajes").
-// Venta con descuento: el precio final se reduce según porcentajeDescuento.
+// Venta con descuento: el precio final se reduce según el porcentaje que calcula la estrategia.
+//
+// PATRÓN STRATEGY — Contexto. Cumple el papel de "Paqueteria" / "Negocio" del código muestra:
+//
+//   class Paqueteria
+//   {
+//     private envio : EnvioStrategy;
+//     constructor(envio:EnvioStrategy) { this.envio = envio; }
+//     cambiarEnvio(envio:EnvioStrategy):void { this.envio = envio; }
+//     aplicarEnvio():void { this.envio.calcularCosto(); }
+//   }
+//
+// La publicación guarda una DescuentoStrategy y le delega el cálculo del porcentaje.
+// Se puede cambiar la estrategia en cualquier momento con cambiarEstrategia().
 export class PublicacionDescuento implements PublicacionAlimento {
   id: string
   alimento: Alimento
@@ -23,8 +37,8 @@ export class PublicacionDescuento implements PublicacionAlimento {
   estadoActual: EstadoPublicacion
   precioBase: number
   fechaPublicacion: string
-  porcentajeDescuento: number
-  estrategiaDescuento: EstrategiaDescuento
+  porcentajeMaximo: number // tope que eligió el establecimiento
+  private estrategia: DescuentoStrategy
 
   constructor(datos: DatosPublicacion) {
     if (!(datos.precioBase > 0)) {
@@ -38,8 +52,8 @@ export class PublicacionDescuento implements PublicacionAlimento {
     this.estadoActual = datos.estadoActual ?? 'disponible'
     this.precioBase = datos.precioBase
     this.fechaPublicacion = datos.fechaPublicacion ?? new Date().toISOString()
-    this.porcentajeDescuento = datos.porcentajeDescuento as number
-    this.estrategiaDescuento = datos.estrategiaDescuento ?? 'caducidad'
+    this.porcentajeMaximo = datos.porcentajeDescuento as number
+    this.estrategia = crearEstrategia(datos.estrategiaDescuento ?? 'caducidad')
   }
 
   static validarPorcentaje(porcentaje: number | undefined): void {
@@ -55,22 +69,37 @@ export class PublicacionDescuento implements PublicacionAlimento {
     }
   }
 
+  // Equivale a cambiarEnvio(envio) / cambiarEstrategia(estrategia).
+  cambiarEstrategia(estrategia: DescuentoStrategy): void {
+    this.estrategia = estrategia
+  }
+
+  getEstrategia(): DescuentoStrategy {
+    return this.estrategia
+  }
+
+  // Equivale a aplicarEnvio() / aplicarEstrategia(): delega el cálculo en la estrategia actual.
+  aplicarEstrategia(): number {
+    return this.estrategia.calcularDescuento(this.alimento, this.porcentajeMaximo)
+  }
+
   getModalidad(): Modalidad {
     return 'descuento'
   }
 
   getPorcentajeDescuento(): number {
-    return this.porcentajeDescuento
+    return this.aplicarEstrategia()
   }
 
   calcularPrecioFinal(): number {
-    return redondear(this.precioBase * (1 - this.porcentajeDescuento / 100))
+    return redondear(this.precioBase * (1 - this.getPorcentajeDescuento() / 100))
   }
 
   mostrarPublicacion(): void {
     console.log(
       `\n[Descuento] "${this.alimento.nombre}" de ${this.establecimiento.nombre}: ` +
-        `antes $${this.precioBase}, ahora $${this.calcularPrecioFinal()} MXN (-${this.porcentajeDescuento}%).`,
+        `antes $${this.precioBase}, ahora $${this.calcularPrecioFinal()} MXN (-${this.getPorcentajeDescuento()}%). ` +
+        this.estrategia.getDescripcion(),
     )
   }
 
@@ -81,8 +110,9 @@ export class PublicacionDescuento implements PublicacionAlimento {
       alimento: this.alimento,
       horarioRecoleccion: this.horarioRecoleccion,
       estadoActual: this.estadoActual,
-      estrategiaDescuento: this.estrategiaDescuento,
+      estrategiaDescuento: this.estrategia.getTipo(),
       precioBase: this.precioBase,
+      porcentajeMaximo: this.porcentajeMaximo,
       porcentajeDescuento: this.getPorcentajeDescuento(),
       precioFinal: this.calcularPrecioFinal(),
       establecimiento: this.establecimiento,

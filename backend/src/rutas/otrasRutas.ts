@@ -3,6 +3,7 @@ import { bd } from '../datos/BaseDatosMemoria.js'
 import { IllegalArgumentException } from '../errores/Excepciones.js'
 import { NotificacionServicio } from '../servicios/NotificacionServicio.js'
 import { PublicacionServicio } from '../servicios/PublicacionServicio.js'
+import { SuscripcionServicio } from '../servicios/SuscripcionServicio.js'
 import { UbicacionServicio } from '../servicios/UbicacionServicio.js'
 import { UsuarioServicio } from '../servicios/UsuarioServicio.js'
 import { parametro, usuarioActual } from './utilidades.js'
@@ -57,6 +58,24 @@ notificacionesRutas.post('/enviar', (req, res) => {
 // Historial de mensajes que salieron por los adaptadores.
 notificacionesRutas.get('/enviados', (_req, res) => {
   res.json(bd.mensajesEnviados)
+})
+
+// ---------- Suscripción a nuevos alimentos (patrón Observer) ----------
+export const suscripcionRutas = Router()
+
+// Estado de la suscripción del usuario actual.
+suscripcionRutas.get('/', (req, res) => {
+  res.json(SuscripcionServicio.estado(usuarioActual(req)))
+})
+
+// agregarObservador: el usuario empieza a recibir avisos de nuevos alimentos.
+suscripcionRutas.post('/', (req, res) => {
+  res.status(201).json(SuscripcionServicio.suscribir(usuarioActual(req)))
+})
+
+// eliminarObservador: el usuario deja de recibir avisos.
+suscripcionRutas.delete('/', (req, res) => {
+  res.json(SuscripcionServicio.cancelarSuscripcion(usuarioActual(req)))
 })
 
 // ---------- Ubicación (patrón Adapter de mapas) ----------

@@ -13,10 +13,12 @@ import { esEstablecimiento, type Usuario } from '../modelos/Usuario.js'
 import type { PublicacionAlimento } from '../patrones/factory/PublicacionAlimento.js'
 import { PublicacionDescuento } from '../patrones/factory/PublicacionDescuento.js'
 import { PublicacionFactory } from '../patrones/factory/PublicacionFactory.js'
+import { crearEstrategia } from '../patrones/strategy/crearEstrategia.js'
 import { fechaEnDias } from '../utils/fechas.js'
 import { generarCodigoReservacion, generarId } from '../utils/ids.js'
 import type { CambiosPublicacion, NuevaPublicacion } from '../validaciones/validaciones.js'
 import { NotificacionServicio } from './NotificacionServicio.js'
+import { SuscripcionServicio } from './SuscripcionServicio.js'
 
 // Filtros del catálogo (mismos que "Filtros" del Front-End).
 export interface FiltrosCatalogo {
@@ -31,7 +33,8 @@ export interface FiltrosCatalogo {
 }
 
 // Lógica de negocio de las publicaciones: publicar (con Factory Method), reservar,
-// confirmar entrega, editar y cancelar. Los avisos salen con el Adapter de notificaciones.
+// confirmar entrega, editar y cancelar. El descuento se calcula con Strategy, los avisos de
+// nuevos alimentos se reparten con Observer y cada aviso sale por el Adapter de notificaciones.
 export class PublicacionServicio {
   static listar(filtros: FiltrosCatalogo = {}): PublicacionAlimento[] {
     const busqueda = filtros.busqueda?.trim().toLowerCase() ?? ''
@@ -107,22 +110,8 @@ export class PublicacionServicio {
     bd.publicaciones.unshift(publicacion)
     publicacion.mostrarPublicacion()
 
-    const nombreEst = publicacion.establecimiento.nombre
-    if (publicacion instanceof PublicacionDescuento) {
-      NotificacionServicio.notificarInteresados(
-        'descuento',
-        'Nueva publicación con descuento',
-        `${nombreEst} publicó "${publicacion.alimento.nombre}" con ${publicacion.porcentajeDescuento}% de descuento.`,
-        publicacion.id,
-      )
-    } else {
-      NotificacionServicio.notificarInteresados(
-        'nuevo',
-        'Nuevo alimento disponible',
-        `${nombreEst} publicó "${publicacion.alimento.nombre}".`,
-        publicacion.id,
-      )
-    }
+    // PATRÓN OBSERVER: el catálogo avisa a todos los usuarios suscritos.
+    SuscripcionServicio.notificarNuevoAlimento(publicacion)
     return publicacion
   }
 
@@ -145,7 +134,11 @@ export class PublicacionServicio {
     if (cambios.cantidad !== undefined) publicacion.alimento.cantidadDisponible = cambios.cantidad
     if (cambios.precioBase !== undefined && modalidad !== 'donacion') publicacion.precioBase = cambios.precioBase
     if (cambios.porcentaje !== undefined && publicacion instanceof PublicacionDescuento) {
-      publicacion.porcentajeDescuento = cambios.porcentaje
+      publicacion.porcentajeMaximo = cambios.porcentaje
+    }
+    // PATRÓN STRATEGY: se cambia la forma de calcular el descuento sin crear otra publicación.
+    if (cambios.estrategia !== undefined && publicacion instanceof PublicacionDescuento) {
+      publicacion.cambiarEstrategia(crearEstrategia(cambios.estrategia))
     }
     return publicacion
   }

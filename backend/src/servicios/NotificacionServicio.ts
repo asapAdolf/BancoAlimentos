@@ -1,7 +1,7 @@
 import { bd } from '../datos/BaseDatosMemoria.js'
 import { IllegalArgumentException, NoEncontradoException } from '../errores/Excepciones.js'
 import type { RegistroNotificacion, TipoNotificacion } from '../modelos/RegistroNotificacion.js'
-import { esEstablecimiento, type CanalNotificacion, type Usuario } from '../modelos/Usuario.js'
+import type { CanalNotificacion, Usuario } from '../modelos/Usuario.js'
 import { emailAdapter } from '../patrones/adapter/notificaciones/emailAdapter.js'
 import type { Notificacion } from '../patrones/adapter/notificaciones/Notificacion.js'
 import { smsAdapter } from '../patrones/adapter/notificaciones/smsAdapter.js'
@@ -72,20 +72,6 @@ export class NotificacionServicio {
     const destinatario = canal === 'email' ? usuario.correo : usuario.telefono
     NotificacionServicio.enviarPorCanal(canal, destinatario, `${titulo}: ${mensaje}`)
     return registro
-  }
-
-  // Avisa a todas las personas y organizaciones (por ejemplo, cuando hay una nueva publicación).
-  static notificarInteresados(
-    tipo: TipoNotificacion,
-    titulo: string,
-    mensaje: string,
-    publicacionId?: string,
-  ): number {
-    const interesados = bd.usuarios.filter((u) => !esEstablecimiento(u.tipo))
-    for (const usuario of interesados) {
-      NotificacionServicio.notificarUsuario(usuario, tipo, titulo, mensaje, publicacionId)
-    }
-    return interesados.length
   }
 
   static listar(usuarioId: string): RegistroNotificacion[] {

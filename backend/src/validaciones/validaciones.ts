@@ -37,6 +37,7 @@ export interface CambiosPublicacion {
   cantidad?: number
   precioBase?: number
   porcentaje?: number
+  estrategia?: EstrategiaDescuento
 }
 
 const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/
@@ -130,6 +131,7 @@ export function validarCambiosPublicacion(cuerpo: unknown): CambiosPublicacion {
   if (d.cantidad !== undefined) cambios.cantidad = numero(d.cantidad, 'cantidad', 1, true)
   if (d.precioBase !== undefined) cambios.precioBase = numero(d.precioBase, 'precioBase', 0)
   if (d.porcentaje !== undefined) cambios.porcentaje = numero(d.porcentaje, 'porcentaje', 0)
+  if (d.estrategia !== undefined) cambios.estrategia = opcion(d.estrategia, 'estrategia', ESTRATEGIAS)
   return cambios
 }
 

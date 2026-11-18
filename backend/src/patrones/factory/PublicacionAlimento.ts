@@ -35,8 +35,8 @@ export interface DatosPublicacion {
   horarioRecoleccion: HorarioRecoleccion
   establecimiento: Establecimiento
   precioBase: number
-  porcentajeDescuento?: number
-  estrategiaDescuento?: EstrategiaDescuento
+  porcentajeDescuento?: number // en descuento: porcentaje máximo que la estrategia puede aplicar
+  estrategiaDescuento?: EstrategiaDescuento // estrategia (Strategy) con la que se calcula el descuento
   estadoActual?: EstadoPublicacion
   fechaPublicacion?: string
 }
@@ -51,7 +51,8 @@ export interface PublicacionDTO {
   estadoActual: EstadoPublicacion
   estrategiaDescuento?: EstrategiaDescuento
   precioBase: number
-  porcentajeDescuento: number
+  porcentajeMaximo?: number // solo en descuento: tope elegido por el establecimiento
+  porcentajeDescuento: number // porcentaje aplicado (en descuento lo calcula la estrategia)
   precioFinal: number
   establecimiento: Establecimiento
   fechaPublicacion: string

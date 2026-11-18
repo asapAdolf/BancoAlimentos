@@ -32,3 +32,9 @@ function nombreMes(fecha: Date): string {
   const mes = fecha.toLocaleDateString('es-MX', { month: 'short' }).replace('.', '')
   return mes.charAt(0).toUpperCase() + mes.slice(1)
 }
+
+// Días que faltan desde hoy hasta "fecha" (AAAA-MM-DD). 0 = hoy, negativo = ya pasó.
+export function diasHasta(fecha: string): number {
+  const hoy = Date.parse(fechaEnDias(0))
+  return Math.round((Date.parse(fecha) - hoy) / 86_400_000)
+}

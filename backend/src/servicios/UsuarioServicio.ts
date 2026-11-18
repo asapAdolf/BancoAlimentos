@@ -2,6 +2,7 @@ import { bd } from '../datos/BaseDatosMemoria.js'
 import { IllegalArgumentException, IllegalStateException, NoAutorizadoException } from '../errores/Excepciones.js'
 import { esEstablecimiento, type Usuario } from '../modelos/Usuario.js'
 import { generarId } from '../utils/ids.js'
+import { SuscripcionServicio } from './SuscripcionServicio.js'
 import { validarNuevoUsuario } from '../validaciones/validaciones.js'
 
 // Inicio de sesión de DEMOSTRACIÓN (igual que en el Front-End): no se verifican contraseñas.
@@ -25,6 +26,7 @@ export class UsuarioServicio {
       canalNotificacion: 'email',
     }
     bd.usuarios.push(nuevo)
+    SuscripcionServicio.suscribir(nuevo) // PATRÓN OBSERVER: recibe avisos de nuevos alimentos
     return nuevo
   }
 
@@ -36,6 +38,7 @@ export class UsuarioServicio {
     const nuevo: Usuario = { ...valido, id: generarId('usr') }
     if (!esEstablecimiento(nuevo.tipo)) delete nuevo.nombreEstablecimiento
     bd.usuarios.push(nuevo)
+    if (!esEstablecimiento(nuevo.tipo)) SuscripcionServicio.suscribir(nuevo) // PATRÓN OBSERVER
     return nuevo
   }
 
