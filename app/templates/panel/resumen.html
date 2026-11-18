@@ -1,0 +1,162 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import icono, cabecera, stat, barras, barras_h, donut, fila, ins_transporte, foto, vacio with context %}
+{% block titulo %}Mi panel{% endblock %}
+
+{% block content %}
+{% set rol = usuario.rol %}
+{% set subtitulos = {
+  'cliente': 'Encuentra alimentos para rescatar y revisa tus reservaciones.',
+  'empresa': 'Publica tus excedentes y sigue su recolección.',
+  'transportista': 'Toma entregas y lleva los alimentos a quienes los necesitan.',
+  'administrador': 'Supervisa la actividad de toda la plataforma.'} %}
+
+{% call cabecera('¡Hola, ' ~ (usuario.nombre | primer_nombre) ~ '!', subtitulos[rol]) %}
+  {% if rol == 'cliente' %}
+    <a href="{{ url_for('publico.catalogo') }}" class="btn btn-primario">{{ icono('search', 18) }} Explorar alimentos</a>
+  {% elif rol == 'empresa' %}
+    <a href="{{ url_for('empresa.publicar') }}" class="btn btn-secundario">{{ icono('plus-circle', 18) }} Publicar alimento</a>
+  {% elif rol == 'transportista' %}
+    <a href="{{ url_for('transportista.disponibles') }}" class="btn btn-secundario">{{ icono('package-search', 18) }} Ver entregas disponibles</a>
+  {% else %}
+    <a href="{{ url_for('admin.usuarios') }}" class="btn btn-primario">{{ icono('users', 18) }} Administrar usuarios</a>
+  {% endif %}
+{% endcall %}
+
+{# ---------- Indicadores ---------- #}
+<div class="rejilla-stats">
+  {% if rol == 'cliente' %}
+    {{ stat('package', n_disponibles, 'Alimentos disponibles', 'verde') }}
+    {{ stat('calendar-clock', por_recoger | length, 'Reservas por recibir', 'naranja') }}
+    {{ stat('package-check', n_hechas, 'Reservas entregadas', 'azul') }}
+    {{ stat('leaf', kilos_mios | kilos, 'Kilos que has rescatado', 'rosa') }}
+  {% elif rol == 'empresa' %}
+    {{ stat('package', n_disponibles, 'Alimentos disponibles', 'verde') }}
+    {{ stat('calendar-clock', n_reservadas, 'Alimentos reservados', 'naranja') }}
+    {{ stat('package-check', n_entregadas, 'Alimentos entregados', 'azul') }}
+    {{ stat('leaf', kilos_mios | kilos, 'Kilos que has recuperado', 'rosa') }}
+  {% elif rol == 'transportista' %}
+    {{ stat('package-search', disponibles | length, 'Entregas disponibles', 'verde') }}
+    {{ stat('truck', activas | length, 'Entregas en curso', 'naranja') }}
+    {{ stat('package-check', n_hechas, 'Entregas completadas', 'azul') }}
+    {{ stat('scale', kilos_mios | kilos, 'Kilos transportados', 'rosa') }}
+  {% else %}
+    {{ stat('users', n_usuarios, 'Usuarios registrados', 'verde', n_suspendidos ~ ' suspendidos') }}
+    {{ stat('clipboard-list', n_activas, 'Publicaciones activas', 'naranja') }}
+    {{ stat('calendar-check', n_reservas, 'Reservaciones', 'azul') }}
+    {{ stat('leaf', registro.kilos_total | kilos, 'Kilos recuperados', 'rosa', 'Dato de demostración') }}
+  {% endif %}
+</div>
+
+{# ---------- Gráficas de impacto ---------- #}
+<div class="rejilla-graficas">
+  <section class="tarjeta-panel">
+    <h2 class="titulo-seccion">Kilos recuperados por mes</h2>
+    {{ barras(registro.mensual) }}
+  </section>
+  <section class="tarjeta-panel">
+    {% if rol == 'administrador' %}
+      <h2 class="titulo-seccion">Usuarios por rol</h2>
+      {{ barras_h([('Clientes', por_rol.cliente), ('Empresas', por_rol.empresa), ('Transportistas', por_rol.transportista), ('Administradores', por_rol.administrador)], 'n') }}
+    {% else %}
+      <h2 class="titulo-seccion">Recuperación por modalidad</h2>
+      {{ donut([
+        {'etiqueta': 'Venta', 'valor': registro.por_modalidad.venta, 'color': 'var(--verde)'},
+        {'etiqueta': 'Con descuento', 'valor': registro.por_modalidad.descuento, 'color': 'var(--naranja)'},
+        {'etiqueta': 'Donación', 'valor': registro.por_modalidad.donacion, 'color': '#0e8a8a'}], registro.kilos_total | numero, 'kg totales') }}
+    {% endif %}
+  </section>
+</div>
+
+<div class="rejilla-listas">
+  <div class="columna">
+
+    {# ----- listas propias de cada rol ----- #}
+    {% if rol == 'cliente' and por_recoger %}
+    <section class="tarjeta-panel">
+      <div class="seccion-cabecera"><h2 class="titulo-seccion">Mis próximas recepciones</h2><a href="{{ url_for('cliente.reservaciones') }}" class="enlace-flecha">Ver todas</a></div>
+      <ul class="lista-simple">
+        {% for x in por_recoger %}<li>{{ fila(x.pub) }}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {% if rol == 'empresa' and pendientes %}
+    <section class="tarjeta-panel">
+      <div class="seccion-cabecera"><h2 class="titulo-seccion">Pendientes por entregar</h2><a href="{{ url_for('empresa.reservaciones') }}" class="enlace-flecha">Ver reservaciones</a></div>
+      <ul class="lista-simple">
+        {% for x in pendientes %}<li>{{ fila(x.pub) }}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {% if rol == 'transportista' %}
+    <section class="tarjeta-panel">
+      <div class="seccion-cabecera"><h2 class="titulo-seccion">Entregas en curso</h2><a href="{{ url_for('transportista.mis_entregas') }}" class="enlace-flecha">Mis entregas</a></div>
+      {% if activas %}
+      <ul class="lista-simple">
+        {% for x in activas %}
+        <li><a class="fila-pub" href="{{ url_for('transportista.mis_entregas') }}">
+          {{ foto(x.pub.alimento.foto, x.pub.alimento.nombre, 'fila-foto') }}
+          <div class="fila-texto"><strong>{{ x.pub.alimento.nombre }}</strong><span>{{ x.pub.est.nombre }} → {{ x.r.cliente_nombre }}</span><div class="fila-insignias">{{ ins_transporte(x.r.transporte) }}</div></div>
+        </a></li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="aviso-chico">No tienes entregas en curso. Toma una de las disponibles.</p>{% endif %}
+    </section>
+    <section class="tarjeta-panel">
+      <div class="seccion-cabecera"><h2 class="titulo-seccion">Disponibles para ti</h2><a href="{{ url_for('transportista.disponibles') }}" class="enlace-flecha">Ver todas</a></div>
+      {% if disponibles %}
+      <ul class="lista-simple">
+        {% for x in disponibles[:3] %}
+        <li><a class="fila-pub" href="{{ url_for('transportista.disponibles') }}">
+          {{ foto(x.pub.alimento.foto, x.pub.alimento.nombre, 'fila-foto') }}
+          <div class="fila-texto"><strong>{{ x.pub.alimento.nombre }}</strong><span>{{ x.pub.est.nombre }} → {{ x.r.direccion_envio }}</span><div class="fila-insignias">{{ ins_transporte(x.r.transporte) }}</div></div>
+        </a></li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="aviso-chico">Por ahora no hay entregas esperando transportista.</p>{% endif %}
+    </section>
+    {% endif %}
+
+    {% if rol == 'administrador' %}
+    <section class="tarjeta-panel">
+      <div class="seccion-cabecera"><h2 class="titulo-seccion">Usuarios recientes</h2><a href="{{ url_for('admin.usuarios') }}" class="enlace-flecha">Ver todos</a></div>
+      <ul class="lista-simple">
+        {% for u in ultimos %}
+        <li class="fila-usuario"><span class="usuario-avatar">{{ u.nombre | inicial }}</span><div class="fila-texto"><strong>{{ u.nombre }}</strong><span>{{ u.email }}</span></div><span class="insignia rol-{{ u.rol }}">{{ ETIQUETA_ROL[u.rol] }}</span></li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {# ----- publicados recientemente (todos los roles menos transportista) ----- #}
+    {% if rol != 'transportista' %}
+    <section class="tarjeta-panel">
+      <div class="seccion-cabecera">
+        <h2 class="titulo-seccion">{{ 'Mis publicaciones recientes' if rol == 'empresa' else 'Publicados recientemente' }}</h2>
+        <a href="{{ url_for('empresa.publicaciones') if rol == 'empresa' else (url_for('admin.publicaciones') if rol == 'administrador' else url_for('publico.catalogo')) }}" class="enlace-flecha">{{ 'Ver todas' if rol != 'cliente' else 'Ver catálogo' }}</a>
+      </div>
+      {% if recientes %}
+      <ul class="lista-simple">{% for pub in recientes %}<li>{{ fila(pub) }}</li>{% endfor %}</ul>
+      {% else %}<p class="aviso-chico">Aún no tienes publicaciones.</p>{% endif %}
+    </section>
+    {% endif %}
+  </div>
+
+  <section class="tarjeta-panel">
+    <div class="seccion-cabecera"><h2 class="titulo-seccion">Notificaciones recientes</h2><a href="{{ url_for('panel.notificaciones') }}" class="enlace-flecha">Ver todas</a></div>
+    {% if avisos %}
+    <ul class="lista-simple">
+      {% for n in avisos %}
+      <li class="aviso-fila {{ '' if n.leida else 'sin-leer' }}">
+        <span class="punto-nuevo" aria-hidden="true"></span>
+        <div><strong>{{ n.titulo }}</strong><p>{{ n.mensaje }}</p><small>{{ n.fecha | hace }}</small></div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="aviso-chico">No tienes notificaciones.</p>{% endif %}
+  </section>
+</div>
+
+<p class="aviso-demo-claro">* Las cifras de impacto son datos de demostración.</p>
+{% endblock %}

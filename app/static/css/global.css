@@ -1,0 +1,138 @@
+:root {
+  --verde: #2f7d4f;
+  --verde-oscuro: #1f5c39;
+  --verde-claro: #e3f1e8;
+  --naranja: #f08a24;
+  --naranja-oscuro: #d6730f;
+  --crema: #fbf6ea;
+  --blanco: #ffffff;
+  --texto: #25302a;
+  --texto-suave: #5d6b63;
+  --borde: #e6e0cf;
+  --radio: 18px;
+  --sombra: 0 8px 24px rgba(31, 92, 57, 0.1);
+  --fuente-texto: 'Nunito', system-ui, sans-serif;
+  --fuente-titulo: 'Fraunces', Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--fuente-texto);
+  color: var(--texto);
+  background: var(--crema);
+  line-height: 1.6;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--fuente-titulo);
+  line-height: 1.2;
+}
+
+.contenedor {
+  width: min(1140px, 92%);
+  margin: 0 auto;
+}
+
+.seccion {
+  padding: 80px 0;
+}
+
+.seccion-titulo {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.seccion-titulo h2 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: var(--verde-oscuro);
+}
+
+.seccion-titulo p {
+  color: var(--texto-suave);
+  margin-top: 10px;
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primario {
+  background: var(--verde);
+  color: var(--blanco);
+  box-shadow: 0 6px 16px rgba(47, 125, 79, 0.3);
+}
+
+.btn-primario:hover {
+  background: var(--verde-oscuro);
+}
+
+.btn-secundario {
+  background: var(--naranja);
+  color: var(--blanco);
+  box-shadow: 0 6px 16px rgba(240, 138, 36, 0.3);
+}
+
+.btn-secundario:hover {
+  background: var(--naranja-oscuro);
+}
+
+.btn-borde {
+  background: transparent;
+  color: var(--verde);
+  border-color: var(--verde);
+}
+
+/* Página provisional */
+.provisional {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.provisional h1 {
+  color: var(--verde-oscuro);
+  margin-bottom: 12px;
+}
+
+.provisional p {
+  color: var(--texto-suave);
+  margin-bottom: 24px;
+}

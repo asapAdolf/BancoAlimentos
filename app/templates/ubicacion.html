@@ -1,0 +1,88 @@
+{% extends layout %}
+{% from 'macros.html' import icono, cabecera, foto, ins_estado, ins_transporte, mapa, nota, vacio with context %}
+{% block titulo %}Ubicación y recolección{% endblock %}
+
+{% block content %}
+{{ cabecera('Ubicación y recolección', 'Consulta dónde y cuándo recoger o recibir tus alimentos.') }}
+
+{% if not sel %}
+{% call vacio('map-pin-off', 'No hay puntos de recolección activos', 'Cuando haya alimentos disponibles o reservados, verás aquí dónde recogerlos.') %}
+  <a href="{{ url_for('publico.catalogo') }}" class="btn btn-primario">Ver catálogo</a>
+{% endcall %}
+{% else %}
+{% set a = sel.alimento %}
+{% set dias = a.caducidad | dias_para_caducar %}
+<div class="ubicacion-rejilla">
+  <aside class="lista-puntos">
+    <h2 class="titulo-seccion">Puntos de recolección</h2>
+    <ul>
+      {% for p in pubs %}
+      <li>
+        <a href="{{ url_for('publico.ubicacion', pub=p.id) }}" class="punto {{ 'activo' if p.id == sel.id }}">
+          {{ foto(p.alimento.foto, p.alimento.nombre, 'punto-foto') }}
+          <div>
+            <strong>{{ p.alimento.nombre }}</strong>
+            <span>{{ p.est.nombre }}</span>
+            {% if p.id in mias %}<em class="etiqueta-mia">{{ {'cliente': 'Tu reservación', 'transportista': 'Tu entrega', 'empresa': 'Tu publicación'}[usuario.rol] }}</em>{% endif %}
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <section class="ubicacion-detalle">
+    {{ mapa(sel.est.nombre) }}
+
+    <div class="ubicacion-acciones">
+      <button type="button" class="btn btn-secundario" data-ruta-toggle data-texto-mostrar="Consultar ruta" data-texto-ocultar="Ocultar ruta">{{ icono('route', 18) }} <span>Consultar ruta</span></button>
+      <a href="{{ url_for('publico.detalle', pub_id=sel.id) }}" class="btn btn-borde">Ver alimento</a>
+    </div>
+
+    <div class="ruta-resumen oculto" data-ruta>
+      {{ icono('navigation', 22) }}
+      <div>
+        <strong>{{ ruta.km }} km · {{ ruta.min }} min en auto</strong>
+        <span>Ruta de ejemplo desde "Tu ubicación". El trazado real vendrá del servicio de mapas.</span>
+      </div>
+    </div>
+
+    {% if ver_destino %}
+    <div class="ruta-resumen entrega-info">
+      {{ icono('truck', 22) }}
+      <div>
+        <strong>Entrega a domicilio para {{ reserva.cliente_nombre }}</strong>
+        <span>{{ reserva.direccion_envio }} · {{ ins_transporte(reserva.transporte) }}</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="ubicacion-tarjetas">
+      <article class="tarjeta-panel">
+        <h2 class="titulo-seccion">{{ icono('store', 18) }} Establecimiento</h2>
+        <ul class="lista-datos">
+          <li><span>Nombre</span><strong>{{ sel.est.nombre }}</strong></li>
+          <li>{{ icono('map-pin', 16) }}<span>Dirección</span><strong>{{ sel.est.direccion }}</strong></li>
+          <li><span>Punto de recolección</span><strong>{{ sel.est.punto }}</strong></li>
+          <li>{{ icono('clock', 16) }}<span>Horario</span><strong>{{ sel.horario | texto_horario }}</strong></li>
+          <li>{{ icono('phone', 16) }}<span>Teléfono</span><strong>{{ sel.est.telefono }}</strong></li>
+        </ul>
+      </article>
+
+      <article class="tarjeta-panel">
+        <h2 class="titulo-seccion">{{ icono('package', 18) }} Información del alimento</h2>
+        <div class="fila-insignias">{{ ins_estado(sel.estado) }}</div>
+        <ul class="lista-datos">
+          <li><span>Alimento</span><strong>{{ a.nombre }}</strong></li>
+          <li>{{ icono('package', 16) }}<span>Cantidad</span><strong>{{ a.cantidad }} {{ a.unidad }}</strong></li>
+          <li>{{ icono('scale', 16) }}<span>Peso</span><strong>{{ a.kilos | kilos }}</strong></li>
+          <li class="{{ 'urgente' if dias <= 1 }}">{{ icono('clock', 16) }}<span>Caducidad</span><strong>{{ dias | texto_dias }}</strong></li>
+        </ul>
+      </article>
+    </div>
+
+    {% call nota('Adapter') %}El mapa y la ruta reales se obtendrían con <strong>ServicioMapasAdapter</strong> → <strong>AdaptadorGoogleMaps</strong>. Aún no hay ninguna API conectada: esta es una vista de demostración.{% endcall %}
+  </section>
+</div>
+{% endif %}
+{% endblock %}

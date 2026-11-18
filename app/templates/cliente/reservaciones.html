@@ -1,0 +1,20 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import icono, cabecera, reserva_card, vacio with context %}
+{% block titulo %}Mis reservaciones{% endblock %}
+{% block content %}
+{% call cabecera('Mis reservaciones', 'Consulta tus reservaciones, su código y cómo recibirás cada pedido.') %}
+  <a href="{{ url_for('publico.catalogo') }}" class="btn btn-primario">{{ icono('search', 18) }} Explorar alimentos</a>
+{% endcall %}
+<div class="chips">
+  <a class="chip {{ 'activo' if filtro == 'todas' }}" href="{{ url_for('cliente.reservaciones') }}">Todas ({{ total }})</a>
+  <a class="chip {{ 'activo' if filtro == 'reservado' }}" href="{{ url_for('cliente.reservaciones', estado='reservado') }}">Por recibir ({{ por_recoger }})</a>
+  <a class="chip {{ 'activo' if filtro == 'entregado' }}" href="{{ url_for('cliente.reservaciones', estado='entregado') }}">Entregadas ({{ entregadas }})</a>
+</div>
+{% if items %}
+<div class="lista-reservas">{% for x in items %}{{ reserva_card(x, 'cliente') }}{% endfor %}</div>
+{% else %}
+{% call vacio('calendar-x', 'Sin reservaciones', 'Cuando reserves un alimento aparecerá aquí.') %}
+  <a href="{{ url_for('publico.catalogo') }}" class="btn btn-primario">Ver catálogo</a>
+{% endcall %}
+{% endif %}
+{% endblock %}

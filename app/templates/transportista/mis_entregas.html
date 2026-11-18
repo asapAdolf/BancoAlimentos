@@ -1,0 +1,22 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import icono, cabecera, entrega_card, vacio with context %}
+{% block titulo %}Mis entregas{% endblock %}
+{% block content %}
+{{ cabecera('Mis entregas', 'Marca cuando recojas el pedido y cuando lo entregues.') }}
+<h2 class="titulo-seccion">En curso ({{ activas | length }})</h2>
+{% if activas %}
+<div class="lista-reservas">
+  {% for x in activas %}
+    {% call entrega_card(x) %}
+      <form method="post" action="{{ url_for('transportista.avanzar', reserva_id=x.r.id) }}">
+        {% if x.r.transporte == 'asignado' %}<button class="btn btn-secundario btn-chico" type="submit">{{ icono('truck', 16) }} Recogido, voy en camino</button>
+        {% else %}<button class="btn btn-primario btn-chico" type="submit">{{ icono('package-check', 16) }} Marcar entregado</button>{% endif %}
+      </form>
+    {% endcall %}
+  {% endfor %}
+</div>
+{% else %}{% call vacio('truck', 'Sin entregas en curso', 'Toma una entrega de la lista de disponibles.') %}<a class="btn btn-primario" href="{{ url_for('transportista.disponibles') }}">Ver disponibles</a>{% endcall %}{% endif %}
+<h2 class="titulo-seccion espacio-arriba">Historial ({{ historial | length }})</h2>
+{% if historial %}<div class="lista-reservas">{% for x in historial %}{% call entrega_card(x) %}{% endcall %}{% endfor %}</div>
+{% else %}<p class="aviso-chico">Aún no has completado entregas.</p>{% endif %}
+{% endblock %}

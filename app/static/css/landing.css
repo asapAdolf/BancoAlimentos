@@ -1,0 +1,375 @@
+/* NAVBAR */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(251, 246, 234, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--borde);
+}
+
+.navbar-interior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--fuente-titulo);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--verde-oscuro);
+}
+
+.logo-icono {
+  background: var(--verde);
+  color: var(--blanco);
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.navbar-enlaces {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  list-style: none;
+}
+
+.navbar-enlaces a.activo,
+.navbar-enlaces a:hover {
+  color: var(--verde);
+}
+
+.navbar-enlaces a {
+  font-weight: 700;
+}
+
+.navbar-acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-menu {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--verde-oscuro);
+  cursor: pointer;
+}
+
+/* HERO */
+.hero {
+  padding: 70px 0 90px;
+  background: radial-gradient(circle at 85% 20%, var(--verde-claro), transparent 55%);
+}
+
+.hero-interior {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.hero-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--verde-claro);
+  color: var(--verde-oscuro);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 18px;
+}
+
+.hero h1 {
+  font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+  color: var(--verde-oscuro);
+  margin-bottom: 18px;
+}
+
+.hero h1 span {
+  color: var(--naranja);
+}
+
+.hero p {
+  font-size: 1.15rem;
+  color: var(--texto-suave);
+  max-width: 520px;
+  margin-bottom: 30px;
+}
+
+.hero-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.hero-imagen {
+  position: relative;
+}
+
+.hero-imagen img {
+  width: 100%;
+  height: 460px;
+  object-fit: cover;
+  border-radius: 32px;
+  box-shadow: var(--sombra);
+}
+
+.hero-tarjeta {
+  position: absolute;
+  left: -20px;
+  bottom: 30px;
+  background: var(--blanco);
+  padding: 14px 18px;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-tarjeta strong {
+  display: block;
+  color: var(--verde-oscuro);
+  font-size: 1.2rem;
+}
+
+.hero-tarjeta small {
+  color: var(--texto-suave);
+}
+
+/* CÓMO FUNCIONA */
+.pasos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.paso {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  padding: 28px 22px;
+  box-shadow: var(--sombra);
+  text-align: center;
+  position: relative;
+}
+
+.paso-numero {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--naranja);
+  color: var(--blanco);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.icono-circulo {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: var(--verde-claro);
+  color: var(--verde);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+}
+
+.paso h3,
+.beneficio h3 {
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+  color: var(--verde-oscuro);
+}
+
+.paso p,
+.beneficio p {
+  color: var(--texto-suave);
+  font-size: 0.95rem;
+}
+
+/* BENEFICIOS */
+.beneficios-fondo {
+  background: var(--blanco);
+}
+
+.beneficios {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.beneficio {
+  background: var(--crema);
+  border-radius: var(--radio);
+  padding: 28px;
+  border: 1px solid var(--borde);
+}
+
+.beneficio .icono-circulo {
+  margin: 0 0 16px;
+  background: #fdebd5;
+  color: var(--naranja-oscuro);
+}
+
+/* IMPACTO */
+.impacto {
+  background: var(--verde-oscuro);
+  color: var(--blanco);
+}
+
+.impacto .seccion-titulo h2 {
+  color: var(--blanco);
+}
+
+.impacto .seccion-titulo p {
+  color: #cfe5d6;
+}
+
+.estadisticas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  text-align: center;
+}
+
+.estadistica strong {
+  display: block;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  color: #ffb866;
+}
+
+.estadistica span {
+  color: #cfe5d6;
+}
+
+.aviso-demo {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 0.85rem;
+  color: #a9cdb5;
+}
+
+/* FOOTER */
+.footer {
+  background: #16402a;
+  color: #cfe5d6;
+  padding: 48px 0 24px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.footer .logo {
+  color: var(--blanco);
+  margin-bottom: 12px;
+}
+
+.footer h4 {
+  color: var(--blanco);
+  margin-bottom: 12px;
+}
+
+.footer ul {
+  list-style: none;
+}
+
+.footer li {
+  margin-bottom: 8px;
+}
+
+.footer a:hover {
+  color: #ffb866;
+}
+
+.footer-copy {
+  border-top: 1px solid #2c5a41;
+  padding-top: 18px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+/* ADAPTABLE: tablets y celulares */
+@media (max-width: 900px) {
+  .hero-interior {
+    grid-template-columns: 1fr;
+  }
+  .hero-imagen img {
+    height: 320px;
+  }
+  .hero-tarjeta {
+    left: 12px;
+  }
+  .pasos,
+  .estadisticas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .beneficios {
+    grid-template-columns: 1fr 1fr;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .btn-menu {
+    display: block;
+  }
+  .navbar-enlaces,
+  .navbar-acciones {
+    display: none;
+  }
+  .navbar.abierto .navbar-enlaces,
+  .navbar.abierto .navbar-acciones {
+    display: flex;
+  }
+  .navbar.abierto .navbar-interior {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 16px 0;
+  }
+  .navbar.abierto .navbar-enlaces {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+    margin-top: 14px;
+  }
+  .navbar.abierto .navbar-acciones {
+    width: 100%;
+    margin-top: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .pasos,
+  .beneficios {
+    grid-template-columns: 1fr;
+  }
+  .seccion {
+    padding: 56px 0;
+  }
+}

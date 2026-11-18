@@ -1,0 +1,30 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import icono, cabecera, reserva_card, vacio with context %}
+{% block titulo %}Reservaciones recibidas{% endblock %}
+{% block content %}
+{{ cabecera('Reservaciones recibidas', 'Confirma la entrega cuando el cliente recoja su pedido. Los envíos los cierra el transportista.') }}
+<div class="chips">
+  <a class="chip {{ 'activo' if filtro == 'todas' }}" href="{{ url_for('empresa.reservaciones') }}">Todas ({{ total }})</a>
+  <a class="chip {{ 'activo' if filtro == 'reservado' }}" href="{{ url_for('empresa.reservaciones', estado='reservado') }}">Por entregar ({{ por_entregar }})</a>
+  <a class="chip {{ 'activo' if filtro == 'entregado' }}" href="{{ url_for('empresa.reservaciones', estado='entregado') }}">Entregadas ({{ entregadas }})</a>
+</div>
+{% if items %}
+<div class="lista-reservas">
+  {% for x in items %}
+    {% call reserva_card(x, 'empresa') %}
+      {% if x.pub.estado == 'reservado' %}
+        {% if x.r.modo == 'recoger' %}
+        <form method="post" action="{{ url_for('empresa.confirmar', reserva_id=x.r.id) }}" data-confirmar="¿El cliente ya recogió «{{ x.pub.alimento.nombre }}»?" data-titulo="Confirmar entrega" data-boton="Sí, confirmar">
+          <button type="submit" class="btn btn-secundario btn-chico">{{ icono('package-check', 16) }} Confirmar entrega</button>
+        </form>
+        {% else %}
+        <span class="aviso-chico">{{ icono('truck', 14) }} La cierra el transportista</span>
+        {% endif %}
+      {% endif %}
+    {% endcall %}
+  {% endfor %}
+</div>
+{% else %}
+{{ vacio('inbox', 'Sin reservaciones', 'Cuando un cliente reserve uno de tus alimentos aparecerá aquí.') }}
+{% endif %}
+{% endblock %}

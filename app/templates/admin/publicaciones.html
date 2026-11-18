@@ -1,0 +1,11 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import cabecera, tabla_pubs, vacio with context %}
+{% block titulo %}Publicaciones{% endblock %}
+{% block content %}
+{{ cabecera('Publicaciones', 'Todas las publicaciones de las empresas. Puedes retirar las que estén disponibles.') }}
+<div class="chips">
+  <a class="chip {{ 'activo' if filtro == 'todas' }}" href="{{ url_for('admin.publicaciones') }}">Todas ({{ total }})</a>
+  {% for e in ESTADOS %}<a class="chip {{ 'activo' if filtro == e }}" href="{{ url_for('admin.publicaciones', estado=e) }}">{{ ETIQUETA_ESTADO[e] }} ({{ cuentas[e] }})</a>{% endfor %}
+</div>
+{% if pubs %}{{ tabla_pubs(pubs, 'admin') }}{% else %}{{ vacio('package-open', 'Sin publicaciones', 'No hay publicaciones con este filtro.') }}{% endif %}
+{% endblock %}

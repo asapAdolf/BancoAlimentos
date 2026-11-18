@@ -1,0 +1,19 @@
+/* Ajustes propios de la versión Flask (formularios renderizados por el servidor). */
+.oculto { display: none !important; }
+.en-linea { display: inline; margin: 0; }
+.enlace-boton { background: none; border: 0; padding: 0; color: var(--verde-oscuro, #1f6b3f); font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; }
+.btn-peligro { background: #c0392b; color: #fff; }
+.btn-peligro:hover { background: #a93226; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.toast { transition: opacity 0.35s, transform 0.35s; cursor: pointer; }
+.toast-exito { border-left: 4px solid var(--verde, #2e9a5a); }
+.formulario-tarjeta { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,.06); display: grid; gap: 14px; }
+.formulario-pie { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.espacio-arriba { margin-top: 28px; }
+.vista-previa { position: sticky; top: 16px; align-self: start; display: grid; gap: 12px; }
+.con-error { border-color: #c0392b !important; }
+.etiqueta-mia { font-style: normal; font-size: .75rem; font-weight: 700; color: var(--naranja, #d9822b); }
+.btn-falso { pointer-events: none; }
+.modalidad-opcion:has(input:checked) { border-color: var(--verde, #2e9a5a); background: #eaf6ef; }
+@media (max-width: 900px) { .vista-previa { position: static; } }
+.modalidad-opcion:has(input:checked) { color: var(--verde); box-shadow: 0 0 0 4px rgba(47,125,79,.12); }

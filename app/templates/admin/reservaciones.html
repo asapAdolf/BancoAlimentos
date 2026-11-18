@@ -1,0 +1,8 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import cabecera, reserva_card, vacio with context %}
+{% block titulo %}Reservaciones{% endblock %}
+{% block content %}
+{{ cabecera('Reservaciones', 'Vista de solo lectura de todas las reservaciones de la plataforma.') }}
+{% if items %}<div class="lista-reservas">{% for x in items %}{{ reserva_card(x, 'empresa') }}{% endfor %}</div>
+{% else %}{{ vacio('calendar-x', 'Sin reservaciones', 'Aún no hay reservaciones.') }}{% endif %}
+{% endblock %}

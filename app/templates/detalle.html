@@ -1,0 +1,122 @@
+{% extends layout %}
+{% from 'macros.html' import icono, cabecera, foto, ins_estado, ins_modalidad, linea_estado, linea_transporte, nota with context %}
+{% set a = pub.alimento %}
+{% set final = precio_final(pub) %}
+{% set desc = descuento_aplicado(pub) %}
+{% set dias = a.caducidad | dias_para_caducar %}
+{% block titulo %}{{ a.nombre }}{% endblock %}
+
+{% block content %}
+{{ cabecera(a.nombre, pub.est.nombre ~ ' · ' ~ pub.est.zona) }}
+
+<a href="{{ url_for('publico.catalogo') }}" class="enlace-volver">{{ icono('arrow-left', 18) }} Volver al catálogo</a>
+
+<div class="detalle-rejilla">
+  <div class="detalle-foto">
+    {{ foto(a.foto, a.nombre) }}
+    <div class="tarjeta-sup-izq">{{ ins_modalidad(pub.modalidad) }}</div>
+    {% if desc > 0 %}<span class="cinta-descuento">-{{ desc }}%</span>{% endif %}
+  </div>
+
+  <div class="detalle-info">
+    <div class="fila-insignias">
+      {{ ins_estado(pub.estado) }}
+      <span class="insignia categoria">{{ icono('tag', 13) }} {{ a.categoria }}</span>
+    </div>
+
+    <p class="detalle-descripcion">{{ a.descripcion }}</p>
+    <p class="detalle-est">{{ icono('store', 16) }} {{ pub.est.nombre }}</p>
+
+    <div class="bloque-precio">
+      {% if pub.modalidad == 'donacion' %}
+        <div class="precio-linea"><span>Precio</span><strong class="precio-gratis grande">Gratis</strong></div>
+      {% else %}
+        <div class="precio-linea"><span>Precio base</span><strong class="{{ 'tachado' if desc > 0 }}">{{ pub.precio_base | moneda }}</strong></div>
+        {% if desc > 0 %}<div class="precio-linea"><span>Descuento</span><strong class="texto-naranja">-{{ desc }}%</strong></div>{% endif %}
+        <div class="precio-linea total"><span>Precio final</span><strong>{{ final | moneda }}</strong></div>
+      {% endif %}
+      <small class="precio-nota">El precio corresponde al lote completo.</small>
+    </div>
+
+    {% if pub.modalidad == 'descuento' and pub.estrategia %}
+    {% call nota('Strategy') %}Descuento calculado con la estrategia <strong>{{ ETIQUETA_ESTRATEGIA[pub.estrategia] }}</strong>. El cálculo real lo hará el Back-End; aquí se muestra un valor de ejemplo.{% endcall %}
+    {% endif %}
+
+    <ul class="info-rejilla">
+      <li><span class="info-icono">{{ icono('package', 18) }}</span><div><small>Cantidad disponible</small><strong>{{ a.cantidad }} {{ a.unidad }}</strong></div></li>
+      <li><span class="info-icono">{{ icono('scale', 18) }}</span><div><small>Peso total</small><strong>{{ a.kilos | kilos }}</strong></div></li>
+      <li><span class="info-icono">{{ icono('calendar-x', 18) }}</span><div><small>Fecha de caducidad</small><strong>{{ a.caducidad | fecha_corta }}</strong></div></li>
+      <li class="{{ 'urgente' if dias <= 1 }}"><span class="info-icono">{{ icono('clock', 18) }}</span><div><small>Días restantes</small><strong>{{ 'Caducado' if dias < 0 else (dias ~ (' día' if dias == 1 else ' días')) }}</strong></div></li>
+      <li><span class="info-icono">{{ icono('calendar-clock', 18) }}</span><div><small>Horario de recolección</small><strong>{{ pub.horario | texto_horario }}</strong></div></li>
+      <li><span class="info-icono">{{ icono('map-pin', 18) }}</span><div><small>Ubicación</small><strong>{{ pub.est.direccion }}</strong></div></li>
+    </ul>
+
+    <div class="estado-actual">
+      <small>Estado actual</small>
+      {{ linea_estado(pub.estado) }}
+      {% if reserva and reserva.modo == 'envio' %}
+      <small class="sub-estado">Envío con transportista</small>
+      {{ linea_transporte(reserva.transporte) }}
+      {% endif %}
+    </div>
+
+    <div class="detalle-acciones">
+      {% if pub.estado == 'disponible' %}
+        {% if not usuario %}
+          <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-secundario">{{ icono('lock', 18) }} Inicia sesión para reservar</a>
+        {% elif usuario.rol == 'cliente' %}
+          <button type="button" class="btn btn-secundario" data-abrir="modal-reservar">{{ icono('calendar-clock', 18) }} Reservar</button>
+        {% else %}
+          <span class="aviso-chico">Solo las cuentas de cliente pueden reservar alimentos.</span>
+        {% endif %}
+      {% else %}
+        <span class="aviso-chico">Esta publicación ya está {{ ETIQUETA_ESTADO[pub.estado] | lower }}. No se puede reservar.</span>
+      {% endif %}
+      <a href="{{ url_for('publico.ubicacion', pub=pub.id) }}" class="btn btn-borde">{{ icono('map-pin', 18) }} Ver ubicación y ruta</a>
+    </div>
+  </div>
+</div>
+
+{% if usuario and usuario.rol == 'cliente' and pub.estado == 'disponible' %}
+<div class="modal-fondo oculto" id="modal-reservar">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reservar-titulo">
+    <form method="post" action="{{ url_for('cliente.reservar', pub_id=pub.id) }}" data-formulario-condicional>
+      <div class="modal-cabecera">
+        <h2 id="reservar-titulo">Confirmar reservación</h2>
+        <button type="button" class="btn-cerrar" data-cerrar aria-label="Cerrar">{{ icono('x', 20) }}</button>
+      </div>
+      <div class="modal-cuerpo">
+        <p>Vas a reservar el lote completo de:</p>
+        <div class="resumen-reserva">
+          <strong>{{ a.nombre }}</strong>
+          <span>{{ a.cantidad }} {{ a.unidad }} · {{ a.kilos | kilos }}</span>
+          <span>Horario: {{ pub.horario | texto_horario }} en {{ pub.est.nombre }}</span>
+          <span class="total-reserva">Total: {{ 'Gratis' if final == 0 else (final | moneda) }}</span>
+        </div>
+
+        <p class="subtitulo-modal">¿Cómo recibirás tu pedido?</p>
+        <div class="modalidad-opciones dos">
+          <label class="modalidad-opcion">
+            <input type="radio" name="modo" value="recoger" checked hidden />
+            {{ icono('store', 24) }}<strong>Yo lo recojo</strong><span>Paso al establecimiento en el horario indicado.</span>
+          </label>
+          <label class="modalidad-opcion">
+            <input type="radio" name="modo" value="envio" hidden />
+            {{ icono('truck', 24) }}<strong>Con transportista</strong><span>Un transportista me lo lleva a mi dirección.</span>
+          </label>
+        </div>
+        <div class="campo-form" data-si="modo:envio">
+          <label for="direccion">Dirección de entrega</label>
+          <input id="direccion" name="direccion" class="control" placeholder="Calle, número y colonia" />
+        </div>
+        <p class="aviso-chico">Demostración: no se realiza ningún pago.</p>
+      </div>
+      <div class="modal-pie">
+        <button type="button" class="btn btn-borde" data-cerrar>Cancelar</button>
+        <button type="submit" class="btn btn-secundario">Confirmar reservación</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

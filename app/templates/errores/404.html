@@ -1,0 +1,12 @@
+{% extends layout %}
+{% from 'macros.html' import vacio with context %}
+{% block titulo %}Página no encontrada{% endblock %}
+{% block content %}
+<div class="espacio-error">
+  {% call vacio('compass', 'Página no encontrada', 'La dirección que escribiste no existe, o la publicación ya fue cancelada.') %}
+    <a href="{{ url_for('publico.catalogo') if usuario else url_for('publico.inicio') }}" class="btn btn-primario">
+      {{ 'Volver al catálogo' if usuario else 'Volver al inicio' }}
+    </a>
+  {% endcall %}
+</div>
+{% endblock %}

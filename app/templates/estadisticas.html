@@ -1,0 +1,83 @@
+{% extends layout %}
+{% from 'macros.html' import icono, cabecera, stat, barras, barras_h, donut, nota with context %}
+{% block titulo %}Estadísticas e impacto{% endblock %}
+
+{% block content %}
+{% call cabecera('Estadísticas e impacto', 'Lo que la comunidad ha logrado al rescatar alimentos en lugar de desperdiciarlos.') %}
+  <button type="button" class="btn btn-primario" data-abrir="modal-reporte">{{ icono('file-text', 18) }} Generar reporte de impacto</button>
+{% endcall %}
+
+<div class="banner-demo">Datos de demostración: las cifras se sustituirán por las del registro real.</div>
+
+<div class="rejilla-stats">
+  {{ stat('leaf', registro.kilos_total | kilos, 'Total de kilos evitados', 'verde') }}
+  {{ stat('salad', registro.recuperados | numero, 'Alimentos recuperados', 'naranja') }}
+  {{ stat('package-check', registro.entregas | numero, 'Entregas confirmadas', 'azul') }}
+  {{ stat('soup', comidas | numero, 'Comidas rescatadas', 'rosa', 'Estimación de ejemplo') }}
+</div>
+
+<div class="rejilla-graficas">
+  <section class="tarjeta-panel">
+    <h2 class="titulo-seccion">Recuperación mensual (kg)</h2>
+    {{ barras(registro.mensual) }}
+  </section>
+  <section class="tarjeta-panel">
+    <h2 class="titulo-seccion">Alimentos por modalidad</h2>
+    {{ donut([
+      {'etiqueta': 'Venta', 'valor': registro.por_modalidad.venta, 'color': 'var(--verde)'},
+      {'etiqueta': 'Con descuento', 'valor': registro.por_modalidad.descuento, 'color': 'var(--naranja)'},
+      {'etiqueta': 'Donación', 'valor': registro.por_modalidad.donacion, 'color': '#0e8a8a'}], registro.kilos_total | numero, 'kg') }}
+  </section>
+</div>
+
+<div class="rejilla-graficas">
+  <section class="tarjeta-panel">
+    <h2 class="titulo-seccion">Kilos recuperados por tipo de alimento</h2>
+    {{ barras_h(registro.por_categoria.items() | list) }}
+  </section>
+  <section class="tarjeta-panel">
+    <h2 class="titulo-seccion">Indicadores de impacto</h2>
+    <div class="indicador">
+      <div class="indicador-cabecera"><span>{{ icono('scale', 16) }} Meta anual de kilos</span><strong>{{ prog_kilos | round | int }}%</strong></div>
+      <div class="barra-pista"><div class="barra-relleno" style="width: {{ prog_kilos | round(1) }}%"></div></div>
+      <small>{{ registro.kilos_total | numero }} de {{ meta_kilos | numero }} kg</small>
+    </div>
+    <div class="indicador">
+      <div class="indicador-cabecera"><span>{{ icono('package-check', 16) }} Meta de entregas</span><strong>{{ prog_entregas | round | int }}%</strong></div>
+      <div class="barra-pista"><div class="barra-relleno naranja" style="width: {{ prog_entregas | round(1) }}%"></div></div>
+      <small>{{ registro.entregas | numero }} de {{ meta_entregas | numero }} entregas</small>
+    </div>
+    <div class="indicador-co2">
+      {{ icono('globe-2', 26) }}
+      <div><strong>≈ {{ co2 | numero }} kg de CO₂</strong><span>Emisiones evitadas (estimación de ejemplo)</span></div>
+    </div>
+  </section>
+</div>
+
+{% call nota('RegistroDesperdicioEvitado') %}Estas cifras representan <strong>totalKilosEvitados</strong> y <strong>totalAlimentosRecuperados</strong>. Al confirmar una entrega se simula <strong>registrarRecuperacion()</strong>, y el botón de reporte simula <strong>generarReporteImpacto()</strong>.{% endcall %}
+
+<div class="modal-fondo oculto" id="modal-reporte">
+  <div class="modal modal-ancho" role="dialog" aria-modal="true" aria-labelledby="reporte-titulo">
+    <div class="modal-cabecera">
+      <h2 id="reporte-titulo">Reporte de impacto</h2>
+      <button type="button" class="btn-cerrar" data-cerrar aria-label="Cerrar">{{ icono('x', 20) }}</button>
+    </div>
+    <div class="modal-cuerpo">
+      <p class="aviso-chico">Reporte de demostración.</p>
+      <ul class="lista-datos reporte">
+        <li><span>Total de kilos evitados</span><strong>{{ registro.kilos_total | kilos }}</strong></li>
+        <li><span>Alimentos recuperados</span><strong>{{ registro.recuperados | numero }}</strong></li>
+        <li><span>Entregas confirmadas</span><strong>{{ registro.entregas | numero }}</strong></li>
+        <li><span>Kilos por venta</span><strong>{{ registro.por_modalidad.venta | kilos }}</strong></li>
+        <li><span>Kilos con descuento</span><strong>{{ registro.por_modalidad.descuento | kilos }}</strong></li>
+        <li><span>Kilos donados</span><strong>{{ registro.por_modalidad.donacion | kilos }}</strong></li>
+        <li><span>Emisiones evitadas (estimación)</span><strong>≈ {{ co2 | numero }} kg de CO₂</strong></li>
+      </ul>
+    </div>
+    <div class="modal-pie">
+      <button type="button" class="btn btn-borde" data-cerrar>Cerrar</button>
+      <button type="button" class="btn btn-primario" onclick="window.print()">{{ icono('printer', 18) }} Imprimir</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

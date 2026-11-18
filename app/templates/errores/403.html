@@ -1,0 +1,10 @@
+{% extends layout %}
+{% from 'macros.html' import vacio with context %}
+{% block titulo %}Acceso restringido{% endblock %}
+{% block content %}
+<div class="espacio-error">
+  {% call vacio('lock', 'Esta sección no es para tu tipo de cuenta', 'Cada rol (cliente, empresa, transportista y administrador) tiene sus propias pantallas. Vuelve a tu panel para ver las que sí puedes usar.') %}
+    <a href="{{ url_for('panel.resumen') }}" class="btn btn-primario">Ir a mi panel</a>
+  {% endcall %}
+</div>
+{% endblock %}
