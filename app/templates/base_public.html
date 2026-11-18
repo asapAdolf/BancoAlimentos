@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import icono, foto with context %}
+
+{# Estructura del sitio público: menú arriba, contenido, pie abajo. #}
+{% block body %}
+<header class="navbar" id="navbar">
+  <div class="contenedor navbar-interior">
+    <a href="{{ url_for('publico.inicio') }}" class="logo">
+      <span class="logo-icono">{{ icono('leaf', 22) }}</span>
+      Rescate Alimentario
+    </a>
+
+    <ul class="navbar-enlaces">
+      <li><a href="{{ url_for('publico.inicio') }}" class="{{ 'activo' if request.endpoint == 'publico.inicio' }}">Inicio</a></li>
+      <li><a href="{{ url_for('publico.catalogo') }}" class="{{ 'activo' if request.endpoint in ('publico.catalogo', 'publico.detalle') }}">Catálogo</a></li>
+      <li><a href="{{ url_for('publico.ubicacion') }}" class="{{ 'activo' if request.endpoint == 'publico.ubicacion' }}">Ubicación</a></li>
+      <li><a href="{{ url_for('publico.estadisticas') }}" class="{{ 'activo' if request.endpoint == 'publico.estadisticas' }}">Impacto</a></li>
+    </ul>
+
+    <div class="navbar-acciones">
+      {% if usuario %}
+      <span class="usuario-chip"><span class="usuario-avatar">{{ usuario.nombre | inicial }}</span> {{ usuario.nombre | primer_nombre }}</span>
+      <a href="{{ url_for('panel.resumen') }}" class="btn btn-primario">{{ icono('layout-dashboard', 18) }} Mi panel</a>
+      <form method="post" action="{{ url_for('auth.logout') }}" class="en-linea">
+        <button class="btn btn-borde" type="submit">{{ icono('log-out', 18) }} Salir</button>
+      </form>
+      {% else %}
+      <a href="{{ url_for('auth.login') }}" class="btn btn-borde">Iniciar sesión</a>
+      <a href="{{ url_for('auth.registro') }}" class="btn btn-primario">Registrarse</a>
+      {% endif %}
+    </div>
+
+    <button class="btn-menu" type="button" aria-label="Abrir menú" data-menu-publico>{{ icono('menu', 28) }}</button>
+  </div>
+</header>
+
+<main>
+  {% block main %}
+  <div class="contenedor pagina-publica">
+    {% block content %}{% endblock %}
+  </div>
+  {% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="contenedor">
+    <div class="footer-grid">
+      <div>
+        <div class="logo"><span class="logo-icono">{{ icono('leaf', 22) }}</span> Rescate Alimentario</div>
+        <p>Conectamos empresas, clientes y transportistas para que ningún alimento aprovechable termine en la basura.</p>
+      </div>
+      <div>
+        <h4>Plataforma</h4>
+        <ul>
+          <li><a href="{{ url_for('publico.catalogo') }}">Explorar alimentos</a></li>
+          <li><a href="{{ url_for('auth.registro', rol='empresa') }}">Publicar alimentos</a></li>
+          <li><a href="{{ url_for('auth.registro', rol='transportista') }}">Ser transportista</a></li>
+          <li><a href="{{ url_for('publico.estadisticas') }}">Impacto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Cuenta</h4>
+        <ul>
+          <li><a href="{{ url_for('auth.login') }}">Iniciar sesión</a></li>
+          <li><a href="{{ url_for('auth.registro') }}">Crear cuenta</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="footer-copy">© 2026 Rescate Alimentario · Proyecto universitario de Ingeniería de Software</p>
+  </div>
+</footer>
+{% endblock %}

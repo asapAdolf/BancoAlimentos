@@ -1,0 +1,51 @@
+from flask import Flask, g, render_template, request, session
+
+from . import store, utils
+
+
+def create_app():
+    app = Flask(__name__)
+    # Clave solo para firmar la cookie de sesión de la DEMO. En un sistema real va en una variable de entorno.
+    app.config['SECRET_KEY'] = 'clave-solo-para-demostracion'
+
+    store.reset()
+    utils.registrar(app)
+
+    from .blueprints import admin, auth, cliente, empresa, panel, publico, transportista
+    for modulo in (publico, auth, panel, cliente, empresa, transportista, admin):
+        app.register_blueprint(modulo.bp)
+
+    @app.before_request
+    def cargar_usuario():
+        """Carga al usuario de la sesión. Si fue suspendido o ya no existe, se cierra su sesión."""
+        email = session.get('email')
+        g.user = store.get_usuario(email) if email else None
+        if email and (g.user is None or not g.user['activo']):
+            session.clear()
+            g.user = None
+
+    @app.context_processor
+    def contexto():
+        """Variables disponibles en TODAS las plantillas."""
+        user = g.get('user')
+        menu = []
+        if user:
+            menu = [{'endpoint': e, 'texto': t, 'icono': i, 'activo': request.endpoint in (e, *extra)}
+                    for e, t, i, extra in utils.MENUS[user['rol']]]
+        return {
+            'usuario': user,
+            # Con sesión iniciada las pantallas compartidas usan el panel lateral; sin sesión, el menú público.
+            'layout': 'base_panel.html' if user else 'base_public.html',
+            'menu': menu,
+            'no_leidas': store.no_leidas(user) if user else 0,
+        }
+
+    @app.errorhandler(403)
+    def prohibido(_):
+        return render_template('errores/403.html'), 403
+
+    @app.errorhandler(404)
+    def no_encontrado(_):
+        return render_template('errores/404.html'), 404
+
+    return app

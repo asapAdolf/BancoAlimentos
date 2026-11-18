@@ -1,0 +1,71 @@
+{% extends layout %}
+{% from 'macros.html' import icono, cabecera, tarjeta, vacio with context %}
+{% block titulo %}Catálogo de alimentos{% endblock %}
+
+{% block content %}
+{{ cabecera('Catálogo de alimentos', 'Alimentos aptos para el consumo que no se vendieron hoy. Reserva el que necesites y recíbelo o recógelo en el horario indicado.') }}
+
+{# Los filtros se envían por GET: la lista se filtra en el servidor (la URL se puede compartir). #}
+<form class="filtros-caja" method="get" action="{{ url_for('publico.catalogo') }}" data-autoenviar aria-label="Filtros del catálogo">
+  <div class="buscador">
+    {{ icono('search', 18) }}
+    <input type="search" name="q" placeholder="Busca por alimento, establecimiento o tipo..." value="{{ f.q }}" />
+  </div>
+
+  <div class="filtros-rejilla">
+    <label class="etiqueta-filtro">Tipo de alimento
+      <select class="control" name="categoria">
+        <option value="todas">Todos</option>
+        {% for c in CATEGORIAS %}<option value="{{ c }}" {{ 'selected' if f.categoria == c }}>{{ c }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="etiqueta-filtro">Modalidad
+      <select class="control" name="modalidad">
+        <option value="todas">Todas</option>
+        {% for m in MODALIDADES %}<option value="{{ m }}" {{ 'selected' if f.modalidad == m }}>{{ ETIQUETA_MODALIDAD[m] }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="etiqueta-filtro">Ubicación (zona)
+      <select class="control" name="zona">
+        <option value="todas">Todas las zonas</option>
+        {% for z in ZONAS %}<option value="{{ z }}" {{ 'selected' if f.zona == z }}>{{ z }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="etiqueta-filtro">Disponibilidad
+      <select class="control" name="estado">
+        <option value="todas">Todos los estados</option>
+        {% for e in ESTADOS %}<option value="{{ e }}" {{ 'selected' if f.estado == e }}>{{ ETIQUETA_ESTADO[e] }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="etiqueta-filtro">Precio máximo:
+      <strong data-valor-rango>{{ 'Sin límite' if f.precio_max >= PRECIO_MAXIMO else (f.precio_max | moneda) }}</strong>
+      <input type="range" name="precio_max" min="0" max="{{ PRECIO_MAXIMO }}" step="10" value="{{ f.precio_max }}" data-rango-precio="{{ PRECIO_MAXIMO }}" />
+    </label>
+    <label class="etiqueta-filtro">Ordenar por
+      <select class="control" name="orden">
+        <option value="recientes" {{ 'selected' if f.orden == 'recientes' }}>Más recientes</option>
+        <option value="caducidad" {{ 'selected' if f.orden == 'caducidad' }}>Caducidad más próxima</option>
+        <option value="precio" {{ 'selected' if f.orden == 'precio' }}>Precio más bajo</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="filtros-pie">
+    <span><strong>{{ pubs | length }}</strong> {{ 'resultado' if pubs | length == 1 else 'resultados' }}</span>
+    <div class="acciones-filtro">
+      <noscript><button type="submit" class="btn btn-primario btn-chico">Aplicar</button></noscript>
+      <a href="{{ url_for('publico.catalogo') }}" class="btn btn-borde btn-chico">Limpiar filtros</a>
+    </div>
+  </div>
+</form>
+
+{% if pubs %}
+<div class="cuadricula-alimentos">
+  {% for pub in pubs %}{{ tarjeta(pub) }}{% endfor %}
+</div>
+{% else %}
+{% call vacio('search-x', 'No encontramos alimentos con esos filtros', 'Prueba con otra búsqueda o limpia los filtros para ver todo el catálogo.') %}
+  <a href="{{ url_for('publico.catalogo') }}" class="btn btn-primario">Limpiar filtros</a>
+{% endcall %}
+{% endif %}
+{% endblock %}

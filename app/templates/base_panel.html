@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import icono, ins_rol with context %}
+
+{# Estructura del panel: menú lateral (cambia según el rol) + barra superior + contenido. #}
+{% block body %}
+<div class="panel">
+  <div class="panel-fondo oculto" id="panel-fondo"></div>
+
+  <aside class="panel-lateral" id="panel-lateral">
+    <a href="{{ url_for('publico.inicio') }}" class="logo">
+      <span class="logo-icono">{{ icono('leaf', 22) }}</span>
+      Rescate Alimentario
+    </a>
+
+    <nav class="panel-nav" aria-label="Secciones del panel">
+      {% for item in menu %}
+      <a href="{{ url_for(item.endpoint) }}" class="{{ 'activo' if item.activo }}">
+        {{ icono(item.icono, 20) }} {{ item.texto }}
+        {% if item.endpoint == 'panel.notificaciones' and no_leidas %}<span class="badge-nav">{{ no_leidas }}</span>{% endif %}
+      </a>
+      {% endfor %}
+    </nav>
+
+    <div class="panel-usuario">
+      <div class="usuario-avatar">{{ (usuario.nombre) | inicial }}</div>
+      <div>
+        <strong>{{ usuario.nombre }}</strong>
+        <span>{{ ETIQUETA_ROL[usuario.rol] }}</span>
+      </div>
+    </div>
+    <a href="{{ url_for('publico.inicio') }}" class="panel-enlace">{{ icono('home', 18) }} Ir al sitio</a>
+    <form method="post" action="{{ url_for('auth.logout') }}" class="en-linea">
+      <button class="panel-enlace" type="submit">{{ icono('log-out', 18) }} Cerrar sesión</button>
+    </form>
+  </aside>
+
+  <div class="panel-principal">
+    <header class="panel-superior">
+      <button class="btn-menu-panel" type="button" aria-label="Abrir menú" data-menu-panel>{{ icono('menu', 26) }}</button>
+      <span class="panel-saludo">Hola, <strong>{{ usuario.nombre | primer_nombre }}</strong> · {{ ETIQUETA_ROL[usuario.rol] }}</span>
+      <a href="{{ url_for('panel.notificaciones') }}" class="panel-campana" aria-label="Notificaciones">
+        {{ icono('bell', 22) }}
+        {% if no_leidas %}<span class="punto-contador">{{ no_leidas }}</span>{% endif %}
+      </a>
+    </header>
+
+    <main class="panel-contenido">
+      <div class="pagina">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base_public.html' %}
+{% from 'macros.html' import icono with context %}
+{% block titulo %}Dale una segunda oportunidad a los alimentos{% endblock %}
+
+{% block main %}
+{# HERO #}
+<section class="hero">
+  <div class="contenedor hero-interior">
+    <div>
+      <span class="hero-etiqueta">{{ icono('sprout', 16) }} Menos desperdicio, más comunidad</span>
+      <h1>Dale una segunda oportunidad a los <span>alimentos</span></h1>
+      <p>Las empresas publican los alimentos que no vendieron en el día. Los clientes los compran con descuento o los reciben gratis, y los transportistas los llevan hasta su destino. Juntos evitamos el desperdicio.</p>
+      <div class="hero-botones">
+        <a href="{{ url_for('publico.catalogo') }}" class="btn btn-primario">{{ icono('search', 18) }} Explorar alimentos</a>
+        <a href="{{ url_for('empresa.publicar') if usuario and usuario.rol == 'empresa' else url_for('auth.registro', rol='empresa') }}" class="btn btn-secundario">{{ icono('plus-circle', 18) }} Publicar alimentos</a>
+      </div>
+    </div>
+    <div class="hero-imagen">
+      <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80" alt="Frutas y verduras frescas" data-foto />
+      <div class="hero-tarjeta">
+        <span class="icono-circulo" style="margin: 0; width: 44px; height: 44px">{{ icono('sprout', 22) }}</span>
+        <div><strong>+{{ (registro.kilos_total | numero) }} kg</strong><small>de alimentos rescatados</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# CÓMO FUNCIONA #}
+<section class="seccion" id="como-funciona">
+  <div class="contenedor">
+    <div class="seccion-titulo"><h2>¿Cómo funciona?</h2><p>Cuatro pasos sencillos para rescatar alimentos.</p></div>
+    <div class="pasos">
+      {% for ic, titulo, texto in [
+        ('store', 'Publica', 'La empresa registra los alimentos sobrantes: en venta, con descuento o como donación.'),
+        ('tag', 'Descubre', 'Los clientes exploran el catálogo y filtran por tipo, precio y ubicación.'),
+        ('calendar-check', 'Reserva', 'El cliente reserva y elige: recoger él mismo o recibirlo con un transportista.'),
+        ('package-check', 'Entrega', 'Se confirma la entrega y se suma al registro de desperdicio evitado.')] %}
+      <article class="paso">
+        <span class="paso-numero">{{ loop.index }}</span>
+        <div class="icono-circulo">{{ icono(ic, 28) }}</div>
+        <h3>{{ titulo }}</h3>
+        <p>{{ texto }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# QUIÉN PARTICIPA #}
+<section class="seccion beneficios-fondo" id="participantes">
+  <div class="contenedor">
+    <div class="seccion-titulo"><h2>Una plataforma, cuatro roles</h2><p>Cada participante tiene sus propias pantallas.</p></div>
+    <div class="beneficios roles-4">
+      {% for ic, titulo, texto in [
+        ('store', 'Empresa', 'Publica alimentos, administra sus publicaciones y confirma las entregas.'),
+        ('shopping-basket', 'Cliente', 'Explora el catálogo, reserva alimentos y consulta dónde y cuándo recibirlos.'),
+        ('truck', 'Transportista', 'Toma entregas disponibles, lleva los alimentos y marca cada entrega.'),
+        ('shield-check', 'Administrador', 'Supervisa usuarios, publicaciones y reservaciones de toda la plataforma.')] %}
+      <article class="beneficio">
+        <div class="icono-circulo">{{ icono(ic, 26) }}</div>
+        <h3>{{ titulo }}</h3>
+        <p>{{ texto }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# BENEFICIOS #}
+<section class="seccion" id="beneficios">
+  <div class="contenedor">
+    <div class="seccion-titulo"><h2>Beneficios para todos</h2><p>Una plataforma donde todos ganan: negocios, comunidad y medio ambiente.</p></div>
+    <div class="beneficios">
+      {% for ic, titulo, texto in [
+        ('wallet', 'Ahorra dinero', 'Alimentos de calidad con descuentos que aumentan conforme se acerca su caducidad.'),
+        ('heart-handshake', 'Ayuda a quien lo necesita', 'Las donaciones llegan a organizaciones sociales y personas de la comunidad.'),
+        ('globe-2', 'Cuida el planeta', 'Cada kilo rescatado reduce residuos y el impacto ambiental de producir de nuevo.'),
+        ('bell', 'Entérate al instante', 'Recibe avisos cuando se publique un alimento nuevo o un descuento.'),
+        ('map-pin', 'Recolección clara', 'Consulta dirección, horario y ruta para recoger o recibir tu reservación.'),
+        ('bar-chart-3', 'Impacto medible', 'Visualiza cuántos kilos se han evitado gracias a la comunidad.')] %}
+      <article class="beneficio">
+        <div class="icono-circulo">{{ icono(ic, 26) }}</div>
+        <h3>{{ titulo }}</h3>
+        <p>{{ texto }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# IMPACTO #}
+<section class="seccion impacto" id="impacto">
+  <div class="contenedor">
+    <div class="seccion-titulo"><h2>Nuestro impacto</h2><p>Cada entrega suma al registro de desperdicio evitado.</p></div>
+    <div class="estadisticas">
+      <div class="estadistica"><strong>{{ registro.kilos_total | numero }}</strong><span>kg de alimento rescatado</span></div>
+      <div class="estadistica"><strong>{{ registro.recuperados | numero }}</strong><span>alimentos recuperados</span></div>
+      <div class="estadistica"><strong>{{ registro.entregas | numero }}</strong><span>entregas confirmadas</span></div>
+      <div class="estadistica"><strong>{{ registro.por_categoria | length }}</strong><span>tipos de alimento</span></div>
+    </div>
+    <p class="aviso-demo">* Datos de demostración.</p>
+  </div>
+</section>
+{% endblock %}

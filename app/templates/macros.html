@@ -1,0 +1,359 @@
+{# Piezas reutilizables (equivalen a los componentes de React). Se importan con:
+   {% from 'macros.html' import tarjeta, barras with context %} #}
+
+{% macro icono(nombre, t=18) -%}
+<i data-lucide="{{ nombre }}" width="{{ t }}" height="{{ t }}"></i>
+{%- endmacro %}
+
+{% macro foto(src, alt, clase='') -%}
+<img class="{{ clase }}" src="{{ src }}" alt="{{ alt }}" loading="lazy" data-foto>
+{%- endmacro %}
+
+{% macro err(errores, campo) -%}
+{% if errores.get(campo) %}<small class="error-texto">{{ errores[campo] }}</small>{% endif %}
+{%- endmacro %}
+
+{# ---------- insignias ---------- #}
+{% macro ins_estado(e) -%}<span class="insignia estado-{{ e }}">{{ ETIQUETA_ESTADO[e] }}</span>{%- endmacro %}
+
+{% macro ins_modalidad(m) -%}
+<span class="insignia modalidad-{{ m }}">{{ icono({'venta': 'shopping-bag', 'descuento': 'percent', 'donacion': 'gift'}[m], 13) }} {{ ETIQUETA_MODALIDAD[m] }}</span>
+{%- endmacro %}
+
+{% macro ins_transporte(t) -%}<span class="insignia transporte-{{ t }}">{{ ETIQUETA_TRANSPORTE[t] }}</span>{%- endmacro %}
+
+{% macro ins_rol(r) -%}<span class="insignia rol-{{ r }}">{{ ETIQUETA_ROL[r] }}</span>{%- endmacro %}
+
+{# ---------- cabecera de pantalla (el bloque {% call %} son los botones de la derecha) ---------- #}
+{% macro cabecera(titulo, subtitulo='') -%}
+<div class="pagina-cabecera">
+  <div>
+    <h1>{{ titulo }}</h1>
+    {% if subtitulo %}<p>{{ subtitulo }}</p>{% endif %}
+  </div>
+  {% if caller %}<div class="pagina-acciones">{{ caller() }}</div>{% endif %}
+</div>
+{%- endmacro %}
+
+{# ---------- estado vacío ---------- #}
+{% macro vacio(icono_nombre, titulo, texto) -%}
+<div class="vacio">
+  <div class="vacio-icono">{{ icono(icono_nombre, 34) }}</div>
+  <h3>{{ titulo }}</h3>
+  <p>{{ texto }}</p>
+  {% if caller %}{{ caller() }}{% endif %}
+</div>
+{%- endmacro %}
+
+{# ---------- tarjeta de estadística ---------- #}
+{% macro stat(icono_nombre, valor, etiqueta, tono='verde', nota='') -%}
+<article class="stat">
+  <div class="stat-icono tono-{{ tono }}">{{ icono(icono_nombre, 24) }}</div>
+  <div>
+    <strong>{{ valor }}</strong>
+    <span>{{ etiqueta }}</span>
+    {% if nota %}<small>{{ nota }}</small>{% endif %}
+  </div>
+</article>
+{%- endmacro %}
+
+{# ---------- recuadro que relaciona la pantalla con el diagrama de clases ---------- #}
+{% macro nota(patron) -%}
+<aside class="nota-diseno">
+  {{ icono('info', 18) }}
+  <div>
+    <strong>Referencia del diagrama · {{ patron }}</strong>
+    <p>{{ caller() }}</p>
+  </div>
+</aside>
+{%- endmacro %}
+
+{# ---------- línea de pasos (ciclo de la publicación o del transporte) ---------- #}
+{% macro linea(pasos, actual) -%}
+<ol class="linea-estados">
+  {% for paso in pasos %}
+  <li class="{{ 'hecho' if loop.index0 < actual else ('actual' if loop.index0 == actual else '') }}">
+    <span class="linea-punto">{% if loop.index0 < actual %}{{ icono('check', 14) }}{% else %}{{ loop.index }}{% endif %}</span>
+    <span class="linea-texto">{{ paso }}</span>
+  </li>
+  {% endfor %}
+</ol>
+{%- endmacro %}
+
+{% macro linea_estado(estado) -%}
+{{ linea(['Disponible', 'Reservado', 'Entregado'], ESTADOS.index(estado)) }}
+{%- endmacro %}
+
+{% macro linea_transporte(t) -%}
+{{ linea(['Pendiente', 'Asignada', 'En camino', 'Entregada'], ['pendiente', 'asignado', 'en_camino', 'entregado'].index(t)) }}
+{%- endmacro %}
+
+{# ---------- tarjeta de alimento (catálogo y vista previa al publicar) ---------- #}
+{% macro tarjeta(pub, preview=false) -%}
+{% set a = pub.alimento %}
+{% set final = precio_final(pub) %}
+{% set desc = descuento_aplicado(pub) %}
+{% set dias = a.caducidad | dias_para_caducar %}
+<article class="tarjeta-alimento"{% if preview %} id="vista-previa"{% endif %}>
+  <div class="tarjeta-foto">
+    {{ foto(a.foto, a.nombre) }}
+    <div class="tarjeta-sup-izq" data-pv="badge">{{ ins_modalidad(pub.modalidad) }}</div>
+    <div class="tarjeta-sup-der">{{ ins_estado(pub.estado) }}</div>
+    {% if desc > 0 or preview %}<span class="cinta-descuento" data-pv="cinta"{% if desc == 0 %} hidden{% endif %}>-{{ desc }}%</span>{% endif %}
+  </div>
+  <div class="tarjeta-cuerpo">
+    <h3 data-pv="nombre">{{ a.nombre }}</h3>
+    <p class="tarjeta-est">{{ icono('store', 14) }} {{ pub.est.nombre }} · {{ pub.est.zona }}</p>
+    <div class="precio-bloque" data-pv="precio">
+      {% if pub.modalidad == 'donacion' %}
+        <strong class="precio-gratis">Gratis</strong>
+      {% else %}
+        {% if desc > 0 %}<s>{{ pub.precio_base | moneda }}</s>{% endif %}
+        <strong>{{ final | moneda }}</strong>
+        <small>lote completo</small>
+      {% endif %}
+    </div>
+    {% if pub.modalidad == 'descuento' and pub.estrategia %}<small class="estrategia">{{ ETIQUETA_ESTRATEGIA[pub.estrategia] }}</small>{% endif %}
+    <ul class="datos-mini">
+      <li>{{ icono('package', 15) }} <span data-pv="cant">{{ a.cantidad }} {{ a.unidad }}</span></li>
+      <li>{{ icono('scale', 15) }} <span data-pv="kilos">{{ a.kilos | kilos }}</span></li>
+      <li class="{{ 'urgente' if dias <= 1 }}" data-pv="cad-li">{{ icono('clock', 15) }} <span data-pv="cad">{{ dias | texto_dias }} · {{ a.caducidad | fecha_corta }}</span></li>
+    </ul>
+    {% if preview %}
+      <span class="btn btn-primario btn-completo btn-falso">Ver detalles</span>
+    {% else %}
+      <a href="{{ url_for('publico.detalle', pub_id=pub.id) }}" class="btn btn-primario btn-completo">Ver detalles</a>
+    {% endif %}
+  </div>
+</article>
+{%- endmacro %}
+
+{# ---------- gráficas (solo HTML, CSS y SVG; sin librerías) ---------- #}
+{% macro barras(datos, alto=220) -%}
+{% set maximo = (datos | map(attribute=1) | max) or 1 %}
+<div class="barras-v" style="height: {{ alto }}px">
+  {% for etiqueta, valor in datos %}
+  <div class="barra-col">
+    <div class="barra-zona"><div class="barra" style="height: {{ (valor / maximo * 100) | round(1) }}%"><span class="barra-valor">{{ valor | numero }}</span></div></div>
+    <span class="barra-etiqueta">{{ etiqueta }}</span>
+  </div>
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro barras_h(datos, unidad='kg') -%}
+{% set maximo = (datos | map(attribute=1) | max) or 1 %}
+<div class="barras-h">
+  {% for etiqueta, valor in datos %}
+  <div class="barra-fila">
+    <span class="barra-fila-etiqueta">{{ etiqueta }}</span>
+    <div class="barra-pista"><div class="barra-relleno" style="width: {{ (valor / maximo * 100) | round(1) }}%"></div></div>
+    <span class="barra-fila-valor">{{ (valor | kilos) if unidad == 'kg' else (valor | numero) }}</span>
+  </div>
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{# ---------- fila de publicación (listas del resumen) ---------- #}
+{% macro fila(pub) -%}
+<a href="{{ url_for('publico.detalle', pub_id=pub.id) }}" class="fila-pub">
+  {{ foto(pub.alimento.foto, pub.alimento.nombre, 'fila-foto') }}
+  <div class="fila-texto">
+    <strong>{{ pub.alimento.nombre }}</strong>
+    <span>{{ pub.est.nombre }}</span>
+    <div class="fila-insignias">{{ ins_modalidad(pub.modalidad) }}{{ ins_estado(pub.estado) }}</div>
+  </div>
+  <div class="fila-precio">
+    {% if pub.modalidad == 'donacion' %}<strong class="precio-gratis">Gratis</strong>
+    {% else %}{% if descuento_aplicado(pub) > 0 %}<s>{{ pub.precio_base | moneda }}</s>{% endif %}<strong>{{ precio_final(pub) | moneda }}</strong>{% endif %}
+  </div>
+</a>
+{%- endmacro %}
+
+{# ---------- tarjeta de reservación (cliente, empresa y administrador). vista = 'cliente' | 'empresa' ---------- #}
+{% macro reserva_card(x, vista='cliente') -%}
+{% set r = x.r %}{% set p = x.pub %}
+<article class="reserva">
+  {{ foto(p.alimento.foto, p.alimento.nombre, 'reserva-foto') }}
+  <div class="reserva-cuerpo">
+    <div class="reserva-titulo">
+      <h3>{{ p.alimento.nombre }}</h3>
+      {{ ins_estado(p.estado) }}
+      {% if r.modo == 'envio' %}{{ ins_transporte(r.transporte) }}{% endif %}
+    </div>
+    <p class="reserva-est">
+      {{ icono('store', 15) }} {{ p.est.nombre }}
+      {% if vista == 'empresa' %} · Reservó: <strong>{{ r.cliente_nombre }}</strong>{% endif %}
+    </p>
+    <ul class="reserva-datos">
+      <li><span>Cantidad</span><strong>{{ r.cantidad }} {{ p.alimento.unidad }}</strong></li>
+      <li><span>Precio</span><strong>{{ 'Gratis' if r.total == 0 else (r.total | moneda) }}</strong></li>
+      <li><span>Reservado el</span><strong>{{ r.fecha | fecha_corta }}</strong></li>
+      <li><span>{{ 'Recolección' if r.modo == 'recoger' else 'Retiro del transportista' }}</span><strong>{{ p.horario | texto_horario }}</strong></li>
+    </ul>
+    <details class="detalle-reserva">
+      <summary>Ver detalles</summary>
+      <div class="detalle-reserva-cuerpo">
+        <div class="codigo-reserva">{{ icono('ticket', 20) }}<div><small>Código de la reservación</small><strong>{{ r.codigo }}</strong></div></div>
+        <ul class="lista-datos">
+          <li><span>Cantidad reservada</span><strong>{{ r.cantidad }} {{ p.alimento.unidad }} · {{ p.alimento.kilos | kilos }}</strong></li>
+          <li><span>Entrega</span><strong>{{ 'Recoge en el establecimiento' if r.modo == 'recoger' else 'Con transportista a domicilio' }}</strong></li>
+          {% if r.modo == 'envio' %}
+          <li><span>Dirección de entrega</span><strong>{{ r.direccion_envio }}</strong></li>
+          <li><span>Transportista</span><strong>{{ (usuarios_por_correo(r.transportista_email).nombre) if r.transportista_email else 'Aún sin asignar' }}</strong></li>
+          {% endif %}
+          <li><span>Dirección del negocio</span><strong>{{ p.est.direccion }}</strong></li>
+          <li><span>Punto de recolección</span><strong>{{ p.est.punto }}</strong></li>
+        </ul>
+        {{ linea_estado(p.estado) }}
+        {% if r.modo == 'envio' %}<div class="sub-linea">{{ linea_transporte(r.transporte) }}</div>{% endif %}
+        <a href="{{ url_for('publico.ubicacion', pub=p.id) }}" class="btn btn-borde btn-chico">{{ icono('map-pin', 16) }} Ver ubicación</a>
+      </div>
+    </details>
+  </div>
+  {% if caller %}<div class="reserva-acciones">{{ caller() }}</div>{% endif %}
+</article>
+{%- endmacro %}
+
+{# ---------- tarjeta de entrega (transportista) ---------- #}
+{% macro entrega_card(x) -%}
+{% set r = x.r %}{% set p = x.pub %}
+<article class="reserva entrega">
+  {{ foto(p.alimento.foto, p.alimento.nombre, 'reserva-foto') }}
+  <div class="reserva-cuerpo">
+    <div class="reserva-titulo"><h3>{{ p.alimento.nombre }}</h3>{{ ins_transporte(r.transporte) }}</div>
+    <p class="reserva-est">{{ icono('package', 15) }} {{ r.cantidad }} {{ p.alimento.unidad }} · {{ p.alimento.kilos | kilos }}</p>
+    <div class="trayecto">
+      <div class="trayecto-punto origen">
+        <span class="trayecto-icono">{{ icono('store', 16) }}</span>
+        <div><small>Recoger en · {{ p.horario | texto_horario }}</small><strong>{{ p.est.nombre }}</strong><span>{{ p.est.direccion }} ({{ p.est.punto }})</span></div>
+      </div>
+      <div class="trayecto-punto destino">
+        <span class="trayecto-icono">{{ icono('map-pin', 16) }}</span>
+        <div><small>Entregar a</small><strong>{{ r.cliente_nombre }}</strong><span>{{ r.direccion_envio }}</span></div>
+      </div>
+    </div>
+    {% if r.transporte != 'pendiente' %}{{ linea_transporte(r.transporte) }}{% endif %}
+  </div>
+  <div class="reserva-acciones">
+    {% if caller %}{{ caller() }}{% endif %}
+    <a href="{{ url_for('publico.ubicacion', pub=p.id) }}" class="btn btn-borde btn-chico">{{ icono('route', 16) }} Ver ruta</a>
+  </div>
+</article>
+{%- endmacro %}
+
+{# ---------- tabla de publicaciones (empresa y administrador) ---------- #}
+{% macro tabla_pubs(pubs, modo='empresa') -%}
+<div class="tabla-caja">
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th>Alimento</th>{% if modo == 'admin' %}<th>Empresa</th>{% endif %}<th>Modalidad</th><th>Cantidad</th><th>Caducidad</th><th>Precio</th><th>Estado</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in pubs %}
+      <tr>
+        <td data-etiqueta="Alimento"><div class="celda-alimento">{{ foto(p.alimento.foto, p.alimento.nombre, 'mini-foto') }}<strong>{{ p.alimento.nombre }}</strong></div></td>
+        {% if modo == 'admin' %}<td data-etiqueta="Empresa">{{ p.est.nombre }}</td>{% endif %}
+        <td data-etiqueta="Modalidad">{{ ins_modalidad(p.modalidad) }}</td>
+        <td data-etiqueta="Cantidad">{{ p.alimento.cantidad }} {{ p.alimento.unidad }}</td>
+        <td data-etiqueta="Caducidad">{{ p.alimento.caducidad | fecha_corta }}</td>
+        <td data-etiqueta="Precio">
+          {% if p.modalidad == 'donacion' %}<strong class="precio-gratis">Gratis</strong>
+          {% else %}{% if descuento_aplicado(p) > 0 %}<s class="precio-tachado">{{ p.precio_base | moneda }}</s> {% endif %}<strong>{{ precio_final(p) | moneda }}</strong>{% endif %}
+        </td>
+        <td data-etiqueta="Estado">{{ ins_estado(p.estado) }}</td>
+        <td data-etiqueta="Acciones">
+          <div class="acciones">
+            <a class="btn-icono" href="{{ url_for('publico.detalle', pub_id=p.id) }}" title="Consultar" aria-label="Consultar">{{ icono('eye', 18) }}</a>
+            {% if modo == 'empresa' %}
+              {% if p.estado == 'disponible' %}
+              <a class="btn-icono" href="{{ url_for('empresa.editar', pub_id=p.id) }}" title="Editar" aria-label="Editar">{{ icono('pencil', 18) }}</a>
+              {% else %}
+              <span class="btn-icono inactivo" title="Solo se puede editar si está disponible">{{ icono('pencil', 18) }}</span>
+              {% endif %}
+              {% if p.estado == 'disponible' %}
+              <form method="post" action="{{ url_for('empresa.cancelar', pub_id=p.id) }}" class="en-linea" data-confirmar="¿Seguro que quieres cancelar «{{ p.alimento.nombre }}»? Dejará de aparecer en el catálogo." data-titulo="Cancelar publicación" data-boton="Sí, cancelar" data-peligro>
+                <button type="submit" class="btn-icono peligro" title="Cancelar publicación" aria-label="Cancelar publicación">{{ icono('trash-2', 18) }}</button>
+              </form>
+              {% else %}
+              <span class="btn-icono inactivo" title="Solo se puede cancelar si está disponible">{{ icono('trash-2', 18) }}</span>
+              {% endif %}
+              {% if p.estado == 'reservado' %}
+              <a class="btn-icono exito" href="{{ url_for('empresa.reservaciones') }}" title="Confirmar entrega en Reservaciones" aria-label="Ir a reservaciones">{{ icono('package-check', 18) }}</a>
+              {% endif %}
+            {% else %}
+              {% if p.estado == 'disponible' %}
+              <form method="post" action="{{ url_for('admin.retirar', pub_id=p.id) }}" class="en-linea" data-confirmar="¿Retirar «{{ p.alimento.nombre }}» del catálogo? La empresa dejará de verla publicada." data-titulo="Retirar publicación" data-boton="Sí, retirar" data-peligro>
+                <button type="submit" class="btn-icono peligro" title="Retirar del catálogo" aria-label="Retirar del catálogo">{{ icono('trash-2', 18) }}</button>
+              </form>
+              {% else %}
+              <span class="btn-icono inactivo" title="Solo se pueden retirar publicaciones disponibles">{{ icono('trash-2', 18) }}</span>
+              {% endif %}
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{%- endmacro %}
+
+{% macro donut(segmentos, centro, etiqueta) -%}
+{% set total = (segmentos | sum(attribute='valor')) or 1 %}
+{% set acc = namespace(v=0) %}
+<div class="donut-caja">
+  <div class="donut">
+    <svg viewBox="0 0 42 42" role="img" aria-label="Distribución">
+      <circle class="donut-fondo" cx="21" cy="21" r="15.9155" fill="none" stroke-width="6" />
+      {% for s in segmentos %}
+        {% set p = s.valor / total * 100 %}
+        <circle cx="21" cy="21" r="15.9155" fill="none" stroke="{{ s.color }}" stroke-width="6"
+                stroke-dasharray="{{ p | round(3) }} {{ (100 - p) | round(3) }}" stroke-dashoffset="{{ (25 - acc.v) | round(3) }}" />
+        {% set acc.v = acc.v + p %}
+      {% endfor %}
+    </svg>
+    <div class="donut-centro"><strong>{{ centro }}</strong><span>{{ etiqueta }}</span></div>
+  </div>
+  <ul class="donut-leyenda">
+    {% for s in segmentos %}
+    <li><span class="donut-color" style="background: {{ s.color }}"></span><span>{{ s.etiqueta }}</span><strong>{{ (s.valor / total * 100) | round | int }}%</strong></li>
+    {% endfor %}
+  </ul>
+</div>
+{%- endmacro %}
+
+{# ---------- mapa de DEMOSTRACIÓN (dibujo SVG; no usa Google Maps) ---------- #}
+{% macro mapa(nombre, origen='Tu ubicación (ejemplo)') -%}
+<div class="mapa-demo" data-mapa>
+  <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Mapa de demostración">
+    <rect width="600" height="360" fill="#e9efe3" />
+    <rect x="380" y="40" width="150" height="90" rx="22" fill="#cfe3c4" />
+    <path d="M0 270 C120 230 220 330 340 290 S520 250 600 280 L600 330 C520 300 420 340 340 340 S120 290 0 320 Z" fill="#cfe0ee" />
+    <g stroke="#ffffff" stroke-width="14" stroke-linecap="round">
+      <line x1="0" y1="90" x2="600" y2="90" /><line x1="0" y1="200" x2="600" y2="200" />
+      <line x1="120" y1="0" x2="120" y2="360" /><line x1="300" y1="0" x2="300" y2="360" /><line x1="470" y1="0" x2="470" y2="360" />
+    </g>
+    <g stroke="#f6f1e3" stroke-width="6">
+      <line x1="0" y1="145" x2="600" y2="145" /><line x1="210" y1="0" x2="210" y2="360" /><line x1="385" y1="0" x2="385" y2="360" />
+    </g>
+    <g fill="#dfe6d6">
+      <rect x="140" y="105" width="50" height="30" rx="6" /><rect x="230" y="105" width="55" height="30" rx="6" />
+      <rect x="315" y="155" width="55" height="30" rx="6" /><rect x="140" y="215" width="50" height="35" rx="6" />
+      <rect x="400" y="215" width="55" height="35" rx="6" />
+    </g>
+    <g data-ruta class="oculto">
+      <path class="mapa-ruta" d="M120 200 L300 200 L300 90 L470 90" fill="none" stroke="#f08a24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="12 10" />
+      <circle cx="120" cy="200" r="11" fill="#2f7d4f" stroke="#fff" stroke-width="4" />
+    </g>
+  </svg>
+  <div class="mapa-pin" style="left: 78.33%; top: 25%">
+    <svg width="38" height="38" viewBox="0 0 24 24" fill="#f08a24" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#ffffff"/></svg>
+    <span>{{ nombre }}</span>
+  </div>
+  <div class="mapa-origen oculto" data-ruta style="left: 20%; top: 55.55%">{{ origen }}</div>
+  <span class="mapa-sello">VISTA DE DEMOSTRACIÓN · sin Google Maps</span>
+</div>
+{%- endmacro %}

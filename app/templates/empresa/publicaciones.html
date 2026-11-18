@@ -1,0 +1,14 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import icono, cabecera, tabla_pubs, vacio with context %}
+{% block titulo %}Mis publicaciones{% endblock %}
+{% block content %}
+{% call cabecera('Mis publicaciones', 'Consulta, edita o cancela los alimentos que publicaste.') %}
+  <a href="{{ url_for('empresa.publicar') }}" class="btn btn-secundario">{{ icono('plus-circle', 18) }} Publicar alimento</a>
+{% endcall %}
+<div class="chips">
+  <a class="chip {{ 'activo' if filtro == 'todas' }}" href="{{ url_for('empresa.publicaciones') }}">Todas ({{ total }})</a>
+  {% for e in ESTADOS %}<a class="chip {{ 'activo' if filtro == e }}" href="{{ url_for('empresa.publicaciones', estado=e) }}">{{ ETIQUETA_ESTADO[e] }} ({{ cuentas[e] }})</a>{% endfor %}
+</div>
+{% if pubs %}{{ tabla_pubs(pubs, 'empresa') }}
+{% else %}{% call vacio('package-open', 'Sin publicaciones', 'No hay publicaciones con este filtro.') %}<a href="{{ url_for('empresa.publicar') }}" class="btn btn-primario">Publicar alimento</a>{% endcall %}{% endif %}
+{% endblock %}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block titulo %}{% endblock %}{% if self.titulo() | trim %} · {% endif %}Rescate Alimentario</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fraunces:wght@600;700&display=swap" rel="stylesheet" />
+    {% for hoja in ['global', 'landing', 'auth', 'componentes', 'panel', 'paginas', 'flask'] %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/' ~ hoja ~ '.css') }}" />
+    {% endfor %}
+  </head>
+  <body>
+    {% block body %}{% endblock %}
+
+    {# Mensajes emergentes (flash). Desaparecen solos. #}
+    <div class="toasts" aria-live="polite">
+      {% for categoria, mensaje in get_flashed_messages(with_categories=true) %}
+      <div class="toast toast-{{ categoria }}"><span>{{ mensaje }}</span></div>
+      {% endfor %}
+    </div>
+
+    {# Ventana de confirmación compartida (la usan los formularios con data-confirmar) #}
+    <div class="modal-fondo oculto" id="modal-confirmar">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmar-titulo">
+        <div class="modal-cabecera">
+          <h2 id="confirmar-titulo">Confirmar</h2>
+          <button type="button" class="btn-cerrar" data-cerrar aria-label="Cerrar"><i data-lucide="x" width="20" height="20"></i></button>
+        </div>
+        <div class="modal-cuerpo"><p id="confirmar-texto"></p></div>
+        <div class="modal-pie">
+          <button type="button" class="btn btn-borde" data-cerrar>Cancelar</button>
+          <button type="button" class="btn btn-primario" id="confirmar-ok">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/lucide.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>

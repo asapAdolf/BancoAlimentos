@@ -1,0 +1,62 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import icono, cabecera, nota, vacio with context %}
+{% block titulo %}Notificaciones{% endblock %}
+
+{% block content %}
+{% set iconos = {'nuevo': 'sparkles', 'descuento': 'percent', 'reservado': 'calendar-check', 'listo': 'shopping-bag', 'entrega': 'badge-check', 'transporte': 'truck', 'usuario': 'user-plus'} %}
+
+{% call cabecera('Notificaciones', ('Tienes ' ~ sin_leer ~ ' sin leer.') if sin_leer else 'Estás al día. No tienes avisos pendientes.') %}
+  <form method="post" action="{{ url_for('panel.leer_todas') }}">
+    <button type="submit" class="btn btn-borde" {{ 'disabled' if not sin_leer }}>{{ icono('check-check', 18) }} Marcar todas como leídas</button>
+  </form>
+{% endcall %}
+
+<div class="notif-rejilla">
+  <section>
+    <div class="chips">
+      <a href="{{ url_for('panel.notificaciones') }}" class="chip {{ '' if solo_sin_leer else 'activo' }}">Todas ({{ total }})</a>
+      <a href="{{ url_for('panel.notificaciones', ver='sin_leer') }}" class="chip {{ 'activo' if solo_sin_leer else '' }}">Sin leer ({{ sin_leer }})</a>
+    </div>
+
+    {% if notifs %}
+    <ul class="lista-notif">
+      {% for n in notifs %}
+      <li class="notif {{ '' if n.leida else 'sin-leer' }}">
+        <span class="notif-icono tipo-{{ n.tipo }}">{{ icono(iconos[n.tipo], 22) }}</span>
+        <div class="notif-texto">
+          <div class="notif-titulo"><strong>{{ n.titulo }}</strong>{% if not n.leida %}<span class="punto-nuevo" aria-label="Sin leer"></span>{% endif %}</div>
+          <p>{{ n.mensaje }}</p>
+          <div class="notif-pie">
+            <small>{{ n.fecha | hace }}</small>
+            {% if n.pub_id and n.pub_id in existentes %}
+            <form method="post" action="{{ url_for('panel.leer', notif_id=n.id) }}" class="en-linea">
+              <input type="hidden" name="ir" value="{{ url_for('publico.detalle', pub_id=n.pub_id) }}" />
+              <button class="enlace-boton" type="submit">Ver alimento</button>
+            </form>
+            {% endif %}
+            {% if not n.leida %}
+            <form method="post" action="{{ url_for('panel.leer', notif_id=n.id) }}" class="en-linea">
+              <button class="enlace-boton" type="submit">Marcar como leída</button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    {{ vacio('bell-off', 'No hay notificaciones', 'Cuando haya alimentos nuevos, reservaciones o entregas, te avisaremos aquí.') }}
+    {% endif %}
+  </section>
+
+  <aside class="notif-lateral">
+    <section class="tarjeta-panel">
+      <h2 class="titulo-seccion">{{ icono('bell', 18) }} Preferencias de aviso</h2>
+      <label class="interruptor-fila"><span>Avisos dentro de la plataforma</span><input type="checkbox" checked /><span class="interruptor"></span></label>
+      <label class="interruptor-fila"><span>Avisar de nuevos descuentos</span><input type="checkbox" checked /><span class="interruptor"></span></label>
+      <label class="interruptor-fila deshabilitado"><span>{{ icono('message-circle', 15) }} Avisos por WhatsApp <em>Próximamente</em></span><input type="checkbox" disabled /><span class="interruptor"></span></label>
+    </section>
+    {% call nota('Observer + Adapter') %}Cuando se publica un alimento, <strong>GestorNotificaciones</strong> notifica a los observadores (<strong>UsuarioOrganizacion</strong>). El envío por WhatsApp usaría <strong>AdaptadorTwilioWhatsApp</strong>, que todavía no está conectado.{% endcall %}
+  </aside>
+</div>
+{% endblock %}

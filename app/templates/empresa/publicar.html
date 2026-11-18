@@ -1,0 +1,54 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import icono, cabecera, err, tarjeta, nota with context %}
+{% block titulo %}Publicar alimento{% endblock %}
+{% block content %}
+{{ cabecera('Publicar alimento', 'Registra un excedente para venderlo, ofrecerlo con descuento o donarlo.') }}
+<div class="publicar-rejilla">
+  <form method="post" class="formulario-tarjeta" novalidate data-formulario-condicional>
+    <p class="subtitulo-modal">1. ¿Cómo lo publicarás?</p>
+    <div class="modalidad-opciones">
+      {% for m, ic, txt in [('venta','tag','Precio completo'),('descuento','percent','Precio reducido'),('donacion','heart-handshake','Sin costo')] %}
+      <label class="modalidad-opcion"><input type="radio" name="modalidad" value="{{ m }}" hidden {{ 'checked' if f.modalidad == m }}>{{ icono(ic, 24) }}<strong>{{ ETIQUETA_MODALIDAD[m] }}</strong><span>{{ txt }}</span></label>
+      {% endfor %}
+    </div>
+
+    <p class="subtitulo-modal">2. Datos del alimento</p>
+    <div class="campo-form"><label for="nombre">Nombre</label><input id="nombre" name="nombre" class="control {{ 'con-error' if errores.nombre }}" value="{{ f.nombre }}" placeholder="Ej. Pan dulce surtido">{{ err(errores, 'nombre') }}</div>
+    <div class="campo-form"><label for="descripcion">Descripción</label><textarea id="descripcion" name="descripcion" class="control" rows="2">{{ f.descripcion }}</textarea></div>
+    <div class="rejilla-dos">
+      <div class="campo-form"><label for="categoria">Tipo de alimento</label><select id="categoria" name="categoria" class="control">{% for c in CATEGORIAS %}<option {{ 'selected' if f.categoria == c }}>{{ c }}</option>{% endfor %}</select>{{ err(errores, 'categoria') }}</div>
+      <div class="campo-form"><label for="unidad">Unidad</label><select id="unidad" name="unidad" class="control">{% for u in UNIDADES %}<option {{ 'selected' if f.unidad == u }}>{{ u }}</option>{% endfor %}</select></div>
+      <div class="campo-form"><label for="cantidad">Cantidad</label><input id="cantidad" name="cantidad" class="control {{ 'con-error' if errores.cantidad }}" value="{{ f.cantidad }}" inputmode="numeric">{{ err(errores, 'cantidad') }}</div>
+      <div class="campo-form"><label for="kilos">Peso total (kg)</label><input id="kilos" name="kilos" class="control {{ 'con-error' if errores.kilos }}" value="{{ f.kilos }}" inputmode="decimal">{{ err(errores, 'kilos') }}</div>
+    </div>
+
+    <div data-si="modalidad:venta|descuento">
+      <p class="subtitulo-modal">3. Precio</p>
+      <div class="campo-form"><label for="precio_base">Precio base (MXN)</label><input id="precio_base" name="precio_base" class="control {{ 'con-error' if errores.precio_base }}" value="{{ f.precio_base }}" inputmode="decimal">{{ err(errores, 'precio_base') }}</div>
+    </div>
+    <div data-si="modalidad:descuento">
+      <div class="rejilla-dos">
+        <div class="campo-form"><label for="estrategia">Tipo de descuento</label><select id="estrategia" name="estrategia" class="control">{% for k, v in ETIQUETA_ESTRATEGIA.items() %}<option value="{{ k }}" {{ 'selected' if f.estrategia == k }}>{{ v }}</option>{% endfor %}</select>{{ err(errores, 'estrategia') }}</div>
+        <div class="campo-form"><label for="pct">Porcentaje (5–90)</label><input id="pct" name="pct" class="control {{ 'con-error' if errores.pct }}" value="{{ f.pct }}" inputmode="numeric">{{ err(errores, 'pct') }}</div>
+      </div>
+    </div>
+
+    <p class="subtitulo-modal">4. Caducidad y recolección</p>
+    <div class="rejilla-dos">
+      <div class="campo-form"><label for="caducidad">Fecha de caducidad</label><input id="caducidad" name="caducidad" type="date" class="control {{ 'con-error' if errores.caducidad }}" value="{{ f.caducidad }}">{{ err(errores, 'caducidad') }}</div>
+      <div class="campo-form"><label for="fecha_rec">Fecha de recolección</label><input id="fecha_rec" name="fecha_rec" type="date" class="control {{ 'con-error' if errores.fecha_rec }}" value="{{ f.fecha_rec }}">{{ err(errores, 'fecha_rec') }}</div>
+      <div class="campo-form"><label for="desde">Desde</label><input id="desde" name="desde" type="time" class="control" value="{{ f.desde }}"></div>
+      <div class="campo-form"><label for="hasta">Hasta</label><input id="hasta" name="hasta" type="time" class="control" value="{{ f.hasta }}"></div>
+    </div>
+    {{ err(errores, 'horario') }}
+    <div class="formulario-pie"><a href="{{ url_for('empresa.publicaciones') }}" class="btn btn-borde">Cancelar</a><button class="btn btn-secundario" type="submit">{{ icono('send', 18) }} Publicar</button></div>
+  </form>
+
+  <aside class="vista-previa">
+    <h2 class="titulo-seccion">Vista previa</h2>
+    {{ tarjeta(previa, true) }}
+    <p class="aviso-chico">Se actualiza al enviar el formulario.</p>
+    {% call nota('Factory Method + Strategy') %}La modalidad elegida representa a <strong>FabricaAlimento</strong> y el descuento a <strong>EstrategiaDescuento</strong>. Es solo ilustrativo: no hay lógica de servidor.{% endcall %}
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base_public.html' %}
+{% from 'macros.html' import icono, err with context %}
+{% block titulo %}Iniciar sesión{% endblock %}
+
+{% block main %}
+<section class="auth">
+  <div class="auth-tarjeta">
+    <div class="auth-encabezado">
+      <span class="logo-icono">{{ icono('leaf', 22) }}</span>
+      <h1>Bienvenido de nuevo</h1>
+      <p>Inicia sesión para explorar, reservar, publicar o entregar alimentos.</p>
+    </div>
+
+    <form method="post" novalidate>
+      <div class="campo">
+        <label for="email">Correo electrónico</label>
+        <div class="campo-entrada {{ 'con-error' if errores.email }}">
+          {{ icono('mail', 18) }}
+          <input id="email" name="email" type="email" placeholder="nombre@correo.com" value="{{ email }}" autocomplete="email" />
+        </div>
+        {{ err(errores, 'email') }}
+      </div>
+
+      <div class="campo">
+        <label for="password">Contraseña</label>
+        <div class="campo-entrada {{ 'con-error' if errores.password }}">
+          {{ icono('lock', 18) }}
+          <input id="password" name="password" type="password" placeholder="Tu contraseña" autocomplete="current-password" />
+          <button type="button" class="btn-ojo" data-ver-clave="password" aria-label="Mostrar contraseña">{{ icono('eye', 18) }}</button>
+        </div>
+        {{ err(errores, 'password') }}
+      </div>
+
+      {% if errores.general %}<div class="alerta-error">{{ errores.general }}</div>{% endif %}
+
+      <button type="submit" class="btn btn-primario btn-completo">{{ icono('log-in', 18) }} Iniciar sesión</button>
+    </form>
+
+    <p class="auth-pie">¿Aún no tienes cuenta? <a href="{{ url_for('auth.registro') }}">Regístrate</a></p>
+
+    <div class="caja-demo caja-demo-cuentas">
+      {{ icono('info', 18) }}
+      <div>
+        <strong>Modo demostración</strong>
+        <p>Escribe cualquier contraseña. Elige una cuenta para llenar el correo:</p>
+        <div class="cuentas-demo">
+          {% for correo, nombre, ic in cuentas %}
+          <button type="button" class="chip" data-correo="{{ correo }}">{{ icono(ic, 15) }} {{ nombre }}</button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

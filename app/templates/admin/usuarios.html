@@ -1,0 +1,31 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import icono, cabecera, ins_rol, vacio with context %}
+{% block titulo %}Usuarios{% endblock %}
+{% block content %}
+{{ cabecera('Usuarios', 'Consulta las cuentas de la plataforma y suspéndelas o actívalas.') }}
+<div class="chips">
+  <a class="chip {{ 'activo' if filtro == 'todos' }}" href="{{ url_for('admin.usuarios') }}">Todos ({{ total }})</a>
+  {% for r in ['cliente','empresa','transportista','administrador'] %}<a class="chip {{ 'activo' if filtro == r }}" href="{{ url_for('admin.usuarios', rol=r) }}">{{ ETIQUETA_ROL[r] }} ({{ cuentas[r] }})</a>{% endfor %}
+</div>
+<div class="tabla-caja"><table class="tabla">
+  <thead><tr><th>Usuario</th><th>Rol</th><th>Teléfono</th><th>Estado</th><th>Acciones</th></tr></thead>
+  <tbody>
+  {% for u in usuarios %}
+  <tr>
+    <td data-etiqueta="Usuario"><div class="celda-alimento"><span class="usuario-avatar">{{ u.nombre | inicial }}</span><div><strong>{{ u.nombre }}</strong><br><small>{{ u.email }}</small></div></div></td>
+    <td data-etiqueta="Rol">{{ ins_rol(u.rol) }}</td>
+    <td data-etiqueta="Teléfono">{{ u.telefono or '—' }}</td>
+    <td data-etiqueta="Estado"><span class="insignia {{ 'estado-disponible' if u.activo else 'estado-entregado' }}">{{ 'Activo' if u.activo else 'Suspendido' }}</span></td>
+    <td data-etiqueta="Acciones">
+      {% if u.email == usuario.email %}<span class="aviso-chico">Tu cuenta</span>
+      {% else %}
+      <form method="post" action="{{ url_for('admin.alternar', email=u.email) }}" class="en-linea" {% if u.activo %}data-confirmar="¿Suspender a {{ u.nombre }}? No podrá iniciar sesión." data-titulo="Suspender usuario" data-boton="Sí, suspender" data-peligro{% endif %}>
+        <input type="hidden" name="rol" value="{{ filtro }}">
+        <button class="btn btn-borde btn-chico" type="submit">{{ icono('user-x' if u.activo else 'user-check', 16) }} {{ 'Suspender' if u.activo else 'Activar' }}</button>
+      </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody></table></div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base_panel.html' %}
+{% from 'macros.html' import icono, cabecera, entrega_card, vacio with context %}
+{% block titulo %}Entregas disponibles{% endblock %}
+{% block content %}
+{{ cabecera('Entregas disponibles', 'Pedidos con envío a domicilio que esperan transportista.') }}
+{% if items %}
+<div class="lista-reservas">
+  {% for x in items %}
+    {% call entrega_card(x) %}
+      <form method="post" action="{{ url_for('transportista.aceptar', reserva_id=x.r.id) }}" data-confirmar="¿Aceptas llevar «{{ x.pub.alimento.nombre }}» a {{ x.r.cliente_nombre }}?" data-titulo="Aceptar entrega" data-boton="Sí, aceptar">
+        <button type="submit" class="btn btn-secundario btn-chico">{{ icono('hand', 16) }} Aceptar entrega</button>
+      </form>
+    {% endcall %}
+  {% endfor %}
+</div>
+{% else %}{{ vacio('package-search', 'No hay entregas pendientes', 'Vuelve más tarde: cuando un cliente pida envío a domicilio aparecerá aquí.') }}{% endif %}
+{% endblock %}
