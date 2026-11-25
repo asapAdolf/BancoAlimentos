@@ -22,11 +22,14 @@ def salud():
             text("SELECT count(*) FROM information_schema.tables WHERE table_schema='public';")
         ).scalar()
 
+        nombre_bd = db.engine.url.database or current_app.config.get('DB_NAME', 'banco_alimentos')
+        host_bd = db.engine.url.host or current_app.config.get('DB_HOST', 'localhost')
+
         return jsonify({
             'status': 'ok',
-            'mensaje': 'Conexión a PostgreSQL (BancoAlimentos) establecida exitosamente',
-            'base_de_datos': current_app.config.get('DB_NAME', 'BancoAlimentos'),
-            'host': current_app.config.get('DB_HOST', 'localhost'),
+            'mensaje': f'Conexión a PostgreSQL ({nombre_bd}) establecida exitosamente',
+            'base_de_datos': nombre_bd,
+            'host': host_bd,
             'tablas_detectadas': resultado
         }), 200
     except Exception as e:

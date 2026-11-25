@@ -1,6 +1,6 @@
 databases:
   - name: banco-alimentos-db
-    databaseName: BancoAlimentos
+    databaseName: banco_alimentos
     plan: free
 
 services:
@@ -24,4 +24,4 @@ services:
       - key: ADMIN_PASSWORD
         generateValue: true
       - key: PYTHON_VERSION
-        value: 3.12.8
+        value: "3.12.8"
