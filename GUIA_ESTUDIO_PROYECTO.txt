@@ -26,10 +26,13 @@ del ecosistema con Flask y la Base de Datos PostgreSQL.
    6.4. Agregar un nuevo observador a Observer
 7. FLASK Y LA BASE DE DATOS POSTGRESQL
    7.1. Esquema relacional (Database/schema.sql)
-   7.2. Configuración y variables de entorno (.env y config.py)
-   7.3. Capa ORM y Modelos (models.py y database.py)
-   7.4. Rutas, Endpoints y API REST (app.py)
-   7.5. Scripts de arranque (.bat) y verificación
+   7.2. Configuración y variables de entorno (.env y app/config.py)
+   7.3. Capa ORM y Modelos (app/models.py y app/database.py)
+   7.4. Arquitectura modular por Blueprints y API REST (run.py y app/)
+   7.5. Scripts de arranque (.bat) y pruebas (tests/)
+8. CAMBIOS DE PUESTA EN PRODUCCIÓN Y DESPLIEGUE EN RENDER
+   8.1. Resumen de ajustes y limpieza de datos de demostración
+   8.2. Cómo funciona el despliegue en Render (PostgreSQL + Gunicorn + Blueprint)
 --------------------------------------------------------------------------------
 
 
@@ -62,12 +65,13 @@ Características clave de diseño:
 ================================================================================
 rescate-alimentario/
 │
-├── .env                          -> Variables de entorno sensibles (BD, credenciales, puertos)
-├── .env.example                  -> Plantilla pública de variables de entorno
-├── .gitignore                    -> Exclusión de node_modules, .env, venv, compildos
-├── arrancar.bat                  -> Script de arranque de BD PostgreSQL y Front-End
-├── arrancar_flask.bat            -> Script de arranque del servidor Flask
-├── arrancar_todo.bat             -> Script de arranque completo (BD + Flask + Front)
+├── .env                          -> Variables de entorno sensibles (ignoradas por Git)
+├── .gitignore                    -> Exclusión de node_modules, .env, venv, compilados
+├── arrancar.bat                  -> Script de arranque de BD PostgreSQL y Front-End Vite
+├── arrancar_todo.bat             -> Script de arranque de PostgreSQL + Servidor Flask
+├── render.yaml                   -> Blueprint declarativo para despliegue en Render
+├── requirements.txt              -> Dependencias de Python (Flask, SQLAlchemy, Gunicorn, pytest)
+├── run.py                        -> Punto de entrada del servidor Flask (expone `app`)
 ├── index.html                    -> Plantilla HTML de entrada para Vite
 ├── package.json                  -> Dependencias y scripts de npm del Front-End
 ├── tsconfig.json                 -> Configuración global de TypeScript
@@ -77,7 +81,7 @@ rescate-alimentario/
 │   ├── favicon.svg
 │   └── icons.svg
 │
-├── src/                          -> CÓDIGO FUENTE DEL FRONT-END (React + TS)
+├── src/                          -> CÓDIGO FUENTE DEL FRONT-END SPA (React + TS)
 │   ├── main.tsx                  -> Punto de entrada del cliente DOM
 │   ├── App.tsx                   -> Enrutador principal y proveedores de contexto
 │   ├── components/               -> Componentes reutilizables de UI
@@ -85,8 +89,8 @@ rescate-alimentario/
 │   │   ├── landing/              -> Secciones de la página de inicio pública
 │   │   ├── layout/               -> Navbar, Footer y Plantilla del Panel
 │   │   └── ui/                   -> Modales, gráficas, insignias, toasts, mapas
-│   ├── context/                  -> Estados globales (AuthContext, PlataformaContext)
-│   ├── data/                     -> Datos iniciales mock y perfiles demo del front
+│   ├── context/                  -> Estados globales con persistencia local
+│   ├── data/                     -> Estructuras iniciales limpias y fotos por categoría
 │   ├── pages/                    -> Pantallas completas (Catálogo, Detalle, etc.)
 │   ├── styles/                   -> Hojas de estilo modulares (CSS puro)
 │   ├── types/                    -> Interfaces TypeScript del modelo de datos front
@@ -98,8 +102,8 @@ rescate-alimentario/
 │   └── src/
 │       ├── app.ts                -> Configuración de middlewares y Express
 │       ├── servidor.ts           -> Entrada del servidor HTTP (puerto 3000)
-│       ├── datos/                -> Base de datos en memoria (BaseDatosMemoria.ts)
-│       ├── demo/                 -> Demos ejecutables de consola por patrón
+│       ├── datos/                -> Base de datos en memoria limpia (BaseDatosMemoria.ts)
+│       ├── demo/                 -> Scripts independientes de consola por patrón
 │       ├── errores/              -> Clases de excepción personalizadas
 │       ├── modelos/              -> Clases y tipos de entidades del negocio
 │       ├── patrones/             -> IMPLEMENTACIÓN DE PATRONES DE DISEÑO:
@@ -113,14 +117,24 @@ rescate-alimentario/
 │       ├── utils/                -> Utilidades de fechas, IDs y texto
 │       └── validaciones/         -> Validaciones de payloads de entrada
 │
-├── Database/
-│   └── schema.sql                -> Script DDL oficial de PostgreSQL (25 tablas)
+├── app/                          -> APLICACIÓN INTEGRAL EN PYTHON / FLASK
+│   ├── __init__.py               -> Application Factory (`create_app`), sesión y menús
+│   ├── config.py                 -> Lectura de `.env` y normalización de `DATABASE_URL`
+│   ├── database.py               -> Instancia centralizada de `SQLAlchemy`
+│   ├── models.py                 -> Modelos ORM mapeados al esquema PostgreSQL
+│   ├── store.py                  -> Almacén operativo, constantes esenciales y auth hash
+│   ├── seguridad.py              -> Decoradores de control de acceso por rol
+│   ├── utils.py                  -> Filtros Jinja2 y definición de menús por rol
+│   ├── blueprints/               -> Módulos de rutas (`publico`, `auth`, `panel`,
+│   │                                `cliente`, `empresa`, `transportista`, `admin`, `api`)
+│   ├── templates/                -> Vistas HTML/Jinja2 y macros reutilizables
+│   └── static/                   -> CSS y JavaScript (`app.js`) servidos por Flask
 │
-├── requirements.txt              -> Dependencias de Python para Flask
-├── config.py                     -> Configuración y lectura de .env para Flask
-├── database.py                   -> Instancia de SQLAlchemy para Flask
-├── models.py                     -> Modelos ORM relacionales para Flask/PostgreSQL
-└── app.py                        -> Servidor API REST en Python/Flask (puerto 5000)
+├── tests/
+│   └── test_rutas.py             -> Suite automatizada `pytest` de rutas, roles y flujos
+│
+└── Database/
+    └── schema.sql                -> Script DDL oficial de PostgreSQL (25 tablas)
 
 
 ================================================================================
@@ -545,10 +559,11 @@ El archivo DDL contiene 25 tablas relacionales organizadas en dominios:
 - Alimentos y Operaciones: `alimentos`, `publicaciones`, `reservaciones`, `detalles_reservacion`.
 - Trazabilidad e Impacto: `historial_publicaciones`, `notificaciones`, `calificaciones`.
 
-7.2. Configuración y Variables de Entorno (`.env` y `config.py`)
-----------------------------------------------------------------
+7.2. Configuración y Variables de Entorno (`.env` y `app/config.py`)
+--------------------------------------------------------------------
 - Archivo `.env`:
-  Guarda de forma segura las credenciales sin exponerlas en git:
+  Guarda de forma segura las credenciales sin exponerlas en Git:
+  `FLASK_APP=run.py`
   `DB_USER=postgres`
   `DB_PASSWORD=<tu_password>`
   `DB_HOST=localhost`
@@ -556,40 +571,103 @@ El archivo DDL contiene 25 tablas relacionales organizadas en dominios:
   `DB_NAME=BancoAlimentos`
   `DATABASE_URL=postgresql://postgres:<tu_password>@localhost:5432/BancoAlimentos`
 
-- Archivo `config.py`:
-  Lee el archivo `.env` mediante `python-dotenv` y configura `Flask-SQLAlchemy` con
-  parámetros profesionales como `pool_pre_ping=True` (comprueba que la conexión siga
-  viva antes de ejecutar queries) y `pool_recycle=300`.
+- Archivo `app/config.py`:
+  Lee el archivo `.env` mediante `python-dotenv`, normaliza automáticamente prefijos
+  `postgres://` a `postgresql://` (requerido por `SQLAlchemy 2.0` en proveedores nube
+  como Render) y configura `pool_pre_ping=True` y `pool_recycle=300`.
 
-7.3. Capa ORM y Modelos (`models.py` y `database.py`)
------------------------------------------------------
-- `database.py`: Instancia `db = SQLAlchemy()`, evitando dependencias circulares.
-- `models.py`: Mapea las tablas de PostgreSQL a clases de Python.
-  Cada modelo cuenta con un método `.to_dict()`, que convierte la tupla de la BD
-  en un diccionario limpio listo para serializarse en formato JSON para el Front-End.
+7.3. Capa ORM y Modelos (`app/models.py` y `app/database.py`)
+-------------------------------------------------------------
+- `app/database.py`: Instancia `db = SQLAlchemy()`, evitando dependencias circulares.
+- `app/models.py`: Mapea las tablas de PostgreSQL a clases de Python compatibles con
+  Python 3.13 (`datetime.now(timezone.utc)`). Cada modelo ofrece `.to_dict()` para
+  serialización JSON limpia.
 
-7.4. Rutas, Endpoints y API REST (`app.py`)
--------------------------------------------
-`app.py` utiliza el patrón Application Factory (`create_app()`):
-- Habilita `flask_cors.CORS` para que el Front-End en React pueda consultar la API.
-- Endpoints disponibles:
-  - `GET /api/salud`: Ejecuta `SELECT 1` y cuenta las tablas de la BD para certificar
-    que la conexión esté viva.
-  - `GET /api/roles`: Retorna el catálogo de roles.
-  - `GET /api/categorias`: Retorna categorías de alimentos.
-  - `GET /api/unidades`: Retorna unidades métricas.
-  - `GET /api/usuarios`: Consulta los usuarios registrados.
-  - `GET /api/publicaciones`: Consulta el catálogo de publicaciones activas.
-  - `POST /api/seed`: Inserta automáticamente registros iniciales si las tablas
-    están vacías.
+7.4. Arquitectura Modular por Blueprints y API REST (`run.py` y `app/`)
+-----------------------------------------------------------------------
+`app/__init__.py` implementa el patrón Application Factory (`create_app()`) e integra:
+- Vistas web segmentadas por rol mediante Blueprints:
+  - `publico`: inicio, catálogo con filtros, detalle, mapa de ubicación y estadísticas.
+  - `auth`: inicio de sesión y registro con contraseñas verificadas por hash (`Werkzeug`).
+  - `panel`, `cliente`, `empresa`, `transportista` y `admin`: paneles operativos con
+    control de acceso mediante decoradores en `app/seguridad.py` y menús en `app/utils.py`.
+- Blueprint REST `api` (`/api/*` en `app/blueprints/api.py`):
+  - `GET /api/salud`: ejecuta `SELECT 1` y reporta las 25 tablas detectadas en PostgreSQL.
+  - `GET /api/roles`, `GET /api/categorias`, `GET /api/unidades`: catálogos esenciales.
+  - `GET /api/usuarios` y `GET /api/publicaciones`: consulta de registros en PostgreSQL.
+  - `POST /api/seed`: inserta los catálogos base si las tablas están vacías.
 
-7.5. Scripts de Automatización (.bat)
--------------------------------------
-Para facilitar la ejecución en Windows, se crearon scripts por lotes:
-1. `arrancar.bat`: Comprueba el servicio Windows de PostgreSQL e inicia el Front-End.
-2. `arrancar_flask.bat`: Inicia el servicio de PostgreSQL y arranca Flask en el puerto 5000.
-3. `arrancar_todo.bat`: Script maestro que levanta PostgreSQL, abre la API Flask en
-   una ventana independiente y arranca la interfaz Vite abriendo el navegador.
+7.5. Scripts de Automatización (.bat) y Pruebas (`tests/`)
+----------------------------------------------------------
+- `arrancar.bat`: comprueba el servicio Windows de PostgreSQL e inicia el Front-End Vite.
+- `arrancar_todo.bat`: verifica PostgreSQL y levanta el servidor Flask (`python run.py`)
+  en `http://127.0.0.1:5000`.
+- `tests/test_rutas.py`: suite de `pytest` que valida el estado inicial limpio, control de
+  acceso por rol (`403`), registro/login y ciclo completo de publicación, reserva y entrega.
+
+
+================================================================================
+8. CAMBIOS DE PUESTA EN PRODUCCIÓN Y DESPLIEGUE EN RENDER
+================================================================================
+
+8.1. Resumen de Ajustes y Limpieza de Datos de Demostración
+-----------------------------------------------------------
+Para pasar el sistema de un prototipo demostrativo a un entorno operativo limpio:
+1. Eliminación de registros no esenciales:
+   - Se vaciaron todas las publicaciones, reservaciones, notificaciones, establecimientos
+     ficticios y cuentas `@demo.mx` en `app/store.py`, `src/data/*` y `BaseDatosMemoria.ts`.
+   - Las métricas de impacto inician en `0` y crecen únicamente con entregas reales.
+   - Se conservaron únicamente los menús por rol, constantes de dominio, catálogos base
+     en PostgreSQL (`roles`, `categorias_alimento`, `unidades_medida`) y la cuenta
+     esencial de administración (`ADMIN_EMAIL` / `ADMIN_PASSWORD`), ya que el rol de
+     administrador no es de registro público.
+2. Seguridad y calidad de código:
+   - En Flask (`app/store.py` y `app/blueprints/auth.py`), las contraseñas ahora se
+     almacenan y validan con hash criptográfico (`generate_password_hash` / `check_password_hash`).
+   - En las plantillas Jinja2 (`app/templates/`) se sustituyeron estilos en línea con
+     interpolaciones por atributos `data-ancho`, `data-alto` y `data-color` procesados
+     en `app/static/js/app.js`, eliminando errores del analizador CSS.
+   - En React/TypeScript se ajustaron `tsconfig.app.json` y `tsconfig.node.json` con
+     compilación incremental y se resolvieron las reglas de pureza/inmutabilidad del linter.
+
+8.2. Cómo Funciona el Despliegue en Render
+------------------------------------------
+Render ejecuta la plataforma en la nube conectándose directamente a la rama `main` del
+repositorio en GitHub (`asapAdolf/BancoAlimentos`) mediante dos recursos coordinados:
+
+  [ GitHub (rama main) ]
+            │ (Auto-Deploy en cada git push)
+            ▼
+  [ Render Web Service: Python + Gunicorn (`gunicorn run:app`) ]
+            │ (Red privada interna vía `DATABASE_URL`)
+            ▼
+  [ Render PostgreSQL (`banco-alimentos-db` -> BD `BancoAlimentos`) ]
+
+Componentes clave del despliegue:
+1. Servidor WSGI de producción (`gunicorn`):
+   En desarrollo local se usa `python run.py` (servidor interno de Flask), pero en
+   producción Render ejecuta `gunicorn run:app` (incluido en `requirements.txt`), el
+   cual importa el objeto `app = create_app()` de `run.py` y atiende peticiones
+   concurrentes de forma estable.
+2. Conexión a Base de Datos (`DATABASE_URL` en `app/config.py`):
+   Render inyecta la cadena de conexión interna de PostgreSQL en la variable de entorno
+   `DATABASE_URL`. `app/config.py` convierte automáticamente el esquema `postgres://` a
+   `postgresql://` para cumplir con `SQLAlchemy 2.0` y activa `pool_pre_ping=True` para
+   reconectar de forma transparente si una conexión inactiva se cierra.
+3. Despliegue declarativo con `render.yaml` (Blueprint):
+   El archivo `render.yaml` en la raíz define como código tanto la base de datos
+   `banco-alimentos-db` como el servicio web `banco-alimentos`, configurando:
+   - `buildCommand: pip install -r requirements.txt`
+   - `startCommand: gunicorn run:app`
+   - `healthCheckPath: /api/salud` (Render verifica continuamente que Flask y PostgreSQL
+     respondan HTTP 200 antes de dirigir tráfico a la nueva versión).
+   - Generación automática de secretos (`SECRET_KEY` y `ADMIN_PASSWORD`).
+4. Inicialización de esquema y catálogos en la nube:
+   Una vez creada la instancia PostgreSQL en Render:
+   - Se ejecuta una única vez el DDL `Database/schema.sql` usando la *External Database URL*
+     (`psql "<EXTERNAL_DATABASE_URL>" -f Database/schema.sql`) para crear las 25 tablas.
+   - Se invoca `POST https://<tu-servicio>.onrender.com/api/seed` para poblar los
+     catálogos operativos esenciales (`roles`, `categorias_alimento`, `unidades_medida`).
 
 ================================================================================
                        FIN DE LA GUÍA DE ESTUDIO
