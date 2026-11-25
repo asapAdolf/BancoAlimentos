@@ -1,0 +1,596 @@
+================================================================================
+          GUÍA DE ESTUDIO COMPLETA - PLATAFORMA RESCATE ALIMENTARIO
+================================================================================
+Este documento está diseñado como una guía didáctica de estudio y referencia
+técnica. Explica la arquitectura integral del sistema, el funcionamiento y
+distribución del Front-End, la arquitectura del Back-End con énfasis riguroso
+en los Patrones de Diseño, la guía práctica para extenderlos y el funcionamiento
+del ecosistema con Flask y la Base de Datos PostgreSQL.
+================================================================================
+
+ÍNDICE GENERAL
+--------------------------------------------------------------------------------
+1. VISIÓN GENERAL Y ARQUITECTURA DEL SISTEMA
+2. ESTRUCTURA GLOBAL DE ARCHIVOS Y DIRECTORIOS
+3. FRONT-END: FUNCIONAMIENTO Y DISTRIBUCIÓN DE ARCHIVOS
+4. BACK-END: ARQUITECTURA, FLUJO DE EJECUCIÓN Y CAPAS
+5. PATRONES DE DISEÑO EN EL BACK-END (ANÁLISIS PROFUNDO)
+   5.1. Factory Method (Creación de Publicaciones)
+   5.2. Adapter (Canales de Notificación y Proveedores de Mapas)
+   5.3. Strategy (Cálculo Dinámico de Descuentos)
+   5.4. Observer (Catálogo y Suscripciones en Tiempo Real)
+6. GUÍA PRÁCTICA: CÓMO AGREGAR NUEVOS ELEMENTOS A LOS PATRONES
+   6.1. Agregar una nueva modalidad a Factory Method
+   6.2. Agregar un nuevo canal al Adapter
+   6.3. Agregar una nueva estrategia a Strategy
+   6.4. Agregar un nuevo observador a Observer
+7. FLASK Y LA BASE DE DATOS POSTGRESQL
+   7.1. Esquema relacional (Database/schema.sql)
+   7.2. Configuración y variables de entorno (.env y config.py)
+   7.3. Capa ORM y Modelos (models.py y database.py)
+   7.4. Rutas, Endpoints y API REST (app.py)
+   7.5. Scripts de arranque (.bat) y verificación
+--------------------------------------------------------------------------------
+
+
+================================================================================
+1. VISIÓN GENERAL Y ARQUITECTURA DEL SISTEMA
+================================================================================
+Rescate Alimentario es una plataforma diseñada para reducir el desperdicio de
+alimentos conectando establecimientos (restaurantes, panaderías, supermercados)
+con beneficiarios (personas particulares y organizaciones de ayuda humanitaria).
+
+La arquitectura general se compone de tres capas principales:
+
+  [ FRONT-END: React 19 + TypeScript + Vite ]
+         │ (Peticiones HTTP / JSON con REST API)
+         ▼
+  [ BACK-END: Express (TS) con Patrones de Diseño / Flask (Python) con ORM ]
+         │ (Consultas SQL vía SQLAlchemy / psycopg2 / In-Memory Driver)
+         ▼
+  [ BASE DE DATOS: PostgreSQL (BancoAlimentos) ]
+
+Características clave de diseño:
+- Desacoplamiento: La interfaz de usuario no conoce la estructura interna de la
+  base de datos ni los algoritmos de cálculo.
+- Extensibilidad: Nuevos métodos de entrega, notificaciones o reglas de negocio
+  se integran mediante patrones sin alterar el código existente (Principio Open/Closed).
+
+
+================================================================================
+2. ESTRUCTURA GLOBAL DE ARCHIVOS Y DIRECTORIOS
+================================================================================
+rescate-alimentario/
+│
+├── .env                          -> Variables de entorno sensibles (BD, credenciales, puertos)
+├── .env.example                  -> Plantilla pública de variables de entorno
+├── .gitignore                    -> Exclusión de node_modules, .env, venv, compildos
+├── arrancar.bat                  -> Script de arranque de BD PostgreSQL y Front-End
+├── arrancar_flask.bat            -> Script de arranque del servidor Flask
+├── arrancar_todo.bat             -> Script de arranque completo (BD + Flask + Front)
+├── index.html                    -> Plantilla HTML de entrada para Vite
+├── package.json                  -> Dependencias y scripts de npm del Front-End
+├── tsconfig.json                 -> Configuración global de TypeScript
+├── vite.config.ts                -> Configuración del empaquetador Vite
+│
+├── public/                       -> Recursos estáticos públicos (logos SVG, íconos)
+│   ├── favicon.svg
+│   └── icons.svg
+│
+├── src/                          -> CÓDIGO FUENTE DEL FRONT-END (React + TS)
+│   ├── main.tsx                  -> Punto de entrada del cliente DOM
+│   ├── App.tsx                   -> Enrutador principal y proveedores de contexto
+│   ├── components/               -> Componentes reutilizables de UI
+│   │   ├── catalog/              -> Tarjetas y filtros del catálogo de alimentos
+│   │   ├── landing/              -> Secciones de la página de inicio pública
+│   │   ├── layout/               -> Navbar, Footer y Plantilla del Panel
+│   │   └── ui/                   -> Modales, gráficas, insignias, toasts, mapas
+│   ├── context/                  -> Estados globales (AuthContext, PlataformaContext)
+│   ├── data/                     -> Datos iniciales mock y perfiles demo del front
+│   ├── pages/                    -> Pantallas completas (Catálogo, Detalle, etc.)
+│   ├── styles/                   -> Hojas de estilo modulares (CSS puro)
+│   ├── types/                    -> Interfaces TypeScript del modelo de datos front
+│   └── utils/                    -> Funciones auxiliares de formato y precios
+│
+├── backend/                      -> CÓDIGO FUENTE DEL BACK-END EN TYPESCRIPT (Express)
+│   ├── package.json              -> Dependencias del backend Node/TS
+│   ├── README.md                 -> Documentación y catálogo de endpoints Node
+│   └── src/
+│       ├── app.ts                -> Configuración de middlewares y Express
+│       ├── servidor.ts           -> Entrada del servidor HTTP (puerto 3000)
+│       ├── datos/                -> Base de datos en memoria (BaseDatosMemoria.ts)
+│       ├── demo/                 -> Demos ejecutables de consola por patrón
+│       ├── errores/              -> Clases de excepción personalizadas
+│       ├── modelos/              -> Clases y tipos de entidades del negocio
+│       ├── patrones/             -> IMPLEMENTACIÓN DE PATRONES DE DISEÑO:
+│       │   ├── factory/          -> Factory Method (PublicacionFactory)
+│       │   ├── adapter/          -> Adapter (notificaciones y mapas)
+│       │   ├── strategy/         -> Strategy (estrategias de descuento)
+│       │   └── observer/         -> Observer (catálogo y observadores)
+│       ├── registro/             -> Registro y métricas de desperdicio evitado
+│       ├── rutas/                -> Endpoints REST divididos por dominio
+│       ├── servicios/            -> Lógica de aplicación y orquestación
+│       ├── utils/                -> Utilidades de fechas, IDs y texto
+│       └── validaciones/         -> Validaciones de payloads de entrada
+│
+├── Database/
+│   └── schema.sql                -> Script DDL oficial de PostgreSQL (25 tablas)
+│
+├── requirements.txt              -> Dependencias de Python para Flask
+├── config.py                     -> Configuración y lectura de .env para Flask
+├── database.py                   -> Instancia de SQLAlchemy para Flask
+├── models.py                     -> Modelos ORM relacionales para Flask/PostgreSQL
+└── app.py                        -> Servidor API REST en Python/Flask (puerto 5000)
+
+
+================================================================================
+3. FRONT-END: FUNCIONAMIENTO Y DISTRIBUCIÓN DE ARCHIVOS
+================================================================================
+El Front-End está desarrollado en React 19 con TypeScript, utilizando Vite como
+entorno de compilación y servidor de desarrollo ultrarrápido.
+
+3.1. Flujo de Inicialización
+----------------------------
+1. El navegador carga `index.html`.
+2. `index.html` invoca `src/main.tsx`.
+3. `main.tsx` monta el componente raíz `<App />` dentro del elemento `#root`.
+4. `App.tsx` envuelve la aplicación en dos contextos globales:
+   - `<AuthProvider>`: Mantiene la sesión del usuario actual (persona, donante, etc.).
+   - `<PlataformaProvider>`: Gestiona el estado de publicaciones, reservaciones,
+     notificaciones e impacto ambiental en memoria reactiva.
+5. `App.tsx` define las rutas mediante React Router (`react-router-dom`):
+   - `/`: PaginaInicio (Landing promocional)
+   - `/catalogo`: PaginaCatalogo (Listado interactivo de alimentos)
+   - `/alimento/:id`: PaginaDetalle (Detalle y reserva de alimento)
+   - `/publicar`: PaginaPublicar (Formulario para establecimientos)
+   - `/mis-publicaciones`: PaginaMisPublicaciones (Gestión del comercio)
+   - `/reservaciones`: PaginaReservaciones (Historial de apartados)
+   - `/notificaciones`: PaginaNotificaciones (Bandeja de avisos)
+   - `/estadisticas`: PaginaEstadisticas (Impacto ecológico y CO2 evitado)
+   - `/ubicacion`: PaginaUbicacion (Mapa interactivo de donantes)
+   - `/login` y `/registro`: Autenticación del sistema
+
+3.2. Distribución de Responsabilidades en el Front
+--------------------------------------------------
+- `src/components/layout/`:
+  - `Navbar.tsx`: Barra superior con cambio de usuario demo y accesos rápidos.
+  - `PanelLayout.tsx`: Contenedor principal con barra lateral para usuarios autenticados.
+  - `Footer.tsx`: Pie de página informativo.
+
+- `src/components/catalog/`:
+  - `TarjetaAlimento.tsx`: Renderiza la card de cada producto con su insignia
+    (Donación, Descuento, Venta), precio calculado y botón de apartado.
+  - `FiltrosCatalogo.tsx`: Barra lateral de filtrado por categoría, precio máximo,
+    zona geográfica y ordenamiento.
+
+- `src/components/ui/`:
+  - Componentes modulares y reutilizables: modales (`Modal.tsx`), gráficas SVG
+    (`GraficaBarras.tsx`, `GraficaDonut.tsx`), toasts de notificación (`Toasts.tsx`),
+    estados vacíos (`EstadoVacio.tsx`) y visualizador simulado de mapas (`MapaDemo.tsx`).
+
+- `src/context/`:
+  - `AuthContext.tsx`: Almacena el usuario activo (`usuarioActual`), sus permisos
+    y permite alternar entre perfiles demo rápidamente.
+  - `PlataformaContext.tsx`: Actúa como cliente de datos. Contiene los métodos
+    `publicarAlimento()`, `reservarAlimento()`, `confirmarEntrega()` y dispara
+    las alertas visuales correspondientes.
+
+
+================================================================================
+4. BACK-END: ARQUITECTURA, FLUJO DE EJECUCIÓN Y CAPAS
+================================================================================
+El Back-End sigue una arquitectura en capas desacoplada. Cuando llega una
+petición HTTP (por ejemplo `POST /api/publicaciones`):
+
+  1. CAPA DE RUTAS (`src/rutas/`):
+     Recibe la petición HTTP, extrae parámetros y encabezados (ej. `x-usuario-id`).
+  2. CAPA DE VALIDACIONES (`src/validaciones/`):
+     Comprueba que los datos obligatorios estén presentes y que los rangos de
+     precios, fechas y porcentajes sean coherentes. Si fallan, lanza excepciones
+     de tipo `IllegalArgumentException`.
+  3. CAPA DE SERVICIOS (`src/servicios/`):
+     Contiene las reglas de negocio. Por ejemplo, `PublicacionServicio` coordina
+     con `PublicacionFactory` para construir la entidad adecuada, la persiste y
+     luego usa `CatalogoAlimentos` para notificar a los suscriptores.
+  4. CAPA DE PATRONES (`src/patrones/`):
+     Ejecuta las abstracciones puras del dominio (fábricas, adaptadores,
+     estrategias y observadores).
+  5. CAPA DE DATOS / PERSISTENCIA (`src/datos/` y `Database/`):
+     Guarda y recupera los objetos en memoria o en PostgreSQL.
+
+
+================================================================================
+5. PATRONES DE DISEÑO EN EL BACK-END (ANÁLISIS PROFUNDO)
+================================================================================
+
+--------------------------------------------------------------------------------
+5.1. FACTORY METHOD (Creación de Publicaciones de Alimentos)
+--------------------------------------------------------------------------------
+¿Qué problema resuelve?
+El sistema maneja tres tipos de publicaciones con reglas y cálculos completamente
+distintos:
+  - Venta directa: Se vende al precio base original.
+  - Descuento: Se calcula un precio rebajado según una estrategia o porcentaje.
+  - Donación: El precio final siempre es exactamente 0.00.
+
+Si usáramos `if-else` o `switch` por todo el código para verificar el tipo,
+cualquier cambio rompería el sistema.
+
+Archivos involucrados:
+- `backend/src/patrones/factory/PublicacionAlimento.ts` -> Interfaz Producto común.
+  Declara métodos obligatorios:
+  - `getModalidad(): Modalidad`
+  - `calcularPrecioFinal(): number`
+  - `getPorcentajeDescuento(): number`
+  - `mostrarPublicacion(): void`
+  - `toJSON(): PublicacionDTO`
+
+- Clases Concretas (Productos):
+  - `PublicacionVenta.ts`: `calcularPrecioFinal()` devuelve `precioBase`.
+  - `PublicacionDonacion.ts`: `calcularPrecioFinal()` devuelve estrictamente `0`.
+  - `PublicacionDescuento.ts`: Aplica el patrón Strategy para deducir el porcentaje
+    y calcula `precioBase * (1 - descuento / 100)`.
+
+- `backend/src/patrones/factory/PublicacionFactory.ts` -> La Fábrica (Creator):
+  Contiene el método estático:
+  `PublicacionFactory.crearPublicacion(tipo: string, datos: DatosPublicacion)`
+  Evalúa el string `tipo` y retorna la instancia concreta correspondiente sin
+  que el cliente conozca los detalles de instanciación.
+
+--------------------------------------------------------------------------------
+5.2. ADAPTER (Notificaciones y Proveedores de Mapas)
+--------------------------------------------------------------------------------
+¿Qué problema resuelve?
+El sistema necesita comunicarse con servicios externos que tienen interfaces,
+métodos y parámetros incompatibles entre sí:
+1. En notificaciones: SMS, WhatsApp y Correo Electrónico.
+2. En mapas: Google Maps y OpenStreetMap.
+
+Archivos involucrados en Notificaciones:
+- `backend/src/patrones/adapter/notificaciones/Notificacion.ts` -> Interfaz Target:
+  ```typescript
+  export interface Notificacion {
+    enviarMensaje(mensaje: string): void;
+  }
+  ```
+- Clases Adaptadas (Adaptees / Servicios externos simulados):
+  - `SMS.ts`: Tiene su propio método `enviarMensaje(mensaje)` con límites de SMS.
+  - `Whatsapp.ts`: Requiere un formato de mensaje para chat móvil.
+  - `Email.ts`: Maneja concepto de asunto y remitente.
+- Adaptadores (Adapters):
+  - `smsAdapter.ts` implementa `Notificacion` envolviendo una instancia de `SMS`.
+  - `whatsappAdapter.ts` implementa `Notificacion` envolviendo `Whatsapp`.
+  - `emailAdapter.ts` implementa `Notificacion` envolviendo `Email`.
+
+Archivos involucrados en Mapas:
+- `backend/src/patrones/adapter/mapas/Mapa.ts` -> Interfaz común con:
+  - `obtenerCoordenadas(direccion: string): Coordenadas`
+  - `calcularRuta(origen, destino): Ruta`
+- Clases Adaptadas: `GoogleMaps.ts` y `OpenStreetMap.ts`.
+- Adaptadores: `googleMapsAdapter.ts` y `openStreetMapAdapter.ts`.
+
+El resto del sistema solo invoca `mapa.calcularRuta(...)` o `notificador.enviarMensaje(...)`,
+siendo indiferente a cuál proveedor físico está activo.
+
+--------------------------------------------------------------------------------
+5.3. STRATEGY (Cálculo Dinámico de Descuentos)
+--------------------------------------------------------------------------------
+¿Qué problema resuelve?
+Un alimento en descuento no siempre se descuenta de la misma manera:
+- Puede descontarse por **proximidad a caducidad** (a menos días restantes, mayor descuento).
+- Puede descontarse por **disponibilidad o sobreinventario** (a mayor volumen estancado, mayor descuento).
+
+Archivos involucrados:
+- `backend/src/patrones/strategy/DescuentoStrategy.ts` -> Interfaz de la Estrategia:
+  ```typescript
+  export interface DescuentoStrategy {
+    calcularDescuento(alimento: Alimento, porcentajeMaximo: number): number;
+    getTipo(): EstrategiaDescuento;
+    getDescripcion(): string;
+  }
+  ```
+- Estrategias Concretas:
+  - `DescuentoPorCaducidad.ts`: Calcula los días entre hoy y la fecha de caducidad.
+    Si vence hoy: aplica el 100% del porcentaje máximo fijado.
+    Si vence en 1 día: aplica el 80%, etc.
+  - `DescuentoPorDisponibilidad.ts`: Revisa la cantidad de unidades en almacén.
+    Si hay más de 20 unidades: aplica el 100% del porcentaje permitido.
+  - `crearEstrategia.ts`: Fábrica auxiliar para instanciar la estrategia según el texto
+    ('caducidad' o 'disponibilidad').
+
+--------------------------------------------------------------------------------
+5.4. OBSERVER (Catálogo y Suscripciones en Tiempo Real)
+--------------------------------------------------------------------------------
+¿Qué problema resuelve?
+Cuando un establecimiento publica un alimento nuevo, múltiples usuarios
+interesados deben ser notificados sin que el catálogo deba acoplarse a cada uno.
+
+Archivos involucrados:
+- `backend/src/patrones/observer/Observador.ts` -> Interfaz del Observador:
+  ```typescript
+  export interface Observador {
+    actualizar(mensaje: string, publicacion: PublicacionAlimento): void;
+    getId(): string;
+  }
+  ```
+- `backend/src/patrones/observer/CatalogoAlimentos.ts` -> Sujeto (Subject):
+  Mantiene una lista privada de observadores `private observadores: Observador[] = []`.
+  Métodos:
+  - `agregarObservador(obs: Observador)`
+  - `eliminarObservador(obs: Observador)`
+  - `notificar(mensaje, publicacion)`: Recorre la lista y llama a `obs.actualizar(...)`.
+  - `nuevoAlimento(publicacion)`: Dispara la notificación colectiva al publicar.
+- `backend/src/patrones/observer/UsuarioObservador.ts` -> Observador Concreto:
+  Representa a un usuario suscrito. Al recibir `actualizar(...)`, utiliza su
+  adaptador de notificación configurado (SMS, WhatsApp o Email) para transmitir
+  el mensaje a su dispositivo.
+
+
+================================================================================
+6. GUÍA PRÁCTICA: CÓMO AGREGAR NUEVOS ELEMENTOS A LOS PATRONES
+================================================================================
+
+--------------------------------------------------------------------------------
+6.1. CÓMO AGREGAR UNA NUEVA MODALIDAD A FACTORY METHOD (Ej. "Subasta")
+--------------------------------------------------------------------------------
+Imagina que deseas permitir donaciones especiales o publicaciones por "Subasta".
+
+Paso 1: Crear la clase concreta del producto
+Crea el archivo `backend/src/patrones/factory/PublicacionSubasta.ts`:
+```typescript
+import { PublicacionAlimento, DatosPublicacion, PublicacionDTO } from './PublicacionAlimento.js';
+import { Modalidad } from '../../modelos/tipos.js';
+
+export class PublicacionSubasta implements PublicacionAlimento {
+  id: string;
+  alimento: any;
+  horarioRecoleccion: any;
+  establecimiento: any;
+  estadoActual: any;
+  precioBase: number;
+  fechaPublicacion: string;
+
+  constructor(datos: DatosPublicacion) {
+    this.id = datos.id;
+    this.alimento = datos.alimento;
+    this.horarioRecoleccion = datos.horarioRecoleccion;
+    this.establecimiento = datos.establecimiento;
+    this.estadoActual = datos.estadoActual ?? 'disponible';
+    this.precioBase = datos.precioBase;
+    this.fechaPublicacion = datos.fechaPublicacion ?? new Date().toISOString();
+  }
+
+  getModalidad(): Modalidad {
+    return 'subasta' as Modalidad; // Asegúrate de agregar 'subasta' al type Modalidad
+  }
+
+  getPorcentajeDescuento(): number {
+    return 0;
+  }
+
+  calcularPrecioFinal(): number {
+    // La subasta arranca en el 50% del precio base como postura inicial
+    return this.precioBase * 0.50;
+  }
+
+  mostrarPublicacion(): void {
+    console.log(`[SUBASTA] ${this.alimento.nombre} - Puja inicial: $${this.calcularPrecioFinal()}`);
+  }
+
+  toJSON(): PublicacionDTO {
+    return {
+      id: this.id,
+      modalidad: this.getModalidad(),
+      alimento: this.alimento,
+      horarioRecoleccion: this.horarioRecoleccion,
+      establecimiento: this.establecimiento,
+      estadoActual: this.estadoActual,
+      precioBase: this.precioBase,
+      porcentajeDescuento: 0,
+      precioFinal: this.calcularPrecioFinal(),
+      fechaPublicacion: this.fechaPublicacion
+    };
+  }
+}
+```
+
+Paso 2: Registrar la clase en la fábrica
+Abre `backend/src/patrones/factory/PublicacionFactory.ts` y añade el nuevo caso:
+```typescript
+import { PublicacionSubasta } from './PublicacionSubasta.js';
+
+export class PublicacionFactory {
+  static crearPublicacion(tipo: string, datos: DatosPublicacion): PublicacionAlimento {
+    if (equalsIgnoreCase(tipo, 'venta')) {
+      return new PublicacionVenta(datos);
+    } else if (equalsIgnoreCase(tipo, 'descuento')) {
+      return new PublicacionDescuento(datos);
+    } else if (equalsIgnoreCase(tipo, 'donacion')) {
+      return new PublicacionDonacion(datos);
+    } else if (equalsIgnoreCase(tipo, 'subasta')) {
+      return new PublicacionSubasta(datos); // <-- NUEVO ELEMENTO
+    }
+    throw new IllegalArgumentException('Tipo de publicación no válido');
+  }
+}
+```
+¡Listo! Todo el sistema consumirá la nueva modalidad sin tocar controladores ni vistas.
+
+--------------------------------------------------------------------------------
+6.2. CÓMO AGREGAR UN NUEVO CANAL AL ADAPTER (Ej. "Telegram")
+--------------------------------------------------------------------------------
+Paso 1: Crear la clase externa o servicio (Adaptee)
+Crea `backend/src/patrones/adapter/notificaciones/Telegram.ts`:
+```typescript
+export class Telegram {
+  enviarMensajeTelegram(chatId: string, texto: string): void {
+    console.log(`[TELEGRAM API] Enviando a ChatID ${chatId}: "${texto}"`);
+  }
+}
+```
+
+Paso 2: Crear el adaptador que implementa la interfaz común `Notificacion`
+Crea `backend/src/patrones/adapter/notificaciones/telegramAdapter.ts`:
+```typescript
+import { Notificacion } from './Notificacion.js';
+import { Telegram } from './Telegram.js';
+
+export class telegramAdapter implements Notificacion {
+  private telegram: Telegram = new Telegram();
+  private chatId: string;
+
+  constructor(chatId: string = '') {
+    this.chatId = chatId;
+  }
+
+  enviarMensaje(mensaje: string): void {
+    this.telegram.enviarMensajeTelegram(this.chatId || '@canal_rescate', mensaje);
+  }
+}
+```
+
+Paso 3: Instanciarlo en el servicio de notificaciones
+En `backend/src/servicios/NotificacionServicio.ts`, dentro del método `crearNotificador(canal, destinatario)`:
+```typescript
+if (canal === 'telegram') {
+  return new telegramAdapter(destinatario);
+}
+```
+
+--------------------------------------------------------------------------------
+6.3. CÓMO AGREGAR UNA NUEVA ESTRATEGIA A STRATEGY (Ej. "Por Horario")
+--------------------------------------------------------------------------------
+Paso 1: Crear la clase que implementa `DescuentoStrategy`
+Crea `backend/src/patrones/strategy/DescuentoPorHorario.ts`:
+```typescript
+import { DescuentoStrategy, porcentajeDe } from './DescuentoStrategy.js';
+import { Alimento } from '../../modelos/Alimento.js';
+import { EstrategiaDescuento } from '../../modelos/tipos.js';
+
+export class DescuentoPorHorario implements DescuentoStrategy {
+  calcularDescuento(alimento: Alimento, porcentajeMaximo: number): number {
+    const horaActual = new Date().getHours();
+    // Si ya pasa de las 20:00 hrs, liquidar con descuento total
+    if (horaActual >= 20) {
+      return porcentajeMaximo;
+    } else if (horaActual >= 18) {
+      return porcentajeDe(porcentajeMaximo, 0.70);
+    }
+    return porcentajeDe(porcentajeMaximo, 0.30);
+  }
+
+  getTipo(): EstrategiaDescuento {
+    return 'horario' as EstrategiaDescuento;
+  }
+
+  getDescripcion(): string {
+    return 'Descuento agresivo en horario nocturno previo al cierre';
+  }
+}
+```
+
+Paso 2: Registrar en `crearEstrategia.ts`:
+```typescript
+if (equalsIgnoreCase(tipo, 'horario')) {
+  return new DescuentoPorHorario();
+}
+```
+
+--------------------------------------------------------------------------------
+6.4. CÓMO AGREGAR UN NUEVO OBSERVADOR A OBSERVER (Ej. "AuditorObservador")
+--------------------------------------------------------------------------------
+Paso 1: Crear la clase que implementa `Observador`
+Crea `backend/src/patrones/observer/AuditorObservador.ts`:
+```typescript
+import { Observador } from './Observador.js';
+import { PublicacionAlimento } from '../factory/PublicacionAlimento.js';
+
+export class AuditorObservador implements Observador {
+  private idAuditor: string;
+
+  constructor(idAuditor: string) {
+    this.idAuditor = idAuditor;
+  }
+
+  getId(): string {
+    return this.idAuditor;
+  }
+
+  actualizar(mensaje: string, publicacion: PublicacionAlimento): void {
+    // Registra en una bitácora o consola de auditoría legal
+    console.log(`[AUDITORÍA ${this.idAuditor}] Registro de evento: Publicación ID ${publicacion.id} de tipo ${publicacion.getModalidad()}`);
+  }
+}
+```
+
+Paso 2: Suscribirlo al catálogo:
+```typescript
+const auditor = new AuditorObservador('AUDIT-001');
+catalogoAlimentos.agregarObservador(auditor);
+```
+
+
+================================================================================
+7. FLASK Y LA BASE DE DATOS POSTGRESQL
+================================================================================
+Para complementar o dar soporte a un backend en Python con persistencia relacional
+robusta, se construyó una arquitectura en Flask integrada con PostgreSQL.
+
+7.1. El Esquema Relacional (`Database/schema.sql`)
+-------------------------------------------------
+El archivo DDL contiene 25 tablas relacionales organizadas en dominios:
+- Catálogos: `roles`, `zonas`, `unidades_medida`, `categorias_alimento`, `metodos_pago`.
+- Seguridad y Personas: `usuarios`, `usuario_roles`, `tokens_sesion`.
+- Establecimientos y Logística: `establecimientos`, `horarios_recoleccion`, `transportistas`.
+- Alimentos y Operaciones: `alimentos`, `publicaciones`, `reservaciones`, `detalles_reservacion`.
+- Trazabilidad e Impacto: `historial_publicaciones`, `notificaciones`, `calificaciones`.
+
+7.2. Configuración y Variables de Entorno (`.env` y `config.py`)
+----------------------------------------------------------------
+- Archivo `.env`:
+  Guarda de forma segura las credenciales sin exponerlas en git:
+  `DB_USER=postgres`
+  `DB_PASSWORD=<tu_password>`
+  `DB_HOST=localhost`
+  `DB_PORT=5432`
+  `DB_NAME=BancoAlimentos`
+  `DATABASE_URL=postgresql://postgres:<tu_password>@localhost:5432/BancoAlimentos`
+
+- Archivo `config.py`:
+  Lee el archivo `.env` mediante `python-dotenv` y configura `Flask-SQLAlchemy` con
+  parámetros profesionales como `pool_pre_ping=True` (comprueba que la conexión siga
+  viva antes de ejecutar queries) y `pool_recycle=300`.
+
+7.3. Capa ORM y Modelos (`models.py` y `database.py`)
+-----------------------------------------------------
+- `database.py`: Instancia `db = SQLAlchemy()`, evitando dependencias circulares.
+- `models.py`: Mapea las tablas de PostgreSQL a clases de Python.
+  Cada modelo cuenta con un método `.to_dict()`, que convierte la tupla de la BD
+  en un diccionario limpio listo para serializarse en formato JSON para el Front-End.
+
+7.4. Rutas, Endpoints y API REST (`app.py`)
+-------------------------------------------
+`app.py` utiliza el patrón Application Factory (`create_app()`):
+- Habilita `flask_cors.CORS` para que el Front-End en React pueda consultar la API.
+- Endpoints disponibles:
+  - `GET /api/salud`: Ejecuta `SELECT 1` y cuenta las tablas de la BD para certificar
+    que la conexión esté viva.
+  - `GET /api/roles`: Retorna el catálogo de roles.
+  - `GET /api/categorias`: Retorna categorías de alimentos.
+  - `GET /api/unidades`: Retorna unidades métricas.
+  - `GET /api/usuarios`: Consulta los usuarios registrados.
+  - `GET /api/publicaciones`: Consulta el catálogo de publicaciones activas.
+  - `POST /api/seed`: Inserta automáticamente registros iniciales si las tablas
+    están vacías.
+
+7.5. Scripts de Automatización (.bat)
+-------------------------------------
+Para facilitar la ejecución en Windows, se crearon scripts por lotes:
+1. `arrancar.bat`: Comprueba el servicio Windows de PostgreSQL e inicia el Front-End.
+2. `arrancar_flask.bat`: Inicia el servicio de PostgreSQL y arranca Flask en el puerto 5000.
+3. `arrancar_todo.bat`: Script maestro que levanta PostgreSQL, abre la API Flask en
+   una ventana independiente y arranca la interfaz Vite abriendo el navegador.
+
+================================================================================
+                       FIN DE LA GUÍA DE ESTUDIO
+================================================================================

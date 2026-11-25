@@ -1,4 +1,4 @@
-"""Inicio de sesión, registro y cierre de sesión (SIMULADOS: no hay verificación real de contraseñas)."""
+"""Inicio de sesión, registro y cierre de sesión."""
 import re
 
 from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -9,14 +9,7 @@ bp = Blueprint('auth', __name__)
 
 CORREO = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
-# Cuentas de demostración que se muestran en el login (cualquier contraseña funciona).
-CUENTAS_DEMO = [
-    ('cliente@demo.mx', 'Cliente', 'shopping-basket'),
-    ('empresa@demo.mx', 'Empresa', 'store'),
-    ('transportista@demo.mx', 'Transportista', 'truck'),
-    ('admin@demo.mx', 'Administrador', 'shield-check'),
-]
-ROLES_REGISTRO = ('cliente', 'empresa', 'transportista')  # el administrador no se registra aquí
+ROLES_REGISTRO = ('cliente', 'empresa', 'transportista')
 
 
 def _destino_seguro(destino):
@@ -41,17 +34,19 @@ def login():
         if not clave:
             errores['password'] = 'La contraseña es obligatoria.'
         if not errores:
-            usuario = store.get_usuario(email)
-            if usuario is None:
-                errores['general'] = 'No existe una cuenta con ese correo. Usa una cuenta de demostración o regístrate.'
-            elif not usuario['activo']:
+            existente = store.get_usuario(email)
+            if existente is None:
+                errores['general'] = 'No existe una cuenta con ese correo. Regístrate para continuar.'
+            elif not existente['activo']:
                 errores['general'] = 'Esta cuenta está suspendida. Contacta a un administrador.'
+            elif store.autenticar_usuario(email, clave) is None:
+                errores['general'] = 'Correo o contraseña incorrectos.'
             else:
                 session.clear()
                 session['email'] = email
-                flash(f'¡Bienvenido, {usuario["nombre"].split(" ")[0]}!', 'exito')
+                flash(f'¡Bienvenido, {existente["nombre"].split(" ")[0]}!', 'exito')
                 return redirect(_destino_seguro(request.args.get('next')))
-    return render_template('auth/login.html', errores=errores, email=email, cuentas=CUENTAS_DEMO)
+    return render_template('auth/login.html', errores=errores, email=email)
 
 
 @bp.route('/registro', methods=['GET', 'POST'])
@@ -87,10 +82,9 @@ def registro():
         if f['rol'] == 'transportista' and len(f['vehiculo']) < 3:
             errores['vehiculo'] = 'Indica tu vehículo (por ejemplo: Camioneta Nissan NP300).'
         if not errores:
-            # La contraseña NO se guarda: esta demostración no verifica contraseñas.
             try:
                 usuario = store.registrar_usuario(f['email'], f['nombre'], f['rol'], f['telefono'].replace(' ', ''),
-                                                  f['establecimiento'], f['giro'], f['vehiculo'])
+                                                  f['establecimiento'], f['giro'], f['vehiculo'], password=clave)
             except ValueError as e:
                 errores['email'] = str(e)
             else:

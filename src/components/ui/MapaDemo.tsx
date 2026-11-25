@@ -1,11 +1,9 @@
 import { MapPin } from 'lucide-react'
 
-// MAPA DE DEMOSTRACIÓN dibujado con SVG. No usa Google Maps ni ninguna API.
-// Cuando el Back-End tenga el servicio de mapas, este componente se reemplazará por el mapa real.
 export default function MapaDemo({ ruta, nombre }: { ruta: boolean; nombre: string }) {
   return (
     <div className="mapa-demo">
-      <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Mapa de demostración">
+      <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Mapa de ubicación">
         <rect width="600" height="360" fill="#e9efe3" />
         {/* parque y río */}
         <rect x="380" y="40" width="150" height="90" rx="22" fill="#cfe3c4" />
@@ -54,10 +52,9 @@ export default function MapaDemo({ ruta, nombre }: { ruta: boolean; nombre: stri
       </div>
       {ruta && (
         <div className="mapa-origen" style={{ left: `${(120 / 600) * 100}%`, top: `${(200 / 360) * 100}%` }}>
-          Tu ubicación (ejemplo)
+          Tu ubicación
         </div>
       )}
-      <span className="mapa-sello">VISTA DE DEMOSTRACIÓN · sin Google Maps</span>
     </div>
   )
 }

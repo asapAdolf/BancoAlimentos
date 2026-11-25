@@ -12,14 +12,11 @@ import Pagina from '../components/ui/Pagina'
 import EstadoVacio from '../components/ui/EstadoVacio'
 import FotoAlimento from '../components/ui/FotoAlimento'
 import Modal from '../components/ui/Modal'
-import NotaDiseno from '../components/ui/NotaDiseno'
 import LineaEstados from '../components/ui/LineaEstados'
 import { InsigniaEstado, InsigniaModalidad } from '../components/ui/Insignias'
 
 type FiltroEstado = EstadoPublicacion | 'todas'
 
-// Formulario del modal de edición. Vive en su propio componente para que
-// sus campos arranquen con los datos de la publicación elegida.
 function FormularioEdicion({
   pub,
   onGuardar,
@@ -93,7 +90,6 @@ function FormularioEdicion({
   )
 }
 
-// PANTALLA 8: Mis publicaciones (solo establecimientos).
 export default function PaginaMisPublicaciones() {
   const { usuario } = useAuth()
   const { publicaciones, cancelarPublicacion, editarPublicacion, confirmarEntrega } = usePlataforma()
@@ -107,7 +103,7 @@ export default function PaginaMisPublicaciones() {
         <EstadoVacio
           icono={<Lock size={34} />}
           titulo="Esta sección es para establecimientos"
-          texto="Aquí los negocios administran los alimentos que publican. Prueba con panaderia@demo.mx."
+          texto="Aquí los negocios administran los alimentos que publican."
         >
           <Link to="/app/catalogo" className="btn btn-primario">
             Explorar el catálogo
@@ -142,10 +138,6 @@ export default function PaginaMisPublicaciones() {
         </div>
         <LineaEstados estado="reservado" />
       </section>
-      <NotaDiseno patron="State">
-        Los botones se habilitan según el estado (<strong>EstadoDisponible</strong>, <strong>EstadoReservado</strong>,{' '}
-        <strong>EstadoEntregado</strong>). Estas reglas son un ejemplo visual: ajústalas a las que defina tu equipo.
-      </NotaDiseno>
 
       {mias.length === 0 ? (
         <EstadoVacio

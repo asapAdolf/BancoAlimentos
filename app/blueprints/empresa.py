@@ -92,7 +92,7 @@ def publicar():
                 'unidad': f['unidad'], 'cantidad': int(cantidad), 'kilos': kilos, 'precio_base': precio or 0,
                 'estrategia': f['estrategia'], 'pct': int(pct or 0), 'caducidad': f['caducidad'], 'fecha_rec': f['fecha_rec'],
                 'desde': f['desde'], 'hasta': f['hasta']}, g.user)
-            flash('¡Alimento publicado! Se generó un aviso para los clientes (demostración).', 'exito')
+            flash('¡Alimento publicado! Se generó un aviso para los clientes.', 'exito')
             return redirect(url_for('empresa.publicaciones'))
     est = next(e for e in store.S.ESTABLECIMIENTOS if e['id'] == g.user['est_id'])
     return render_template('empresa/publicar.html', f=f, errores=errores, est=est, previa=_vista_previa(f, est))

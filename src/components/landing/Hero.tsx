@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Sprout, Search, PlusCircle } from 'lucide-react'
+import { usePlataforma } from '../../context/PlataformaContext'
+import { kilos } from '../../utils/formato'
 
 export default function Hero() {
+  const { registro } = usePlataforma()
+
   return (
     <section className="hero">
       <div className="contenedor hero-interior">
@@ -37,7 +41,7 @@ export default function Hero() {
               <Sprout size={22} />
             </span>
             <div>
-              <strong>+12,000 kg</strong>
+              <strong>{kilos(registro.totalKilosEvitados)}</strong>
               <small>de alimentos rescatados</small>
             </div>
           </div>

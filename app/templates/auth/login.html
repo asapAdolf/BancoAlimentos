@@ -37,19 +37,6 @@
     </form>
 
     <p class="auth-pie">¿Aún no tienes cuenta? <a href="{{ url_for('auth.registro') }}">Regístrate</a></p>
-
-    <div class="caja-demo caja-demo-cuentas">
-      {{ icono('info', 18) }}
-      <div>
-        <strong>Modo demostración</strong>
-        <p>Escribe cualquier contraseña. Elige una cuenta para llenar el correo:</p>
-        <div class="cuentas-demo">
-          {% for correo, nombre, ic in cuentas %}
-          <button type="button" class="chip" data-correo="{{ correo }}">{{ icono(ic, 15) }} {{ nombre }}</button>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
   </div>
 </section>
 {% endblock %}

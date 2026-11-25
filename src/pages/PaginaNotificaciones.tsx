@@ -17,7 +17,6 @@ import type { TipoNotificacion } from '../types/notificacion'
 import { hace } from '../utils/formato'
 import Pagina from '../components/ui/Pagina'
 import EstadoVacio from '../components/ui/EstadoVacio'
-import NotaDiseno from '../components/ui/NotaDiseno'
 
 const iconos: Record<TipoNotificacion, LucideIcon> = {
   nuevo: Sparkles,
@@ -27,11 +26,9 @@ const iconos: Record<TipoNotificacion, LucideIcon> = {
   entrega: BadgeCheck,
 }
 
-// PANTALLA 10: Centro de notificaciones.
 export default function PaginaNotificaciones() {
   const { notificaciones, noLeidas, marcarLeida, marcarTodasLeidas } = usePlataforma()
   const [soloSinLeer, setSoloSinLeer] = useState(false)
-  // Interruptores de ejemplo: solo cambian en pantalla.
   const [avisosPlataforma, setAvisosPlataforma] = useState(true)
   const [avisosDescuentos, setAvisosDescuentos] = useState(true)
 
@@ -123,12 +120,6 @@ export default function PaginaNotificaciones() {
               <span className="interruptor" />
             </label>
           </section>
-
-          <NotaDiseno patron="Observer + Adapter">
-            Cuando se publica un alimento, <strong>GestorNotificaciones</strong> notifica a los observadores
-            (<strong>UsuarioOrganizacion</strong>). El envío por WhatsApp usaría{' '}
-            <strong>AdaptadorTwilioWhatsApp</strong>, que todavía no está conectado.
-          </NotaDiseno>
         </aside>
       </div>
     </Pagina>

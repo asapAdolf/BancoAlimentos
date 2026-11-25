@@ -15,7 +15,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { usePlataforma } from '../context/PlataformaContext'
-import { ETIQUETA_ESTRATEGIA } from '../types/alimento'
 import { esEstablecimiento } from '../types/usuario'
 import { useBase } from '../hooks/useBase'
 import { descuentoAplicado, precioFinal } from '../utils/precios'
@@ -25,10 +24,8 @@ import EstadoVacio from '../components/ui/EstadoVacio'
 import FotoAlimento from '../components/ui/FotoAlimento'
 import LineaEstados from '../components/ui/LineaEstados'
 import Modal from '../components/ui/Modal'
-import NotaDiseno from '../components/ui/NotaDiseno'
 import { InsigniaEstado, InsigniaModalidad } from '../components/ui/Insignias'
 
-// PANTALLA 6: Detalle del alimento, con botón para reservar.
 export default function PaginaDetalle() {
   const { id } = useParams()
   const { publicaciones, reservar } = usePlataforma()
@@ -139,13 +136,6 @@ export default function PaginaDetalle() {
             <small className="precio-nota">El precio corresponde al lote completo.</small>
           </div>
 
-          {pub.modalidad === 'descuento' && pub.estrategiaDescuento && (
-            <NotaDiseno patron="Strategy">
-              Descuento calculado con la estrategia <strong>{ETIQUETA_ESTRATEGIA[pub.estrategiaDescuento]}</strong>.
-              El cálculo real lo hará el Back-End; aquí se muestra un valor de ejemplo.
-            </NotaDiseno>
-          )}
-
           <ul className="info-rejilla">
             {datos.map((d) => (
               <li key={d.etiqueta} className={d.urgente ? 'urgente' : ''}>
@@ -217,7 +207,6 @@ export default function PaginaDetalle() {
               Total a pagar al recoger: {final === 0 ? 'Gratis' : moneda(final)}
             </span>
           </div>
-          <p className="aviso-chico">Demostración: no se realiza ningún pago ni se envía información a un servidor.</p>
         </Modal>
       )}
     </Pagina>

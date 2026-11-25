@@ -12,7 +12,6 @@ import GraficaDonut from '../components/ui/GraficaDonut'
 import FotoAlimento from '../components/ui/FotoAlimento'
 import { InsigniaEstado, InsigniaModalidad } from '../components/ui/Insignias'
 
-// PANTALLA 4: Panel principal (resumen).
 export default function PaginaResumen() {
   const { usuario } = useAuth()
   const { publicaciones, notificaciones, registro } = usePlataforma()
@@ -54,7 +53,6 @@ export default function PaginaResumen() {
           valor={kilos(registro.totalKilosEvitados)}
           etiqueta="Kilos recuperados"
           tono="rosa"
-          nota="Dato de demostración"
         />
       </div>
 
@@ -89,33 +87,37 @@ export default function PaginaResumen() {
               Ver catálogo
             </Link>
           </div>
-          <ul className="lista-simple">
-            {recientes.map((pub) => (
-              <li key={pub.id}>
-                <Link to={`/app/catalogo/${pub.id}`} className="fila-pub">
-                  <FotoAlimento src={pub.alimento.foto} alt={pub.alimento.nombre} className="fila-foto" />
-                  <div className="fila-texto">
-                    <strong>{pub.alimento.nombre}</strong>
-                    <span>{pub.establecimiento.nombre}</span>
-                    <div className="fila-insignias">
-                      <InsigniaModalidad modalidad={pub.modalidad} />
-                      <InsigniaEstado estado={pub.estadoActual} />
+          {recientes.length === 0 ? (
+            <p className="ayuda">Aún no hay alimentos publicados.</p>
+          ) : (
+            <ul className="lista-simple">
+              {recientes.map((pub) => (
+                <li key={pub.id}>
+                  <Link to={`/app/catalogo/${pub.id}`} className="fila-pub">
+                    <FotoAlimento src={pub.alimento.foto} alt={pub.alimento.nombre} className="fila-foto" />
+                    <div className="fila-texto">
+                      <strong>{pub.alimento.nombre}</strong>
+                      <span>{pub.establecimiento.nombre}</span>
+                      <div className="fila-insignias">
+                        <InsigniaModalidad modalidad={pub.modalidad} />
+                        <InsigniaEstado estado={pub.estadoActual} />
+                      </div>
                     </div>
-                  </div>
-                  <div className="fila-precio">
-                    {pub.modalidad === 'donacion' ? (
-                      <strong className="precio-gratis">Gratis</strong>
-                    ) : (
-                      <>
-                        {descuentoAplicado(pub) > 0 && <s>{moneda(pub.precioBase)}</s>}
-                        <strong>{moneda(precioFinal(pub))}</strong>
-                      </>
-                    )}
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
+                    <div className="fila-precio">
+                      {pub.modalidad === 'donacion' ? (
+                        <strong className="precio-gratis">Gratis</strong>
+                      ) : (
+                        <>
+                          {descuentoAplicado(pub) > 0 && <s>{moneda(pub.precioBase)}</s>}
+                          <strong>{moneda(precioFinal(pub))}</strong>
+                        </>
+                      )}
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="tarjeta-panel">
@@ -125,22 +127,24 @@ export default function PaginaResumen() {
               Ver todas
             </Link>
           </div>
-          <ul className="lista-simple">
-            {avisos.map((n) => (
-              <li key={n.id} className={`aviso-fila ${n.leida ? '' : 'sin-leer'}`}>
-                <span className="punto-nuevo" aria-hidden="true" />
-                <div>
-                  <strong>{n.titulo}</strong>
-                  <p>{n.mensaje}</p>
-                  <small>{hace(n.fecha)}</small>
-                </div>
-              </li>
-            ))}
-          </ul>
+          {avisos.length === 0 ? (
+            <p className="ayuda">No tienes notificaciones recientes.</p>
+          ) : (
+            <ul className="lista-simple">
+              {avisos.map((n) => (
+                <li key={n.id} className={`aviso-fila ${n.leida ? '' : 'sin-leer'}`}>
+                  <span className="punto-nuevo" aria-hidden="true" />
+                  <div>
+                    <strong>{n.titulo}</strong>
+                    <p>{n.mensaje}</p>
+                    <small>{hace(n.fecha)}</small>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       </div>
-
-      <p className="aviso-demo-claro">* Las cifras de impacto son datos de demostración.</p>
     </Pagina>
   )
 }

@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Usuario } from '../types/usuario'
 import type {
   CategoriaAlimento,
@@ -20,10 +20,19 @@ import { fotoPorCategoria } from '../data/fotos'
 import { fechaEnDias } from '../utils/formato'
 import { precioFinal } from '../utils/precios'
 
-// ESTADO SIMULADO DE LA INTERFAZ.
-// Aquí viven los datos de ejemplo y las acciones que cambian lo que se ve en pantalla
-// (publicar, reservar, confirmar entrega...). NO es un Back-End: al recargar la página,
-// todo vuelve a los datos de ejemplo. Cuando exista la API, estas acciones llamarán al servidor.
+const CLAVE_PUBS = 'ra_publicaciones'
+const CLAVE_RES = 'ra_reservaciones'
+const CLAVE_NOTIF = 'ra_notificaciones'
+const CLAVE_REG = 'ra_registro_impacto'
+
+function leerLocal<T>(clave: string, respaldo: T): T {
+  try {
+    const guardado = localStorage.getItem(clave)
+    return guardado ? (JSON.parse(guardado) as T) : respaldo
+  } catch {
+    return respaldo
+  }
+}
 
 export interface NuevaPublicacion {
   nombre: string
@@ -75,13 +84,52 @@ interface PlataformaValor {
 const PlataformaContexto = createContext<PlataformaValor | null>(null)
 
 export function PlataformaProvider({ children }: { children: ReactNode }) {
-  const [publicaciones, setPublicaciones] = useState<PublicacionAlimento[]>(publicacionesIniciales)
-  const [reservaciones, setReservaciones] = useState<Reservacion[]>(reservacionesIniciales)
-  const [notificaciones, setNotificaciones] = useState<Notificacion[]>(notificacionesIniciales)
-  const [registro, setRegistro] = useState<RegistroDesperdicioEvitado>(registroInicial)
+  const [publicaciones, setPublicaciones] = useState<PublicacionAlimento[]>(() =>
+    leerLocal(CLAVE_PUBS, publicacionesIniciales),
+  )
+  const [reservaciones, setReservaciones] = useState<Reservacion[]>(() =>
+    leerLocal(CLAVE_RES, reservacionesIniciales),
+  )
+  const [notificaciones, setNotificaciones] = useState<Notificacion[]>(() =>
+    leerLocal(CLAVE_NOTIF, notificacionesIniciales),
+  )
+  const [registro, setRegistro] = useState<RegistroDesperdicioEvitado>(() =>
+    leerLocal(CLAVE_REG, registroInicial),
+  )
   const [mensajes, setMensajes] = useState<Mensaje[]>([])
 
-  // Mensaje emergente ("toast") que desaparece solo.
+  useEffect(() => {
+    try {
+      localStorage.setItem(CLAVE_PUBS, JSON.stringify(publicaciones))
+    } catch {
+      // Ignorar si localStorage no está disponible
+    }
+  }, [publicaciones])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CLAVE_RES, JSON.stringify(reservaciones))
+    } catch {
+      // Ignorar si localStorage no está disponible
+    }
+  }, [reservaciones])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CLAVE_NOTIF, JSON.stringify(notificaciones))
+    } catch {
+      // Ignorar si localStorage no está disponible
+    }
+  }, [notificaciones])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CLAVE_REG, JSON.stringify(registro))
+    } catch {
+      // Ignorar si localStorage no está disponible
+    }
+  }, [registro])
+
   const avisar = useCallback((texto: string, tipo: Mensaje['tipo'] = 'exito') => {
     const id = Date.now() + Math.random()
     setMensajes((m) => [...m, { id, texto, tipo }])
@@ -146,7 +194,7 @@ export function PlataformaProvider({ children }: { children: ReactNode }) {
         nueva.id,
       )
     }
-    avisar('¡Alimento publicado! (Demostración) Se generó un aviso para las organizaciones suscritas.')
+    avisar('¡Alimento publicado! Se generó un aviso para las cuentas suscritas.')
     return nueva
   }
 
@@ -191,7 +239,6 @@ export function PlataformaProvider({ children }: { children: ReactNode }) {
       lista.map((p) => (p.id === publicacionId ? { ...p, estadoActual: 'entregado' } : p)),
     )
 
-    // Equivale a "registrar la recuperación" en el registro de desperdicio evitado (solo visual).
     const kilosRecuperados = pub.alimento.kilos
     setRegistro((r) => ({
       ...r,

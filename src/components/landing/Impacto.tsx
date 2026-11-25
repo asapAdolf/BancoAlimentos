@@ -1,11 +1,14 @@
-import { impactoDemo } from '../../data/impactoDemo'
+import { usePlataforma } from '../../context/PlataformaContext'
 
 export default function Impacto() {
+  const { registro, publicaciones } = usePlataforma()
+  const establecimientosActivos = new Set(publicaciones.map((p) => p.establecimiento.id)).size
+
   const estadisticas = [
-    { valor: impactoDemo.totalKilosEvitados.toLocaleString('es-MX'), etiqueta: 'kg de alimento rescatado' },
-    { valor: impactoDemo.totalAlimentosRecuperados.toLocaleString('es-MX'), etiqueta: 'alimentos recuperados' },
-    { valor: impactoDemo.establecimientosParticipantes, etiqueta: 'establecimientos' },
-    { valor: impactoDemo.organizacionesBeneficiadas, etiqueta: 'organizaciones beneficiadas' },
+    { valor: registro.totalKilosEvitados.toLocaleString('es-MX'), etiqueta: 'kg de alimento rescatado' },
+    { valor: registro.totalAlimentosRecuperados.toLocaleString('es-MX'), etiqueta: 'alimentos recuperados' },
+    { valor: establecimientosActivos.toLocaleString('es-MX'), etiqueta: 'establecimientos activos' },
+    { valor: registro.entregasConfirmadas.toLocaleString('es-MX'), etiqueta: 'entregas confirmadas' },
   ]
 
   return (
@@ -13,7 +16,7 @@ export default function Impacto() {
       <div className="contenedor">
         <div className="seccion-titulo">
           <h2>Nuestro impacto</h2>
-          <p>Cada reservación suma al registro de desperdicio evitado.</p>
+          <p>Cada reservación entregada suma al registro real de desperdicio evitado.</p>
         </div>
         <div className="estadisticas">
           {estadisticas.map((e) => (
@@ -23,7 +26,6 @@ export default function Impacto() {
             </div>
           ))}
         </div>
-        <p className="aviso-demo">* Datos de demostración.</p>
       </div>
     </section>
   )

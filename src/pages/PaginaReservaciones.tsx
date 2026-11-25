@@ -224,7 +224,7 @@ export default function PaginaReservaciones() {
             <strong>{confirmando.reserva.usuarioNombre}</strong>?
           </p>
           <p className="aviso-chico">
-            Se sumarán {kilos(confirmando.pub.alimento.kilos)} al registro de desperdicio evitado (demostración).
+            Se sumarán {kilos(confirmando.pub.alimento.kilos)} al registro de desperdicio evitado.
           </p>
         </Modal>
       )}

@@ -61,12 +61,10 @@
     });
   });
 
-  /* ---------- Cuentas de demostración: rellenan el correo ---------- */
-  $$('[data-correo]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var i = document.getElementById('email'); if (i) { i.value = b.getAttribute('data-correo'); i.focus(); }
-    });
-  });
+  /* ---------- Dimensiones y colores dinámicos de gráficas e indicadores ---------- */
+  $$('[data-ancho]').forEach(function (el) { el.style.width = el.getAttribute('data-ancho'); });
+  $$('[data-alto]').forEach(function (el) { el.style.height = el.getAttribute('data-alto'); });
+  $$('[data-color]').forEach(function (el) { el.style.background = el.getAttribute('data-color'); });
 
   /* ---------- Filtros del catálogo: se envían solos ---------- */
   $$('form[data-autoenviar]').forEach(function (f) {

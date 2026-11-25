@@ -20,7 +20,6 @@ import { fechaEnDias, moneda } from '../utils/formato'
 import { precioFinal } from '../utils/precios'
 import Pagina from '../components/ui/Pagina'
 import EstadoVacio from '../components/ui/EstadoVacio'
-import NotaDiseno from '../components/ui/NotaDiseno'
 import TarjetaAlimento from '../components/catalog/TarjetaAlimento'
 
 interface OpcionModalidad {
@@ -28,8 +27,6 @@ interface OpcionModalidad {
   titulo: string
   texto: string
   icono: LucideIcon
-  creador: string
-  publicacion: string
 }
 
 const opciones: OpcionModalidad[] = [
@@ -38,24 +35,18 @@ const opciones: OpcionModalidad[] = [
     titulo: 'Venta',
     texto: 'Se vende al precio que tú fijas.',
     icono: ShoppingBag,
-    creador: 'CreadorVenta',
-    publicacion: 'PublicacionVenta',
   },
   {
     valor: 'descuento',
     titulo: 'Descuento',
     texto: 'Se vende con un porcentaje de descuento.',
     icono: Percent,
-    creador: 'CreadorDescuento',
-    publicacion: 'PublicacionDescuento',
   },
   {
     valor: 'donacion',
     titulo: 'Donación',
     texto: 'Se entrega de forma gratuita.',
     icono: Gift,
-    creador: 'CreadorDonacion',
-    publicacion: 'PublicacionDonacion',
   },
 ]
 
@@ -64,7 +55,6 @@ const textoEstrategia: Record<EstrategiaDescuento, string> = {
   disponibilidad: 'Pensado para cuando hay muchas unidades disponibles que vender.',
 }
 
-// PANTALLA 7: Formulario para publicar un alimento (solo establecimientos).
 export default function PaginaPublicar() {
   const { usuario } = useAuth()
   const { publicar } = usePlataforma()
@@ -94,7 +84,7 @@ export default function PaginaPublicar() {
         <EstadoVacio
           icono={<Lock size={34} />}
           titulo="Esta sección es para establecimientos"
-          texto="Para publicar alimentos necesitas una cuenta de restaurante, cafetería, panadería o supermercado. Prueba con panaderia@demo.mx."
+          texto="Para publicar alimentos necesitas iniciar sesión con una cuenta de restaurante, cafetería, panadería o supermercado."
         >
           <Link to="/app/catalogo" className="btn btn-primario">
             Explorar el catálogo
@@ -105,9 +95,7 @@ export default function PaginaPublicar() {
   }
 
   const base = Number(precioBase) || 0
-  const opcionActual = opciones.find((o) => o.valor === modalidad)!
 
-  // Publicación de ejemplo para la vista previa en vivo.
   const vistaPrevia: PublicacionAlimento = {
     id: 'vista-previa',
     modalidad,
@@ -202,10 +190,6 @@ export default function PaginaPublicar() {
                 )
               })}
             </div>
-            <NotaDiseno patron="Factory Method">
-              Al elegir esta modalidad, el creador <strong>{opcionActual.creador}</strong> generaría una{' '}
-              <strong>{opcionActual.publicacion}</strong>. Es solo una referencia visual del diagrama.
-            </NotaDiseno>
           </section>
 
           {/* 2. Datos del alimento */}
@@ -266,7 +250,7 @@ export default function PaginaPublicar() {
                   <label className="zona-subida" htmlFor="foto">
                     <Camera size={26} />
                     <strong>Haz clic para elegir una foto</strong>
-                    <span>Si no subes ninguna, se usará una imagen de ejemplo del tipo de alimento.</span>
+                    <span>Si no subes ninguna, se usará una imagen representativa de la categoría.</span>
                   </label>
                 )}
                 <input id="foto" type="file" accept="image/*" onChange={alElegirFoto} hidden />
@@ -394,12 +378,6 @@ export default function PaginaPublicar() {
                         onChange={(e) => setPorcentaje(Number(e.target.value))}
                       />
                     </div>
-
-                    <NotaDiseno patron="Strategy">
-                      Este tipo de descuento corresponde a la estrategia{' '}
-                      <strong>{estrategia === 'caducidad' ? 'DescuentoPorCaducidad' : 'DescuentoPorDisponibilidad'}</strong>.
-                      Aquí el porcentaje lo eliges tú como ejemplo; el cálculo real lo definirá el Back-End.
-                    </NotaDiseno>
                   </>
                 )}
 
@@ -449,11 +427,6 @@ export default function PaginaPublicar() {
               </div>
             </div>
             {errores.horario && <small className="error-texto">{errores.horario}</small>}
-
-            <NotaDiseno patron="Observer">
-              Al publicar, <strong>GestorNotificaciones</strong> avisaría a las <strong>UsuarioOrganizacion</strong>{' '}
-              suscritas. En esta demostración solo se genera una notificación de ejemplo.
-            </NotaDiseno>
 
             <button type="submit" className="btn btn-primario btn-completo btn-grande">
               <Send size={18} /> Publicar alimento

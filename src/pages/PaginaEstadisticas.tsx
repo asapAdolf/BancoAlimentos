@@ -8,17 +8,14 @@ import TarjetaEstadistica from '../components/ui/TarjetaEstadistica'
 import GraficaBarras from '../components/ui/GraficaBarras'
 import GraficaDonut from '../components/ui/GraficaDonut'
 import Modal from '../components/ui/Modal'
-import NotaDiseno from '../components/ui/NotaDiseno'
 
 const META_KILOS = 30000
 const META_ENTREGAS = 3000
 
-// PANTALLA 12: Estadísticas e impacto (datos de demostración).
 export default function PaginaEstadisticas() {
   const { registro } = usePlataforma()
-  const [reporte, setReporte] = useState(false)
+  const [fechaReporte, setFechaReporte] = useState<string | null>(null)
 
-  // Indicadores calculados con fórmulas simples y MARCADAS COMO ESTIMACIÓN de ejemplo.
   const comidas = registro.totalKilosEvitados / 0.4
   const co2 = registro.totalKilosEvitados * 2.5
   const progresoKilos = Math.min(100, (registro.totalKilosEvitados / META_KILOS) * 100)
@@ -29,18 +26,16 @@ export default function PaginaEstadisticas() {
       titulo="Estadísticas e impacto"
       subtitulo="Lo que la comunidad ha logrado al rescatar alimentos en lugar de desperdiciarlos."
       acciones={
-        <button className="btn btn-primario" onClick={() => setReporte(true)}>
+        <button className="btn btn-primario" onClick={() => setFechaReporte(new Date().toLocaleDateString('es-MX'))}>
           <FileText size={18} /> Generar reporte de impacto
         </button>
       }
     >
-      <div className="banner-demo">Datos de demostración: las cifras se sustituirán por las del registro real.</div>
-
       <div className="rejilla-stats">
         <TarjetaEstadistica icono={<Leaf size={24} />} valor={kilos(registro.totalKilosEvitados)} etiqueta="Total de kilos evitados" tono="verde" />
         <TarjetaEstadistica icono={<Salad size={24} />} valor={numero(registro.totalAlimentosRecuperados)} etiqueta="Alimentos recuperados" tono="naranja" />
         <TarjetaEstadistica icono={<PackageCheck size={24} />} valor={numero(registro.entregasConfirmadas)} etiqueta="Entregas confirmadas" tono="azul" />
-        <TarjetaEstadistica icono={<Soup size={24} />} valor={numero(comidas)} etiqueta="Comidas rescatadas" tono="rosa" nota="Estimación de ejemplo" />
+        <TarjetaEstadistica icono={<Soup size={24} />} valor={numero(comidas)} etiqueta="Comidas rescatadas" tono="rosa" nota="Estimación aproximada" />
       </div>
 
       <div className="rejilla-graficas">
@@ -109,26 +104,20 @@ export default function PaginaEstadisticas() {
             <Globe2 size={26} />
             <div>
               <strong>≈ {numero(co2)} kg de CO₂</strong>
-              <span>Emisiones evitadas (estimación de ejemplo)</span>
+              <span>Emisiones evitadas (estimación)</span>
             </div>
           </div>
         </section>
       </div>
 
-      <NotaDiseno patron="RegistroDesperdicioEvitado">
-        Estas cifras representan <strong>totalKilosEvitados</strong> y <strong>totalAlimentosRecuperados</strong>. Al
-        confirmar una entrega se simula <strong>registrarRecuperacion()</strong>, y el botón de reporte simula{' '}
-        <strong>generarReporteImpacto()</strong>.
-      </NotaDiseno>
-
-      {reporte && (
+      {fechaReporte && (
         <Modal
           titulo="Reporte de impacto"
           ancho="ancho"
-          onCerrar={() => setReporte(false)}
+          onCerrar={() => setFechaReporte(null)}
           pie={
             <>
-              <button className="btn btn-borde" onClick={() => setReporte(false)}>
+              <button className="btn btn-borde" onClick={() => setFechaReporte(null)}>
                 Cerrar
               </button>
               <button className="btn btn-primario" onClick={() => window.print()}>
@@ -137,7 +126,7 @@ export default function PaginaEstadisticas() {
             </>
           }
         >
-          <p className="aviso-chico">Reporte de demostración generado el {new Date().toLocaleDateString('es-MX')}.</p>
+          <p className="aviso-chico">Reporte generado el {fechaReporte}.</p>
           <ul className="lista-datos reporte">
             <li>
               <span>Total de kilos evitados</span>

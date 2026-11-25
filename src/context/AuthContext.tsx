@@ -1,16 +1,12 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import type { Usuario } from '../types/usuario'
-import { perfilesDemo } from '../data/perfilesDemo'
 
-// ESTADO DE INTERFAZ: guarda quién está "conectado" para que las pantallas
-// puedan mostrar u ocultar opciones. No hay autenticación real.
-// Cuando el equipo de Back-End tenga su API, aquí se conectará el inicio de sesión.
-
-const CLAVE_SESION = 'ra_sesion_demo'
+const CLAVE_SESION = 'ra_sesion_activa'
+const CLAVE_USUARIOS = 'ra_usuarios_registrados'
 
 interface AuthContextoValor {
   usuario: Usuario | null
-  iniciarSesion: (correo: string) => void
+  iniciarSesion: (correo: string) => boolean
   registrar: (datos: Omit<Usuario, 'id'>) => void
   cerrarSesion: () => void
 }
@@ -26,41 +22,55 @@ function leerSesion(): Usuario | null {
   }
 }
 
+function leerUsuarios(): Usuario[] {
+  try {
+    const guardados = localStorage.getItem(CLAVE_USUARIOS)
+    return guardados ? (JSON.parse(guardados) as Usuario[]) : []
+  } catch {
+    return []
+  }
+}
+
+function guardarUsuarios(usuarios: Usuario[]) {
+  try {
+    localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuarios))
+  } catch {
+    // Almacenamiento restringido en el navegador
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Se conserva la vista de demostración al recargar la página.
   const [usuario, setUsuarioEstado] = useState<Usuario | null>(leerSesion)
 
-  const guardar = (nuevo: Usuario | null) => {
+  const guardarSesion = (nuevo: Usuario | null) => {
     setUsuarioEstado(nuevo)
     try {
       if (nuevo) localStorage.setItem(CLAVE_SESION, JSON.stringify(nuevo))
       else localStorage.removeItem(CLAVE_SESION)
     } catch {
-      // Si el navegador bloquea el almacenamiento, la demo sigue funcionando.
+      // Almacenamiento restringido en el navegador
     }
   }
 
-  // Muestra un perfil de ejemplo si el correo es de demostración;
-  // con cualquier otro correo entra como "Persona".
-  const iniciarSesion = (correo: string) => {
+  const iniciarSesion = (correo: string): boolean => {
     const clave = correo.trim().toLowerCase()
-    const perfil = perfilesDemo[clave]
-    guardar(
-      perfil ?? {
-        id: `usr-${Date.now()}`,
-        nombre: clave.split('@')[0],
-        correo: clave,
-        telefono: '',
-        tipo: 'persona',
-      },
-    )
+    const usuarios = leerUsuarios()
+    const encontrado = usuarios.find((u) => u.correo.toLowerCase() === clave)
+    if (!encontrado) return false
+    guardarSesion(encontrado)
+    return true
   }
 
   const registrar = (datos: Omit<Usuario, 'id'>) => {
-    guardar({ ...datos, id: `usr-${Date.now()}` })
+    const clave = datos.correo.trim().toLowerCase()
+    const usuarios = leerUsuarios()
+    const nuevo: Usuario = { ...datos, correo: clave, id: `usr-${Date.now()}` }
+    const actualizados = [...usuarios.filter((u) => u.correo.toLowerCase() !== clave), nuevo]
+    guardarUsuarios(actualizados)
+    guardarSesion(nuevo)
   }
 
-  const cerrarSesion = () => guardar(null)
+  const cerrarSesion = () => guardarSesion(null)
 
   return (
     <AuthContexto.Provider value={{ usuario, iniciarSesion, registrar, cerrarSesion }}>

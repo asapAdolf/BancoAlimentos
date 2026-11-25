@@ -1,5 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from .database import db
+
+
+def _ahora_utc():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 class Rol(db.Model):
     __tablename__ = 'roles'
@@ -70,7 +74,7 @@ class Usuario(db.Model):
     telefono = db.Column(db.String(20))
     passwordhash = db.Column(db.String(255), nullable=False)
     activo = db.Column(db.Boolean, default=True, nullable=False)
-    fecharegistro = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    fecharegistro = db.Column(db.DateTime, default=_ahora_utc, nullable=False)
 
     def to_dict(self):
         return {
@@ -156,7 +160,7 @@ class Publicacion(db.Model):
     preciobase = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     porcentajedescuento = db.Column(db.Numeric(5, 2), nullable=False, default=0)
     estadoactual = db.Column(db.String(30), nullable=False)
-    fechapublicacion = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    fechapublicacion = db.Column(db.DateTime, default=_ahora_utc, nullable=False)
 
     def to_dict(self):
         precio_final = float(self.preciobase) * (1 - (float(self.porcentajedescuento) / 100))

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, Mail, Lock, LogIn, Leaf, Info } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, LogIn, Leaf } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { validarCorreo, validarContrasenaLogin } from '../services/validaciones'
 
@@ -16,7 +16,6 @@ export default function PaginaLogin() {
   const enviar = (e: FormEvent) => {
     e.preventDefault()
 
-    // Solo validamos que los campos estén bien escritos (validación de interfaz).
     const nuevosErrores = {
       correo: validarCorreo(correo),
       contrasena: validarContrasenaLogin(contrasena),
@@ -24,7 +23,11 @@ export default function PaginaLogin() {
     setErrores(nuevosErrores)
     if (nuevosErrores.correo || nuevosErrores.contrasena) return
 
-    iniciarSesion(correo)
+    const ok = iniciarSesion(correo)
+    if (!ok) {
+      setErrores({ correo: 'No encontramos una cuenta con ese correo. Regístrate primero.' })
+      return
+    }
     navegar('/app')
   }
 
@@ -88,15 +91,6 @@ export default function PaginaLogin() {
         <p className="auth-pie">
           ¿Aún no tienes cuenta? <Link to="/registro">Regístrate</Link>
         </p>
-
-        <div className="caja-demo">
-          <Info size={18} />
-          <div>
-            <strong>Modo demostración</strong>
-            <p>Escribe cualquier contraseña. Para ver cada perfil usa:</p>
-            <p>persona@demo.mx · organizacion@demo.mx · panaderia@demo.mx</p>
-          </div>
-        </div>
       </div>
     </section>
   )

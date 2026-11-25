@@ -1,5 +1,5 @@
 {% extends 'base_panel.html' %}
-{% from 'macros.html' import icono, cabecera, nota, vacio with context %}
+{% from 'macros.html' import icono, cabecera, vacio with context %}
 {% block titulo %}Notificaciones{% endblock %}
 
 {% block content %}
@@ -56,7 +56,6 @@
       <label class="interruptor-fila"><span>Avisar de nuevos descuentos</span><input type="checkbox" checked /><span class="interruptor"></span></label>
       <label class="interruptor-fila deshabilitado"><span>{{ icono('message-circle', 15) }} Avisos por WhatsApp <em>Próximamente</em></span><input type="checkbox" disabled /><span class="interruptor"></span></label>
     </section>
-    {% call nota('Observer + Adapter') %}Cuando se publica un alimento, <strong>GestorNotificaciones</strong> notifica a los observadores (<strong>UsuarioOrganizacion</strong>). El envío por WhatsApp usaría <strong>AdaptadorTwilioWhatsApp</strong>, que todavía no está conectado.{% endcall %}
   </aside>
 </div>
 {% endblock %}

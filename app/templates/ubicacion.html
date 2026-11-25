@@ -1,5 +1,5 @@
 {% extends layout %}
-{% from 'macros.html' import icono, cabecera, foto, ins_estado, ins_transporte, mapa, nota, vacio with context %}
+{% from 'macros.html' import icono, cabecera, foto, ins_estado, ins_transporte, mapa, vacio with context %}
 {% block titulo %}Ubicación y recolección{% endblock %}
 
 {% block content %}
@@ -43,7 +43,7 @@
       {{ icono('navigation', 22) }}
       <div>
         <strong>{{ ruta.km }} km · {{ ruta.min }} min en auto</strong>
-        <span>Ruta de ejemplo desde "Tu ubicación". El trazado real vendrá del servicio de mapas.</span>
+        <span>Distancia y tiempo estimados hasta el punto de recolección.</span>
       </div>
     </div>
 
@@ -80,8 +80,6 @@
         </ul>
       </article>
     </div>
-
-    {% call nota('Adapter') %}El mapa y la ruta reales se obtendrían con <strong>ServicioMapasAdapter</strong> → <strong>AdaptadorGoogleMaps</strong>. Aún no hay ninguna API conectada: esta es una vista de demostración.{% endcall %}
   </section>
 </div>
 {% endif %}

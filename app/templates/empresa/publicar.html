@@ -1,5 +1,5 @@
 {% extends 'base_panel.html' %}
-{% from 'macros.html' import icono, cabecera, err, tarjeta, nota with context %}
+{% from 'macros.html' import icono, cabecera, err, tarjeta with context %}
 {% block titulo %}Publicar alimento{% endblock %}
 {% block content %}
 {{ cabecera('Publicar alimento', 'Registra un excedente para venderlo, ofrecerlo con descuento o donarlo.') }}
@@ -48,7 +48,6 @@
     <h2 class="titulo-seccion">Vista previa</h2>
     {{ tarjeta(previa, true) }}
     <p class="aviso-chico">Se actualiza al enviar el formulario.</p>
-    {% call nota('Factory Method + Strategy') %}La modalidad elegida representa a <strong>FabricaAlimento</strong> y el descuento a <strong>EstrategiaDescuento</strong>. Es solo ilustrativo: no hay lógica de servidor.{% endcall %}
   </aside>
 </div>
 {% endblock %}

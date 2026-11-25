@@ -57,17 +57,6 @@
 </article>
 {%- endmacro %}
 
-{# ---------- recuadro que relaciona la pantalla con el diagrama de clases ---------- #}
-{% macro nota(patron) -%}
-<aside class="nota-diseno">
-  {{ icono('info', 18) }}
-  <div>
-    <strong>Referencia del diagrama · {{ patron }}</strong>
-    <p>{{ caller() }}</p>
-  </div>
-</aside>
-{%- endmacro %}
-
 {# ---------- línea de pasos (ciclo de la publicación o del transporte) ---------- #}
 {% macro linea(pasos, actual) -%}
 <ol class="linea-estados">
@@ -131,10 +120,10 @@
 {# ---------- gráficas (solo HTML, CSS y SVG; sin librerías) ---------- #}
 {% macro barras(datos, alto=220) -%}
 {% set maximo = (datos | map(attribute=1) | max) or 1 %}
-<div class="barras-v" style="height: {{ alto }}px">
+<div class="barras-v" data-alto="{{ alto }}px">
   {% for etiqueta, valor in datos %}
   <div class="barra-col">
-    <div class="barra-zona"><div class="barra" style="height: {{ (valor / maximo * 100) | round(1) }}%"><span class="barra-valor">{{ valor | numero }}</span></div></div>
+    <div class="barra-zona"><div class="barra" data-alto="{{ (valor / maximo * 100) | round(1) }}%"><span class="barra-valor">{{ valor | numero }}</span></div></div>
     <span class="barra-etiqueta">{{ etiqueta }}</span>
   </div>
   {% endfor %}
@@ -147,7 +136,7 @@
   {% for etiqueta, valor in datos %}
   <div class="barra-fila">
     <span class="barra-fila-etiqueta">{{ etiqueta }}</span>
-    <div class="barra-pista"><div class="barra-relleno" style="width: {{ (valor / maximo * 100) | round(1) }}%"></div></div>
+    <div class="barra-pista"><div class="barra-relleno" data-ancho="{{ (valor / maximo * 100) | round(1) }}%"></div></div>
     <span class="barra-fila-valor">{{ (valor | kilos) if unidad == 'kg' else (valor | numero) }}</span>
   </div>
   {% endfor %}
@@ -319,16 +308,16 @@
   </div>
   <ul class="donut-leyenda">
     {% for s in segmentos %}
-    <li><span class="donut-color" style="background: {{ s.color }}"></span><span>{{ s.etiqueta }}</span><strong>{{ (s.valor / total * 100) | round | int }}%</strong></li>
+    <li><span class="donut-color" data-color="{{ s.color }}"></span><span>{{ s.etiqueta }}</span><strong>{{ (s.valor / total * 100) | round | int }}%</strong></li>
     {% endfor %}
   </ul>
 </div>
 {%- endmacro %}
 
-{# ---------- mapa de DEMOSTRACIÓN (dibujo SVG; no usa Google Maps) ---------- #}
-{% macro mapa(nombre, origen='Tu ubicación (ejemplo)') -%}
+{# ---------- mapa de ubicación ---------- #}
+{% macro mapa(nombre, origen='Tu ubicación') -%}
 <div class="mapa-demo" data-mapa>
-  <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Mapa de demostración">
+  <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Mapa de ubicación">
     <rect width="600" height="360" fill="#e9efe3" />
     <rect x="380" y="40" width="150" height="90" rx="22" fill="#cfe3c4" />
     <path d="M0 270 C120 230 220 330 340 290 S520 250 600 280 L600 330 C520 300 420 340 340 340 S120 290 0 320 Z" fill="#cfe0ee" />
@@ -354,6 +343,5 @@
     <span>{{ nombre }}</span>
   </div>
   <div class="mapa-origen oculto" data-ruta style="left: 20%; top: 55.55%">{{ origen }}</div>
-  <span class="mapa-sello">VISTA DE DEMOSTRACIÓN · sin Google Maps</span>
 </div>
 {%- endmacro %}

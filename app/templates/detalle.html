@@ -1,5 +1,5 @@
 {% extends layout %}
-{% from 'macros.html' import icono, cabecera, foto, ins_estado, ins_modalidad, linea_estado, linea_transporte, nota with context %}
+{% from 'macros.html' import icono, cabecera, foto, ins_estado, ins_modalidad, linea_estado, linea_transporte with context %}
 {% set a = pub.alimento %}
 {% set final = precio_final(pub) %}
 {% set desc = descuento_aplicado(pub) %}
@@ -37,10 +37,6 @@
       {% endif %}
       <small class="precio-nota">El precio corresponde al lote completo.</small>
     </div>
-
-    {% if pub.modalidad == 'descuento' and pub.estrategia %}
-    {% call nota('Strategy') %}Descuento calculado con la estrategia <strong>{{ ETIQUETA_ESTRATEGIA[pub.estrategia] }}</strong>. El cálculo real lo hará el Back-End; aquí se muestra un valor de ejemplo.{% endcall %}
-    {% endif %}
 
     <ul class="info-rejilla">
       <li><span class="info-icono">{{ icono('package', 18) }}</span><div><small>Cantidad disponible</small><strong>{{ a.cantidad }} {{ a.unidad }}</strong></div></li>
@@ -109,7 +105,6 @@
           <label for="direccion">Dirección de entrega</label>
           <input id="direccion" name="direccion" class="control" placeholder="Calle, número y colonia" />
         </div>
-        <p class="aviso-chico">Demostración: no se realiza ningún pago.</p>
       </div>
       <div class="modal-pie">
         <button type="button" class="btn btn-borde" data-cerrar>Cancelar</button>

@@ -1,5 +1,5 @@
 {% extends layout %}
-{% from 'macros.html' import icono, cabecera, stat, barras, barras_h, donut, nota with context %}
+{% from 'macros.html' import icono, cabecera, stat, barras, barras_h, donut with context %}
 {% block titulo %}Estadísticas e impacto{% endblock %}
 
 {% block content %}
@@ -7,13 +7,11 @@
   <button type="button" class="btn btn-primario" data-abrir="modal-reporte">{{ icono('file-text', 18) }} Generar reporte de impacto</button>
 {% endcall %}
 
-<div class="banner-demo">Datos de demostración: las cifras se sustituirán por las del registro real.</div>
-
 <div class="rejilla-stats">
   {{ stat('leaf', registro.kilos_total | kilos, 'Total de kilos evitados', 'verde') }}
   {{ stat('salad', registro.recuperados | numero, 'Alimentos recuperados', 'naranja') }}
   {{ stat('package-check', registro.entregas | numero, 'Entregas confirmadas', 'azul') }}
-  {{ stat('soup', comidas | numero, 'Comidas rescatadas', 'rosa', 'Estimación de ejemplo') }}
+  {{ stat('soup', comidas | numero, 'Comidas rescatadas', 'rosa', 'Estimación aproximada') }}
 </div>
 
 <div class="rejilla-graficas">
@@ -39,22 +37,20 @@
     <h2 class="titulo-seccion">Indicadores de impacto</h2>
     <div class="indicador">
       <div class="indicador-cabecera"><span>{{ icono('scale', 16) }} Meta anual de kilos</span><strong>{{ prog_kilos | round | int }}%</strong></div>
-      <div class="barra-pista"><div class="barra-relleno" style="width: {{ prog_kilos | round(1) }}%"></div></div>
+      <div class="barra-pista"><div class="barra-relleno" data-ancho="{{ prog_kilos | round(1) }}%"></div></div>
       <small>{{ registro.kilos_total | numero }} de {{ meta_kilos | numero }} kg</small>
     </div>
     <div class="indicador">
       <div class="indicador-cabecera"><span>{{ icono('package-check', 16) }} Meta de entregas</span><strong>{{ prog_entregas | round | int }}%</strong></div>
-      <div class="barra-pista"><div class="barra-relleno naranja" style="width: {{ prog_entregas | round(1) }}%"></div></div>
+      <div class="barra-pista"><div class="barra-relleno naranja" data-ancho="{{ prog_entregas | round(1) }}%"></div></div>
       <small>{{ registro.entregas | numero }} de {{ meta_entregas | numero }} entregas</small>
     </div>
     <div class="indicador-co2">
       {{ icono('globe-2', 26) }}
-      <div><strong>≈ {{ co2 | numero }} kg de CO₂</strong><span>Emisiones evitadas (estimación de ejemplo)</span></div>
+      <div><strong>≈ {{ co2 | numero }} kg de CO₂</strong><span>Emisiones evitadas (estimación)</span></div>
     </div>
   </section>
 </div>
-
-{% call nota('RegistroDesperdicioEvitado') %}Estas cifras representan <strong>totalKilosEvitados</strong> y <strong>totalAlimentosRecuperados</strong>. Al confirmar una entrega se simula <strong>registrarRecuperacion()</strong>, y el botón de reporte simula <strong>generarReporteImpacto()</strong>.{% endcall %}
 
 <div class="modal-fondo oculto" id="modal-reporte">
   <div class="modal modal-ancho" role="dialog" aria-modal="true" aria-labelledby="reporte-titulo">
@@ -63,7 +59,7 @@
       <button type="button" class="btn-cerrar" data-cerrar aria-label="Cerrar">{{ icono('x', 20) }}</button>
     </div>
     <div class="modal-cuerpo">
-      <p class="aviso-chico">Reporte de demostración.</p>
+      <p class="aviso-chico">Resumen acumulado de la plataforma.</p>
       <ul class="lista-datos reporte">
         <li><span>Total de kilos evitados</span><strong>{{ registro.kilos_total | kilos }}</strong></li>
         <li><span>Alimentos recuperados</span><strong>{{ registro.recuperados | numero }}</strong></li>

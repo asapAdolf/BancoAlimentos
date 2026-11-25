@@ -43,7 +43,7 @@
     {{ stat('users', n_usuarios, 'Usuarios registrados', 'verde', n_suspendidos ~ ' suspendidos') }}
     {{ stat('clipboard-list', n_activas, 'Publicaciones activas', 'naranja') }}
     {{ stat('calendar-check', n_reservas, 'Reservaciones', 'azul') }}
-    {{ stat('leaf', registro.kilos_total | kilos, 'Kilos recuperados', 'rosa', 'Dato de demostración') }}
+    {{ stat('leaf', registro.kilos_total | kilos, 'Kilos recuperados', 'rosa') }}
   {% endif %}
 </div>
 
@@ -157,6 +157,4 @@
     {% else %}<p class="aviso-chico">No tienes notificaciones.</p>{% endif %}
   </section>
 </div>
-
-<p class="aviso-demo-claro">* Las cifras de impacto son datos de demostración.</p>
 {% endblock %}

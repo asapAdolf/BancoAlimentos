@@ -1,7 +1,5 @@
 import type { RegistroDesperdicioEvitado } from '../types/impacto'
 
-// DATOS DE DEMOSTRACIÓN. Más adelante los entregará el registro de desperdicio evitado del Back-End.
-
 // Nombres de los últimos 6 meses (el último es el mes actual).
 function mesesRecientes(): string[] {
   const salida: string[] = []
@@ -14,20 +12,18 @@ function mesesRecientes(): string[] {
   return salida
 }
 
-const kilosPorMes = [1480, 1720, 1960, 2210, 2480, 2630]
-
 export const registroInicial: RegistroDesperdicioEvitado = {
-  totalKilosEvitados: 12480,
-  totalAlimentosRecuperados: 3860,
-  entregasConfirmadas: 1204,
-  historialMensual: mesesRecientes().map((mes, i) => ({ mes, kilos: kilosPorMes[i] })),
-  porModalidad: { venta: 3740, descuento: 5990, donacion: 2750 },
+  totalKilosEvitados: 0,
+  totalAlimentosRecuperados: 0,
+  entregasConfirmadas: 0,
+  historialMensual: mesesRecientes().map((mes) => ({ mes, kilos: 0 })),
+  porModalidad: { venta: 0, descuento: 0, donacion: 0 },
   porCategoria: {
-    'Pan y repostería': 3370,
-    'Frutas y verduras': 3120,
-    'Comida preparada': 2870,
-    Lácteos: 1250,
-    Bebidas: 870,
-    Abarrotes: 1000,
+    'Pan y repostería': 0,
+    'Frutas y verduras': 0,
+    'Comida preparada': 0,
+    Lácteos: 0,
+    Bebidas: 0,
+    Abarrotes: 0,
   },
 }

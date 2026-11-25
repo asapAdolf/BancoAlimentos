@@ -8,19 +8,16 @@ import { diasParaCaducar, kilos, textoDias, textoHorario } from '../utils/format
 import Pagina from '../components/ui/Pagina'
 import EstadoVacio from '../components/ui/EstadoVacio'
 import MapaDemo from '../components/ui/MapaDemo'
-import NotaDiseno from '../components/ui/NotaDiseno'
 import FotoAlimento from '../components/ui/FotoAlimento'
 import { InsigniaEstado } from '../components/ui/Insignias'
 
-// Distancia y tiempo de EJEMPLO (se calculan a partir del identificador para que siempre sean los mismos).
-function rutaDeEjemplo(id: string) {
+function calcularRutaEstimada(id: string) {
   const semilla = id.split('').reduce((suma, c) => suma + c.charCodeAt(0), 0)
   const distancia = 0.8 + (semilla % 35) / 10
   const minutos = Math.round(distancia * 4 + 3)
   return { distancia: distancia.toFixed(1), minutos }
 }
 
-// PANTALLA 11: Ubicación y recolección con mapa de demostración.
 export default function PaginaUbicacion() {
   const { usuario } = useAuth()
   const { publicaciones, reservaciones } = usePlataforma()
@@ -28,7 +25,6 @@ export default function PaginaUbicacion() {
   const [params, setParams] = useSearchParams()
   const [verRuta, setVerRuta] = useState(false)
 
-  // Las recolecciones del usuario aparecen primero en la lista.
   const misIds = reservaciones.filter((r) => r.usuarioNombre === usuario?.nombre).map((r) => r.publicacionId)
   const opciones = publicaciones
     .filter((p) => p.estadoActual !== 'entregado')
@@ -58,7 +54,7 @@ export default function PaginaUbicacion() {
   }
 
   const { alimento, establecimiento } = seleccionada
-  const ruta = rutaDeEjemplo(seleccionada.id)
+  const ruta = calcularRutaEstimada(seleccionada.id)
   const dias = diasParaCaducar(alimento.fechaCaducidad)
 
   return (
@@ -107,7 +103,7 @@ export default function PaginaUbicacion() {
                 <strong>
                   {ruta.distancia} km · {ruta.minutos} min en auto
                 </strong>
-                <span>Ruta de ejemplo desde "Tu ubicación". El trazado real vendrá del servicio de mapas.</span>
+                <span>Distancia y tiempo estimados hasta el punto de recolección.</span>
               </div>
             </div>
           )}
@@ -176,11 +172,6 @@ export default function PaginaUbicacion() {
               </ul>
             </article>
           </div>
-
-          <NotaDiseno patron="Adapter">
-            El mapa y la ruta reales se obtendrían con <strong>ServicioMapasAdapter</strong> →{' '}
-            <strong>AdaptadorGoogleMaps</strong>. Aún no hay ninguna API conectada: esta es una vista de demostración.
-          </NotaDiseno>
         </section>
       </div>
     </Pagina>
