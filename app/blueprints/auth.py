@@ -31,8 +31,6 @@ def login():
             errores['email'] = 'El correo es obligatorio.'
         elif not CORREO.match(email):
             errores['email'] = 'Escribe un correo válido, por ejemplo nombre@correo.com.'
-        if not clave:
-            errores['password'] = 'La contraseña es obligatoria.'
         if not errores:
             existente = store.get_usuario(email)
             if existente is None:

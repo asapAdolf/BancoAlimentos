@@ -10,8 +10,7 @@ export function validarCorreo(valor: string): string {
   return ''
 }
 
-export function validarContrasenaLogin(valor: string): string {
-  if (!valor) return 'La contraseña es obligatoria.'
+export function validarContrasenaLogin(_valor: string): string {
   return ''
 }
 

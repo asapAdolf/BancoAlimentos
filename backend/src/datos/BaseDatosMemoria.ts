@@ -23,7 +23,41 @@ export interface BaseDatos {
 }
 
 export const bd: BaseDatos = {
-  usuarios: [],
+  usuarios: [
+    {
+      id: 'usr-001',
+      nombre: 'Cliente Demo',
+      correo: 'cliente@demo.mx',
+      telefono: '2221234567',
+      tipo: 'persona',
+      canalNotificacion: 'email',
+    },
+    {
+      id: 'usr-002',
+      nombre: 'Empresa Demo',
+      correo: 'empresa@demo.mx',
+      telefono: '2225554433',
+      tipo: 'panaderia',
+      nombreEstablecimiento: 'Panadería La Espiga',
+      canalNotificacion: 'sms',
+    },
+    {
+      id: 'usr-003',
+      nombre: 'Transportista Demo',
+      correo: 'transportista@demo.mx',
+      telefono: '2227778899',
+      tipo: 'organizacion',
+      canalNotificacion: 'whatsapp',
+    },
+    {
+      id: 'usr-004',
+      nombre: 'Administrador Demo',
+      correo: 'admin@demo.mx',
+      telefono: '2220000000',
+      tipo: 'persona',
+      canalNotificacion: 'email',
+    },
+  ],
   establecimientos: [],
   publicaciones: [],
   reservaciones: [],

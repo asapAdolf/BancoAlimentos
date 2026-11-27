@@ -4,6 +4,13 @@ import type { Usuario } from '../types/usuario'
 const CLAVE_SESION = 'ra_sesion_activa'
 const CLAVE_USUARIOS = 'ra_usuarios_registrados'
 
+const USUARIOS_DEFAULT: Usuario[] = [
+  { id: 'usr-001', nombre: 'Cliente Demo', correo: 'cliente@demo.mx', telefono: '2221234567', tipo: 'persona' },
+  { id: 'usr-002', nombre: 'Empresa Demo', correo: 'empresa@demo.mx', telefono: '2225554433', tipo: 'restaurante', nombreEstablecimiento: 'Empresa Demo' },
+  { id: 'usr-003', nombre: 'Transportista Demo', correo: 'transportista@demo.mx', telefono: '2227778899', tipo: 'organizacion' },
+  { id: 'usr-004', nombre: 'Administrador Demo', correo: 'admin@demo.mx', telefono: '2220000000', tipo: 'persona' },
+]
+
 interface AuthContextoValor {
   usuario: Usuario | null
   iniciarSesion: (correo: string) => boolean
@@ -25,9 +32,13 @@ function leerSesion(): Usuario | null {
 function leerUsuarios(): Usuario[] {
   try {
     const guardados = localStorage.getItem(CLAVE_USUARIOS)
-    return guardados ? (JSON.parse(guardados) as Usuario[]) : []
+    if (guardados) {
+      const parsed = JSON.parse(guardados) as Usuario[]
+      if (parsed.length > 0) return parsed
+    }
+    return USUARIOS_DEFAULT
   } catch {
-    return []
+    return USUARIOS_DEFAULT
   }
 }
 
@@ -49,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       else localStorage.removeItem(CLAVE_SESION)
     } catch {
 
-    }
+  }
   }
 
   const iniciarSesion = (correo: string): boolean => {

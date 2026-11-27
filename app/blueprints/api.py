@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, jsonify
 from sqlalchemy import text
 
 from ..database import db
-from ..models import CategoriaAlimento, Publicacion, Rol, UnidadMedida, Usuario
+from ..models import CategoriaAlimento, Publicacion, Rol, UnidadMedida, Usuario, UsuarioRol
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -100,6 +100,25 @@ def seed_data():
                 UnidadMedida(nombre='Porciones', abreviatura='porc'),
             ])
             creados.append('Unidades de Medida')
+
+        # Cuentas demo iniciales con contraseña vacía
+        cuentas_demo = [
+            ('cliente@demo.mx', 'Cliente Demo', 'Beneficiario', '2221234567'),
+            ('empresa@demo.mx', 'Empresa Demo', 'Establecimiento', '2225554433'),
+            ('transportista@demo.mx', 'Transportista Demo', 'Transportista', '2227778899'),
+            ('admin@demo.mx', 'Administrador Demo', 'Administrador', '2220000000'),
+        ]
+        roles_map = {r.nombre: r.rolid for r in Rol.query.all()}
+        for email, nombre, rol_nom, tel in cuentas_demo:
+            u = Usuario.query.filter_by(email=email).first()
+            if not u:
+                u = Usuario(nombre=nombre, email=email, telefono=tel, passwordhash='', activo=True)
+                db.session.add(u)
+                db.session.flush()
+                rol_id = roles_map.get(rol_nom)
+                if rol_id:
+                    db.session.add(UsuarioRol(usuarioid=u.usuarioid, rolid=rol_id))
+                creados.append(f'Usuario {email}')
 
         db.session.commit()
         return jsonify({

@@ -87,6 +87,14 @@ class Usuario(db.Model):
         }
 
 
+class UsuarioRol(db.Model):
+    __tablename__ = 'usuario_roles'
+
+    usuarioid = db.Column(db.Integer, db.ForeignKey('usuarios.usuarioid'), primary_key=True)
+    rolid = db.Column(db.Integer, db.ForeignKey('roles.rolid'), primary_key=True)
+    fechaasignacion = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
 class Establecimiento(db.Model):
     __tablename__ = 'establecimientos'
 
