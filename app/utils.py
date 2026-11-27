@@ -5,29 +5,23 @@ from . import store
 
 MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
-
 def moneda(v):
     v = float(v)
     return f'${v:,.0f}' if v == int(v) else f'${v:,.2f}'
 
-
 def kilos(v):
     return f'{float(v):,.1f}'.rstrip('0').rstrip('.') + ' kg'
 
-
 def numero(v):
     return f'{round(float(v)):,}'
-
 
 def fecha_corta(iso):
     d = date.fromisoformat(iso[:10])
     return f'{d.day} {MESES[d.month - 1]} {d.year}'
 
-
 def dias_para_caducar(iso):
     """Equivale a getDiasParaCaducar() de la clase Alimento (solo para mostrarlo)."""
     return (date.fromisoformat(iso[:10]) - date.today()).days
-
 
 def texto_dias(d):
     if d < 0:
@@ -38,12 +32,10 @@ def texto_dias(d):
         return 'Caduca mañana'
     return f'Caduca en {d} días'
 
-
 def texto_horario(h):
     d = (date.fromisoformat(h['fecha']) - date.today()).days
     dia = {0: 'Hoy', 1: 'Mañana', -1: 'Ayer'}.get(d) or fecha_corta(h['fecha'])
     return f'{dia}, {h["desde"]} – {h["hasta"]}'
-
 
 def hace(iso):
     minutos = round((datetime.now() - datetime.fromisoformat(iso)).total_seconds() / 60)
@@ -57,17 +49,12 @@ def hace(iso):
     dias = round(horas / 24)
     return 'Ayer' if dias == 1 else f'Hace {dias} días'
 
-
 def inicial(nombre):
     return (nombre or '?').strip()[:1].upper()
-
 
 def primer_nombre(nombre):
     return (nombre or '').split(' ')[0]
 
-
-# ------------------------------------------------------------------- menús
-# Cada rol ve un menú distinto: (endpoint, texto, icono, endpoints que lo marcan como activo)
 MENUS = {
     'cliente': [
         ('panel.resumen', 'Resumen', 'layout-dashboard', ()),
@@ -104,7 +91,6 @@ MENUS = {
         ('publico.estadisticas', 'Impacto', 'bar-chart-3', ()),
     ],
 }
-
 
 def registrar(app):
     for f in (moneda, kilos, numero, fecha_corta, dias_para_caducar, texto_dias, texto_horario, hace, inicial, primer_nombre):

@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function FiltrosCatalogo({ filtros, onCambiar, total }: Props) {
-  // Actualiza solo el filtro que cambió y conserva los demás.
+
   const cambiar = <K extends keyof Filtros>(clave: K, valor: Filtros[K]) =>
     onCambiar({ ...filtros, [clave]: valor })
 

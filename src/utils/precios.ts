@@ -1,9 +1,5 @@
 import type { PublicacionAlimento } from '../types/alimento'
 
-// SOLO PARA MOSTRAR en pantalla los datos de ejemplo.
-// El cálculo real de precios y descuentos (calcularPrecioFinal y las estrategias de descuento)
-// le corresponde al Back-End.
-
 export function precioFinal(pub: PublicacionAlimento): number {
   if (pub.modalidad === 'donacion') return 0
   if (pub.modalidad === 'descuento') {

@@ -5,13 +5,10 @@ from . import store, utils
 from .config import Config
 from .database import db
 
-
 def create_app():
     app = Flask(__name__)
-    # Configuración (SECRET_KEY y conexión a PostgreSQL) tomada del archivo .env
     app.config.from_object(Config)
 
-    # Extensiones: CORS para la API y SQLAlchemy para PostgreSQL
     CORS(app, resources={r"/api/*": {"origins": "*"}})
     db.init_app(app)
 
@@ -41,7 +38,6 @@ def create_app():
                     for e, t, i, extra in utils.MENUS[user['rol']]]
         return {
             'usuario': user,
-            # Con sesión iniciada las pantallas compartidas usan el panel lateral; sin sesión, el menú público.
             'layout': 'base_panel.html' if user else 'base_public.html',
             'menu': menu,
             'no_leidas': store.no_leidas(user) if user else 0,

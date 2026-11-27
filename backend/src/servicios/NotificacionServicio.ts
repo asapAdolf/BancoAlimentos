@@ -10,12 +10,6 @@ import { generarId } from '../utils/ids.js'
 
 export const CANALES: CanalNotificacion[] = ['sms', 'whatsapp', 'email']
 
-// Servicio que usa el PATRÓN ADAPTER para enviar avisos.
-// Elige el adaptador con un switch, igual que el menú del Main del código muestra:
-//
-//   case 1: Notificacion sms = new smsAdapter();            sms.enviarMensaje(mensaje);
-//   case 2: Notificacion Whatsapp = new whatsappAdapter();  Whatsapp.enviarMensaje(mensaje);
-//   case 3: Notificacion email = new emailAdapter();        email.enviarMensaje(mensaje);
 export class NotificacionServicio {
   static crearNotificacion(canal: string, destinatario: string = ''): Notificacion {
     switch (canal.trim().toLowerCase()) {
@@ -36,7 +30,6 @@ export class NotificacionServicio {
     }
   }
 
-  // Envía un mensaje por el canal indicado y deja constancia del envío.
   static enviarPorCanal(canal: string, destinatario: string, mensaje: string): void {
     const notificacion: Notificacion = NotificacionServicio.crearNotificacion(canal, destinatario)
     notificacion.enviarMensaje(mensaje)
@@ -48,7 +41,6 @@ export class NotificacionServicio {
     })
   }
 
-  // Guarda el aviso para la pantalla de Notificaciones y lo envía por el canal preferido del usuario.
   static notificarUsuario(
     usuario: Usuario,
     tipo: TipoNotificacion,

@@ -35,7 +35,7 @@ function guardarUsuarios(usuarios: Usuario[]) {
   try {
     localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuarios))
   } catch {
-    // Almacenamiento restringido en el navegador
+
   }
 }
 
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (nuevo) localStorage.setItem(CLAVE_SESION, JSON.stringify(nuevo))
       else localStorage.removeItem(CLAVE_SESION)
     } catch {
-      // Almacenamiento restringido en el navegador
+
     }
   }
 

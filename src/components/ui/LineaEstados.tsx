@@ -1,7 +1,6 @@
 import { Check } from 'lucide-react'
 import { ESTADOS, ETIQUETA_ESTADO, type EstadoPublicacion } from '../../types/alimento'
 
-// Muestra visualmente el ciclo de una publicación: Disponible → Reservado → Entregado.
 export default function LineaEstados({ estado }: { estado: EstadoPublicacion }) {
   const indiceActual = ESTADOS.indexOf(estado)
 

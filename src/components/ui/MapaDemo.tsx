@@ -5,10 +5,10 @@ export default function MapaDemo({ ruta, nombre }: { ruta: boolean; nombre: stri
     <div className="mapa-demo">
       <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Mapa de ubicación">
         <rect width="600" height="360" fill="#e9efe3" />
-        {/* parque y río */}
+        {}
         <rect x="380" y="40" width="150" height="90" rx="22" fill="#cfe3c4" />
         <path d="M0 270 C120 230 220 330 340 290 S520 250 600 280 L600 330 C520 300 420 340 340 340 S120 290 0 320 Z" fill="#cfe0ee" />
-        {/* calles */}
+        {}
         <g stroke="#ffffff" strokeWidth="14" strokeLinecap="round">
           <line x1="0" y1="90" x2="600" y2="90" />
           <line x1="0" y1="200" x2="600" y2="200" />
@@ -21,7 +21,7 @@ export default function MapaDemo({ ruta, nombre }: { ruta: boolean; nombre: stri
           <line x1="210" y1="0" x2="210" y2="360" />
           <line x1="385" y1="0" x2="385" y2="360" />
         </g>
-        {/* manzanas */}
+        {}
         <g fill="#dfe6d6">
           <rect x="140" y="105" width="50" height="30" rx="6" />
           <rect x="230" y="105" width="55" height="30" rx="6" />

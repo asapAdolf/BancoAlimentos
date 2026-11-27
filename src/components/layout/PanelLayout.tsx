@@ -41,14 +41,12 @@ const items: ItemMenu[] = [
   { to: '/app/estadisticas', texto: 'Impacto', icono: BarChart3 },
 ]
 
-// Estructura del panel: menú lateral + barra superior + contenido que cambia según la sección.
 export default function PanelLayout() {
   const { usuario, cerrarSesion } = useAuth()
   const { noLeidas } = usePlataforma()
   const [menuAbierto, setMenuAbierto] = useState(false)
   const navegar = useNavigate()
 
-  // El panel solo es para usuarios con sesión iniciada.
   if (!usuario) return <Navigate to="/login" replace />
 
   const esNegocio = esEstablecimiento(usuario.tipo)

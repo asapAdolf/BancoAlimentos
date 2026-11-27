@@ -1,5 +1,3 @@
-// Validaciones básicas. Cada función devuelve un mensaje de error o '' si todo está bien.
-
 export function validarNombre(valor: string): string {
   if (valor.trim().length < 3) return 'Escribe al menos 3 caracteres.'
   return ''

@@ -1,4 +1,3 @@
-// Tipos de usuario que pueden registrarse en la plataforma.
 export type TipoUsuario =
   | 'persona'
   | 'organizacion'
@@ -7,8 +6,6 @@ export type TipoUsuario =
   | 'panaderia'
   | 'supermercado'
 
-// NOTA: "Usuario" aparece en tu diagrama como parámetro de solicitarReserva(usuario),
-// pero no tiene clase propia. Aquí es solo un tipo de TypeScript para la vista.
 export interface Usuario {
   id: string
   nombre: string
@@ -34,7 +31,6 @@ export const TIPOS_ESTABLECIMIENTO: TipoUsuario[] = [
   'supermercado',
 ]
 
-// Los establecimientos publican alimentos; personas y organizaciones los reservan.
 export function esEstablecimiento(tipo: TipoUsuario): boolean {
   return TIPOS_ESTABLECIMIENTO.includes(tipo)
 }

@@ -9,7 +9,6 @@ interface Props {
   ancho?: 'normal' | 'ancho'
 }
 
-// Ventana emergente. Se cierra con la X, con la tecla Esc o haciendo clic afuera.
 export default function Modal({ titulo, onCerrar, children, pie, ancho = 'normal' }: Props) {
   useEffect(() => {
     const alPresionar = (e: KeyboardEvent) => {

@@ -1,6 +1,5 @@
 import type { CategoriaAlimento } from '../modelos/tipos.js'
 
-// Fotografías de Unsplash (las mismas que usa el Front-End en src/data/fotos.ts).
 const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=70`
 
 export const FOTOS = {

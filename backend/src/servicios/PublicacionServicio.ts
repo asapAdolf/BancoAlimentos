@@ -20,7 +20,6 @@ import type { CambiosPublicacion, NuevaPublicacion } from '../validaciones/valid
 import { NotificacionServicio } from './NotificacionServicio.js'
 import { SuscripcionServicio } from './SuscripcionServicio.js'
 
-// Filtros del catálogo (mismos que "Filtros" del Front-End).
 export interface FiltrosCatalogo {
   busqueda?: string
   categoria?: CategoriaAlimento | 'todas'
@@ -32,9 +31,6 @@ export interface FiltrosCatalogo {
   establecimientoId?: string
 }
 
-// Lógica de negocio de las publicaciones: publicar (con Factory Method), reservar,
-// confirmar entrega, editar y cancelar. El descuento se calcula con Strategy, los avisos de
-// nuevos alimentos se reparten con Observer y cada aviso sale por el Adapter de notificaciones.
 export class PublicacionServicio {
   static listar(filtros: FiltrosCatalogo = {}): PublicacionAlimento[] {
     const busqueda = filtros.busqueda?.trim().toLowerCase() ?? ''
@@ -69,14 +65,11 @@ export class PublicacionServicio {
     return publicacion
   }
 
-  // Publicaciones del establecimiento del usuario (pantalla "Mis publicaciones").
   static listarDelUsuario(usuario: Usuario): PublicacionAlimento[] {
     const establecimiento = PublicacionServicio.establecimientoDe(usuario)
     return PublicacionServicio.listar({ establecimientoId: establecimiento.id })
   }
 
-  // PATRÓN FACTORY METHOD en acción: el servicio no sabe qué clase concreta se crea,
-  // solo le pasa la modalidad a la fábrica y recibe una PublicacionAlimento.
   static verificarPuedePublicar(usuario: Usuario): void {
     if (!esEstablecimiento(usuario.tipo)) {
       throw new AccesoDenegadoException('Solo los establecimientos pueden publicar alimentos.')
@@ -110,7 +103,6 @@ export class PublicacionServicio {
     bd.publicaciones.unshift(publicacion)
     publicacion.mostrarPublicacion()
 
-    // PATRÓN OBSERVER: el catálogo avisa a todos los usuarios suscritos.
     SuscripcionServicio.notificarNuevoAlimento(publicacion)
     return publicacion
   }
@@ -136,7 +128,7 @@ export class PublicacionServicio {
     if (cambios.porcentaje !== undefined && publicacion instanceof PublicacionDescuento) {
       publicacion.porcentajeMaximo = cambios.porcentaje
     }
-    // PATRÓN STRATEGY: se cambia la forma de calcular el descuento sin crear otra publicación.
+
     if (cambios.estrategia !== undefined && publicacion instanceof PublicacionDescuento) {
       publicacion.cambiarEstrategia(crearEstrategia(cambios.estrategia))
     }
@@ -227,7 +219,6 @@ export class PublicacionServicio {
     return publicacion
   }
 
-  // Reservaciones hechas por el usuario, o recibidas si es un establecimiento.
   static listarReservaciones(usuario: Usuario): Reservacion[] {
     if (!esEstablecimiento(usuario.tipo)) {
       return bd.reservaciones.filter((r) => r.usuarioId === usuario.id)
@@ -236,7 +227,6 @@ export class PublicacionServicio {
     return bd.reservaciones.filter((r) => misIds.has(r.publicacionId))
   }
 
-  // Busca el establecimiento del usuario; si no existe, lo da de alta.
   static establecimientoDe(usuario: Usuario): Establecimiento {
     const nombre = (usuario.nombreEstablecimiento || usuario.nombre).trim()
     let establecimiento =

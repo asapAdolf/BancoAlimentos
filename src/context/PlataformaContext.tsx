@@ -102,7 +102,7 @@ export function PlataformaProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(CLAVE_PUBS, JSON.stringify(publicaciones))
     } catch {
-      // Ignorar si localStorage no está disponible
+
     }
   }, [publicaciones])
 
@@ -110,7 +110,7 @@ export function PlataformaProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(CLAVE_RES, JSON.stringify(reservaciones))
     } catch {
-      // Ignorar si localStorage no está disponible
+
     }
   }, [reservaciones])
 
@@ -118,7 +118,7 @@ export function PlataformaProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(CLAVE_NOTIF, JSON.stringify(notificaciones))
     } catch {
-      // Ignorar si localStorage no está disponible
+
     }
   }, [notificaciones])
 
@@ -126,7 +126,7 @@ export function PlataformaProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(CLAVE_REG, JSON.stringify(registro))
     } catch {
-      // Ignorar si localStorage no está disponible
+
     }
   }, [registro])
 

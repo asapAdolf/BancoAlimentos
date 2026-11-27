@@ -11,10 +11,6 @@ import {
 } from '../modelos/tipos.js'
 import { TIPOS_USUARIO, esEstablecimiento, type CanalNotificacion, type Usuario } from '../modelos/Usuario.js'
 
-// Validaciones de los datos que llegan en el cuerpo de las peticiones.
-// Si algo está mal se lanza IllegalArgumentException y la API responde 400 con el mensaje.
-
-// Datos para publicar un alimento (mismos nombres que "NuevaPublicacion" del Front-End).
 export interface NuevaPublicacion {
   nombre: string
   descripcion: string
@@ -94,7 +90,7 @@ function hora(valor: unknown, campo: string): string {
 
 export function validarNuevaPublicacion(cuerpo: unknown): NuevaPublicacion {
   const d = objeto(cuerpo)
-  // La modalidad no se valida aquí: la fábrica (PublicacionFactory) decide si es válida.
+
   const modalidad = texto(d.modalidad, 'modalidad') as Modalidad
   const h = objeto(d.horario)
   const horario: HorarioRecoleccion = {

@@ -8,8 +8,6 @@ interface Props {
   children: ReactNode
 }
 
-// Estructura común de cada pantalla: título arriba y contenido abajo.
-// Dentro del panel usa el espacio del panel; en el sitio público usa un contenedor centrado.
 export default function Pagina({ titulo, subtitulo, acciones, children }: Props) {
   const { enPanel } = useBase()
 

@@ -11,7 +11,7 @@ const enlaces = [
 ]
 
 export default function Navbar() {
-  // Controla si el menú está abierto en celulares
+
   const [abierto, setAbierto] = useState(false)
   const { usuario, cerrarSesion } = useAuth()
   const navegar = useNavigate()

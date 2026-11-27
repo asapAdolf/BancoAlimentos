@@ -5,6 +5,6 @@ export interface Reservacion {
   usuarioNombre: string
   cantidad: number
   precioTotal: number
-  fecha: string // AAAA-MM-DD
+  fecha: string
   codigo: string
 }

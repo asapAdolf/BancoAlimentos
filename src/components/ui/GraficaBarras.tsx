@@ -12,7 +12,6 @@ interface Props {
 
 const formatoPorDefecto = (n: number) => Math.round(n).toLocaleString('es-MX')
 
-// Gráfica de barras hecha solo con HTML y CSS (sin librerías externas).
 export default function GraficaBarras({ datos, horizontal = false, alto = 220, formato = formatoPorDefecto }: Props) {
   const maximo = Math.max(...datos.map((d) => d.valor), 1)
 

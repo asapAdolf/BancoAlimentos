@@ -5,7 +5,7 @@ export interface Notificacion {
   tipo: TipoNotificacion
   titulo: string
   mensaje: string
-  fecha: string // fecha y hora ISO
+  fecha: string
   leida: boolean
   publicacionId?: string
 }

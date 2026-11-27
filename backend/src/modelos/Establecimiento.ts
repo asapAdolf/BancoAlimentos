@@ -8,5 +8,5 @@ export interface Establecimiento {
   zona: string
   puntoRecoleccion: string
   telefono: string
-  usuarioId?: string // usuario dueño del establecimiento
+  usuarioId?: string
 }

@@ -7,7 +7,6 @@ interface Props {
   className?: string
 }
 
-// Muestra la foto del alimento. Si la imagen no carga, muestra un recuadro de respaldo.
 export default function FotoAlimento({ src, alt, className = '' }: Props) {
   const [falloSrc, setFalloSrc] = useState<string | null>(null)
 

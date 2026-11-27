@@ -6,7 +6,6 @@ export type TipoUsuario =
   | 'panaderia'
   | 'supermercado'
 
-// Canal por el que el usuario recibe avisos (se envían con el patrón Adapter).
 export type CanalNotificacion = 'sms' | 'whatsapp' | 'email'
 
 export interface Usuario {
@@ -30,7 +29,6 @@ export const TIPOS_USUARIO: TipoUsuario[] = [
 
 export const TIPOS_ESTABLECIMIENTO: TipoUsuario[] = ['restaurante', 'cafeteria', 'panaderia', 'supermercado']
 
-// Los establecimientos publican alimentos; personas y organizaciones los reservan.
 export function esEstablecimiento(tipo: TipoUsuario): boolean {
   return TIPOS_ESTABLECIMIENTO.includes(tipo)
 }

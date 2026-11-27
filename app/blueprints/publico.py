@@ -9,11 +9,9 @@ bp = Blueprint('publico', __name__)
 META_KILOS = 30000
 META_ENTREGAS = 3000
 
-
 @bp.route('/')
 def inicio():
     return render_template('inicio.html', registro=store.S.REGISTRO)
-
 
 def _filtros():
     a = request.args
@@ -26,7 +24,6 @@ def _filtros():
         'zona': a.get('zona', 'todas'), 'estado': a.get('estado', 'todas'), 'precio_max': precio_max,
         'orden': a.get('orden', 'recientes'),
     }
-
 
 @bp.route('/catalogo')
 def catalogo():
@@ -49,13 +46,11 @@ def catalogo():
             continue
         resultados.append(p)
 
-    # "recientes" respeta el orden original (lo más nuevo primero).
     if f['orden'] == 'caducidad':
         resultados.sort(key=lambda p: p['alimento']['caducidad'])
     elif f['orden'] == 'precio':
         resultados.sort(key=store.precio_final)
     return render_template('catalogo.html', pubs=resultados, f=f)
-
 
 @bp.route('/catalogo/<pub_id>')
 def detalle(pub_id):
@@ -64,13 +59,11 @@ def detalle(pub_id):
         abort(404)
     return render_template('detalle.html', pub=pub, reserva=store.reserva_de_pub(pub_id))
 
-
 def _ruta_ejemplo(pub_id):
     """Distancia y tiempo de EJEMPLO (siempre los mismos para la misma publicación)."""
     semilla = sum(ord(c) for c in pub_id)
     distancia = 0.8 + (semilla % 35) / 10
     return {'km': f'{distancia:.1f}', 'min': round(distancia * 4 + 3)}
-
 
 @bp.route('/ubicacion')
 def ubicacion():
@@ -83,18 +76,16 @@ def ubicacion():
         mias = {r['pub_id'] for r in store.S.RESERVACIONES if r['transportista_email'] == user['email']}
     elif user and user['rol'] == 'empresa':
         mias = {p['id'] for p in store.pubs_de_empresa(user)}
-    pubs.sort(key=lambda p: p['id'] not in mias)  # las tuyas primero
+    pubs.sort(key=lambda p: p['id'] not in mias)
 
     sel = store.get_pub(request.args.get('pub', '')) or (pubs[0] if pubs else None)
     reserva = store.reserva_de_pub(sel['id']) if sel else None
 
-    # La dirección de entrega de un cliente solo la ven las personas involucradas.
     ver_destino = bool(user and reserva and reserva['modo'] == 'envio' and (
         user['rol'] == 'administrador' or user['email'] in (reserva['cliente_email'], reserva['transportista_email'], sel['est'].get('email'))
         or user['rol'] == 'transportista'))
     return render_template('ubicacion.html', pubs=pubs, mias=mias, sel=sel, reserva=reserva, ver_destino=ver_destino,
                            ruta=_ruta_ejemplo(sel['id']) if sel else None)
-
 
 @bp.route('/estadisticas')
 def estadisticas():

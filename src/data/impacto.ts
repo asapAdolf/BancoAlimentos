@@ -1,6 +1,5 @@
 import type { RegistroDesperdicioEvitado } from '../types/impacto'
 
-// Nombres de los últimos 6 meses (el último es el mes actual).
 function mesesRecientes(): string[] {
   const salida: string[] = []
   const ahora = new Date()

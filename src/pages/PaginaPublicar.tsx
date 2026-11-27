@@ -168,7 +168,7 @@ export default function PaginaPublicar() {
     >
       <form className="publicar-rejilla" onSubmit={enviar} noValidate>
         <div className="publicar-formulario">
-          {/* 1. Modalidad */}
+          {}
           <section className="tarjeta-panel">
             <h2 className="titulo-seccion">1. ¿Cómo quieres ofrecerlo?</h2>
             <div className="modalidad-opciones" role="radiogroup" aria-label="Modalidad de publicación">
@@ -192,7 +192,7 @@ export default function PaginaPublicar() {
             </div>
           </section>
 
-          {/* 2. Datos del alimento */}
+          {}
           <section className="tarjeta-panel">
             <h2 className="titulo-seccion">2. Datos del alimento</h2>
 
@@ -316,7 +316,7 @@ export default function PaginaPublicar() {
             </div>
           </section>
 
-          {/* 3. Precio según la modalidad */}
+          {}
           <section className="tarjeta-panel">
             <h2 className="titulo-seccion">3. Precio</h2>
 
@@ -401,7 +401,7 @@ export default function PaginaPublicar() {
             )}
           </section>
 
-          {/* 4. Recolección */}
+          {}
           <section className="tarjeta-panel">
             <h2 className="titulo-seccion">4. Horario de recolección</h2>
             <div className="rejilla-tres">

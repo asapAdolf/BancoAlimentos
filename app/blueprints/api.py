@@ -7,17 +7,11 @@ from ..models import CategoriaAlimento, Publicacion, Rol, UnidadMedida, Usuario
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
-
-# -------------------------------------------------------------
-# 1. Ruta de prueba y salud de la Base de Datos
-# -------------------------------------------------------------
 @bp.route('/salud', methods=['GET'])
 def salud():
     try:
-        # Query de verificación a PostgreSQL
         db.session.execute(text('SELECT 1'))
 
-        # Conteo de tablas existentes en el esquema public
         resultado = db.session.execute(
             text("SELECT count(*) FROM information_schema.tables WHERE table_schema='public';")
         ).scalar()
@@ -38,17 +32,12 @@ def salud():
             'mensaje': f'Error al conectar con PostgreSQL: {str(e)}'
         }), 500
 
-
-# -------------------------------------------------------------
-# 2. Rutas de Catálogos (Roles, Categorías, Unidades)
-# -------------------------------------------------------------
 @bp.route('/roles', methods=['GET'])
 def obtener_roles():
     try:
         return jsonify([r.to_dict() for r in Rol.query.all()]), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 @bp.route('/categorias', methods=['GET'])
 def obtener_categorias():
@@ -57,7 +46,6 @@ def obtener_categorias():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @bp.route('/unidades', methods=['GET'])
 def obtener_unidades():
     try:
@@ -65,10 +53,6 @@ def obtener_unidades():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-# -------------------------------------------------------------
-# 3. Usuarios
-# -------------------------------------------------------------
 @bp.route('/usuarios', methods=['GET'])
 def obtener_usuarios():
     try:
@@ -76,10 +60,6 @@ def obtener_usuarios():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-# -------------------------------------------------------------
-# 4. Publicaciones
-# -------------------------------------------------------------
 @bp.route('/publicaciones', methods=['GET'])
 def obtener_publicaciones():
     try:
@@ -87,16 +67,11 @@ def obtener_publicaciones():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-# -------------------------------------------------------------
-# 5. Semilla inicial de datos (para poblar catálogos si están vacíos)
-# -------------------------------------------------------------
 @bp.route('/seed', methods=['POST'])
 def seed_data():
     try:
         creados = []
 
-        # Roles iniciales
         if Rol.query.count() == 0:
             db.session.add_all([
                 Rol(nombre='Administrador', descripcion='Control total del sistema'),
@@ -106,7 +81,6 @@ def seed_data():
             ])
             creados.append('Roles')
 
-        # Categorías iniciales
         if CategoriaAlimento.query.count() == 0:
             db.session.add_all([
                 CategoriaAlimento(nombre='Pan y Repostería', descripcion='Panadería, bollería y galletas'),
@@ -117,7 +91,6 @@ def seed_data():
             ])
             creados.append('Categorías')
 
-        # Unidades de medida
         if UnidadMedida.query.count() == 0:
             db.session.add_all([
                 UnidadMedida(nombre='Kilogramos', abreviatura='kg'),

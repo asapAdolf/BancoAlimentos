@@ -1,8 +1,5 @@
 import type { TipoUsuario } from './usuario'
 
-// TIPOS SOLO PARA LA VISTA. Reflejan los datos que muestran las pantallas;
-// no implementan las clases del diagrama (eso le toca al Back-End).
-
 export type Modalidad = 'venta' | 'descuento' | 'donacion'
 export type EstadoPublicacion = 'disponible' | 'reservado' | 'entregado'
 export type EstrategiaDescuento = 'caducidad' | 'disponibilidad'
@@ -49,12 +46,10 @@ export const ETIQUETA_ESTRATEGIA: Record<EstrategiaDescuento, string> = {
   disponibilidad: 'Descuento por disponibilidad',
 }
 
-// Clase "Alimento" del diagrama: nombre, kilos, fechaCaducidad, cantidadDisponible.
-// Los demás campos (descripción, categoría, unidad, foto) son solo para mostrar en pantalla.
 export interface Alimento {
   nombre: string
   kilos: number
-  fechaCaducidad: string // formato AAAA-MM-DD
+  fechaCaducidad: string
   cantidadDisponible: number
   descripcion: string
   categoria: CategoriaAlimento
@@ -62,11 +57,10 @@ export interface Alimento {
   foto: string
 }
 
-// El diagrama menciona HorarioRecoleccion como parámetro, pero no define su clase.
 export interface HorarioRecoleccion {
-  fecha: string // AAAA-MM-DD
-  desde: string // HH:MM
-  hasta: string // HH:MM
+  fecha: string
+  desde: string
+  hasta: string
 }
 
 export interface Establecimiento {
@@ -79,8 +73,6 @@ export interface Establecimiento {
   telefono: string
 }
 
-// Representa a PublicacionAlimento (y sus tipos Venta / Descuento / Donación)
-// mediante el campo "modalidad".
 export interface PublicacionAlimento {
   id: string
   modalidad: Modalidad
@@ -88,8 +80,8 @@ export interface PublicacionAlimento {
   horarioRecoleccion: HorarioRecoleccion
   estadoActual: EstadoPublicacion
   estrategiaDescuento?: EstrategiaDescuento
-  precioBase: number // precio del lote completo
+  precioBase: number
   porcentajeDescuento: number
   establecimiento: Establecimiento
-  fechaPublicacion: string // fecha y hora ISO
+  fechaPublicacion: string
 }

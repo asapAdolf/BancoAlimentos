@@ -11,8 +11,6 @@ export interface DatosRegistro {
   porCategoria: Record<CategoriaAlimento, number>
 }
 
-// Clase "RegistroDesperdicioEvitado" del diagrama.
-// Lleva la cuenta de los kilos y alimentos rescatados cada vez que se confirma una entrega.
 export class RegistroDesperdicioEvitado {
   private totalKilosEvitados: number
   private totalAlimentosRecuperados: number
@@ -33,7 +31,6 @@ export class RegistroDesperdicioEvitado {
       (Object.fromEntries(CATEGORIAS.map((c) => [c, 0])) as Record<CategoriaAlimento, number>)
   }
 
-  // Se llama al confirmar la entrega de una publicación.
   registrarRecuperacion(publicacion: PublicacionAlimento): void {
     const kilos = publicacion.alimento.kilos
     this.totalKilosEvitados = redondear(this.totalKilosEvitados + kilos)
@@ -55,7 +52,6 @@ export class RegistroDesperdicioEvitado {
     this.porCategoria[categoria] = redondear(this.porCategoria[categoria] + kilos)
   }
 
-  // Resumen para el botón "Generar reporte" de la pantalla de estadísticas.
   generarReporteImpacto(): string {
     const promedio = this.entregasConfirmadas ? this.totalKilosEvitados / this.entregasConfirmadas : 0
     return [

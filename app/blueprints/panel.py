@@ -6,7 +6,6 @@ from ..seguridad import login_requerido
 
 bp = Blueprint('panel', __name__)
 
-
 @bp.route('/panel')
 @login_requerido
 def resumen():
@@ -36,14 +35,13 @@ def resumen():
             activas=[x for x in mias if x['r']['transporte'] in ('asignado', 'en_camino')],
             n_hechas=sum(1 for x in mias if x['r']['transporte'] == 'entregado'),
             kilos_mios=sum(x['pub']['alimento']['kilos'] for x in mias if x['r']['transporte'] == 'entregado'))
-    else:  # administrador
+    else:
         por_rol = {r: sum(1 for x in S.USUARIOS.values() if x['rol'] == r) for r in store.ROLES}
         datos.update(
             por_rol=por_rol, n_usuarios=len(S.USUARIOS), n_activas=sum(1 for p in S.PUBLICACIONES if p['estado'] != 'entregado'),
             n_reservas=len(S.RESERVACIONES), ultimos=list(S.USUARIOS.values())[-5:][::-1],
             n_suspendidos=sum(1 for x in S.USUARIOS.values() if not x['activo']))
     return render_template('panel/resumen.html', **datos)
-
 
 @bp.route('/notificaciones')
 @login_requerido
@@ -54,14 +52,12 @@ def notificaciones():
     return render_template('panel/notificaciones.html', notifs=visibles, total=len(todas), sin_leer=sum(1 for n in todas if not n['leida']),
                            solo_sin_leer=solo_sin_leer, existentes={p['id'] for p in store.S.PUBLICACIONES})
 
-
 @bp.route('/notificaciones/leer/<notif_id>', methods=['POST'])
 @login_requerido
 def leer(notif_id):
     store.marcar_leida(g.user, notif_id)
     destino = request.form.get('ir')
     return redirect(destino if destino and destino.startswith('/') and not destino.startswith('//') else url_for('panel.notificaciones'))
-
 
 @bp.route('/notificaciones/leer-todas', methods=['POST'])
 @login_requerido

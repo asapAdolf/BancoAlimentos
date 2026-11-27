@@ -63,7 +63,6 @@ export default function PaginaRegistro() {
   const [verContrasena, setVerContrasena] = useState(false)
   const [errores, setErrores] = useState<Errores>({})
 
-  // El campo "nombre del establecimiento" solo aparece para negocios.
   const pideEstablecimiento = esEstablecimiento(tipo)
 
   const enviar = (e: FormEvent) => {
@@ -81,7 +80,6 @@ export default function PaginaRegistro() {
     setErrores(nuevosErrores)
     if (Object.values(nuevosErrores).some(Boolean)) return
 
-    // Estado simulado de interfaz: no se envía nada a ningún servidor.
     registrar({
       nombre: nombre.trim(),
       correo: correo.trim(),

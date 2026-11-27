@@ -5,7 +5,6 @@ from datetime import date, datetime, timedelta
 from types import SimpleNamespace
 from werkzeug.security import check_password_hash, generate_password_hash
 
-# ---------------------------------------------------------------- constantes esenciales (menús y catálogos)
 ROLES = ('cliente', 'empresa', 'transportista', 'administrador')
 
 ETIQUETA_ROL = {
@@ -34,10 +33,8 @@ ZONAS = ('Centro', 'Norte', 'Sur', 'Oriente', 'Poniente')
 GIROS = ('Panadería', 'Cafetería', 'Restaurante', 'Supermercado')
 PRECIO_MAXIMO = 800
 
-
 def _u(id_):
     return f'https://images.unsplash.com/{id_}?auto=format&fit=crop&w=800&q=70'
-
 
 FOTOS = {
     'pan': _u('photo-1509440159596-0249088772ff'),
@@ -65,10 +62,8 @@ FOTO_POR_CATEGORIA = {
 
 S = SimpleNamespace()
 
-
 def _dia(n):
     return (date.today() + timedelta(days=n)).isoformat()
-
 
 def _meses_recientes():
     nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
@@ -79,8 +74,6 @@ def _meses_recientes():
         salida.append(nombres[m % 12])
     return salida
 
-
-# --------------------------------------------------------------------- inicialización limpia
 def reset():
     """Inicializa el estado operativo limpio (solo cuenta administradora esencial y contadores en cero)."""
     admin_email = os.getenv('ADMIN_EMAIL', 'admin@bancoalimentos.mx').strip().lower()
@@ -111,11 +104,8 @@ def reset():
         'por_categoria': {cat: 0 for cat in CATEGORIAS},
     }
 
-
-# ------------------------------------------------------------------ consultas
 def get_usuario(email):
     return S.USUARIOS.get(email)
-
 
 def autenticar_usuario(email, password):
     u = S.USUARIOS.get(email.strip().lower())
@@ -126,18 +116,14 @@ def autenticar_usuario(email, password):
         return None
     return u
 
-
 def get_pub(pub_id):
     return next((p for p in S.PUBLICACIONES if p['id'] == pub_id), None)
-
 
 def get_reserva(reserva_id):
     return next((r for r in S.RESERVACIONES if r['id'] == reserva_id), None)
 
-
 def reserva_de_pub(pub_id):
     return next((r for r in S.RESERVACIONES if r['pub_id'] == pub_id), None)
-
 
 def reservas_con_pub():
     salida = []
@@ -147,10 +133,8 @@ def reservas_con_pub():
             salida.append({'r': r, 'pub': p})
     return salida
 
-
 def pubs_de_empresa(user):
     return [p for p in S.PUBLICACIONES if p['est']['id'] == user.get('est_id')]
-
 
 def precio_final(pub):
     if pub['modalidad'] == 'donacion':
@@ -159,33 +143,25 @@ def precio_final(pub):
         return round(pub['precio_base'] * (1 - pub['pct'] / 100), 2)
     return pub['precio_base']
 
-
 def descuento_aplicado(pub):
     return pub['pct'] if pub['modalidad'] == 'descuento' else 0
-
 
 def notifs_de(user):
     leidas = S.LEIDAS.get(user['email'], set())
     return [dict(n, leida=n['id'] in leidas) for n in S.NOTIFICACIONES if n['para'] in (user['email'], user['rol'])]
 
-
 def no_leidas(user):
     return sum(1 for n in notifs_de(user) if not n['leida'])
 
-
-# ------------------------------------------------------------------- acciones
 def _avisar(tipo, titulo, mensaje, para, pub_id=None):
     S.NOTIFICACIONES.insert(0, {'id': f'n-{random.randint(10**6, 10**7)}', 'tipo': tipo, 'titulo': titulo, 'mensaje': mensaje,
                                 'fecha': datetime.now().isoformat(timespec='seconds'), 'para': para, 'pub_id': pub_id})
 
-
 def marcar_leida(user, notif_id):
     S.LEIDAS.setdefault(user['email'], set()).add(notif_id)
 
-
 def marcar_todas_leidas(user):
     S.LEIDAS.setdefault(user['email'], set()).update(n['id'] for n in notifs_de(user))
-
 
 def registrar_usuario(email, nombre, rol, telefono, establecimiento='', giro='', vehiculo='', password=''):
     email = email.strip().lower()
@@ -215,7 +191,6 @@ def registrar_usuario(email, nombre, rol, telefono, establecimiento='', giro='',
     _avisar('usuario', 'Nuevo usuario registrado', f'{u["nombre"]} se registró como {ETIQUETA_ROL[rol].lower()}.', 'administrador')
     return u
 
-
 def publicar(datos, user):
     est = next(e for e in S.ESTABLECIMIENTOS if e['id'] == user['est_id'])
     d = datos
@@ -238,7 +213,6 @@ def publicar(datos, user):
         _avisar('nuevo', 'Nuevo alimento disponible', f'{est["nombre"]} publicó "{d["nombre"]}".', 'cliente', nueva['id'])
     return nueva
 
-
 def editar_publicacion(pub_id, user, cambios):
     pub = get_pub(pub_id)
     if not pub or pub['est']['id'] != user.get('est_id'):
@@ -252,7 +226,6 @@ def editar_publicacion(pub_id, user, cambios):
         pub['pct'] = cambios['pct']
     return pub
 
-
 def cancelar_publicacion(pub_id, user):
     pub = get_pub(pub_id)
     if not pub:
@@ -264,7 +237,6 @@ def cancelar_publicacion(pub_id, user):
         raise ValueError('Solo se pueden cancelar publicaciones disponibles.')
     S.PUBLICACIONES.remove(pub)
     return pub
-
 
 def reservar(pub_id, user, modo, direccion=''):
     pub = get_pub(pub_id)
@@ -292,7 +264,6 @@ def reservar(pub_id, user, modo, direccion=''):
         _avisar('listo', 'Alimento listo para recoger', f'Pasa por "{nombre}" a {pub["est"]["nombre"]}.', user['email'], pub_id)
     return r
 
-
 def aceptar_entrega(reserva_id, user):
     r = get_reserva(reserva_id)
     if not r or r['transporte'] != 'pendiente':
@@ -303,7 +274,6 @@ def aceptar_entrega(reserva_id, user):
     _avisar('transporte', 'Transportista asignado', f'{user["nombre"]} llevará tu pedido "{nombre}".', r['cliente_email'], pub['id'])
     _avisar('transporte', 'Transportista asignado', f'{user["nombre"]} recogerá "{nombre}" en tu establecimiento.', pub['est']['email'], pub['id'])
     return r
-
 
 def avanzar_entrega(reserva_id, user):
     r = get_reserva(reserva_id)
@@ -319,7 +289,6 @@ def avanzar_entrega(reserva_id, user):
         raise ValueError('Esta entrega ya fue completada.')
     return r
 
-
 def confirmar_entrega_empresa(reserva_id, user):
     r = get_reserva(reserva_id)
     pub = get_pub(r['pub_id']) if r else None
@@ -331,7 +300,6 @@ def confirmar_entrega_empresa(reserva_id, user):
         raise ValueError('Esta entrega ya fue confirmada.')
     _entregar(pub, r)
     return r
-
 
 def _entregar(pub, r):
     """Cierra el ciclo: publicación entregada y suma al registro de desperdicio evitado."""
@@ -349,7 +317,6 @@ def _entregar(pub, r):
     _avisar('entrega', 'Entrega confirmada', f'Se confirmó la entrega de "{nombre}". ¡Gracias por rescatar alimentos!', r['cliente_email'], pub['id'])
     _avisar('entrega', 'Entrega confirmada', f'"{nombre}" fue entregado. Sumaste {k:g} kg rescatados.', pub['est']['email'], pub['id'])
 
-
 def alternar_usuario(email, actor):
     u = S.USUARIOS.get(email)
     if not u:
@@ -358,6 +325,5 @@ def alternar_usuario(email, actor):
         raise ValueError('No se puede suspender a un administrador.')
     u['activo'] = not u['activo']
     return u
-
 
 reset()

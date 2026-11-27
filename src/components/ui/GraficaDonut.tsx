@@ -10,7 +10,6 @@ interface Props {
   centroEtiqueta: string
 }
 
-// Gráfica circular (dona) hecha con SVG.
 export default function GraficaDonut({ datos, centroValor, centroEtiqueta }: Props) {
   const total = datos.reduce((suma, d) => suma + d.valor, 0) || 1
   const trazos = datos.reduce<{ etiqueta: string; color: string; porcentaje: number; offset: number }[]>(

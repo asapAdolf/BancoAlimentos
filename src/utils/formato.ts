@@ -1,7 +1,5 @@
 import type { HorarioRecoleccion } from '../types/alimento'
 
-// Funciones de ayuda para MOSTRAR datos (formato de dinero, fechas, etc.).
-
 export function moneda(valor: number): string {
   return valor.toLocaleString('es-MX', {
     style: 'currency',
@@ -28,7 +26,6 @@ export function fechaCorta(iso: string): string {
   return aFecha(iso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-// Devuelve la fecha de hoy + n días en formato AAAA-MM-DD.
 export function fechaEnDias(n: number): string {
   const f = new Date()
   f.setDate(f.getDate() + n)
@@ -37,7 +34,6 @@ export function fechaEnDias(n: number): string {
   return `${f.getFullYear()}-${mes}-${dia}`
 }
 
-// Equivale a getDiasParaCaducar() de la clase Alimento (solo para mostrarlo en pantalla).
 export function diasParaCaducar(iso: string): number {
   const hoy = new Date()
   hoy.setHours(0, 0, 0, 0)
@@ -59,7 +55,6 @@ export function textoHorario(h: HorarioRecoleccion): string {
   return `${dia}, ${h.desde} – ${h.hasta}`
 }
 
-// Fecha y hora ISO de hace "minutos" minutos (para los datos de ejemplo).
 export function haceMinutos(minutos: number): string {
   return new Date(Date.now() - minutos * 60000).toISOString()
 }

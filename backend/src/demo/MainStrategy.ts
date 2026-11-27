@@ -4,19 +4,10 @@ import { DescuentoPorCaducidad } from '../patrones/strategy/DescuentoPorCaducida
 import { DescuentoPorDisponibilidad } from '../patrones/strategy/DescuentoPorDisponibilidad.js'
 import { fechaEnDias } from '../utils/fechas.js'
 
-// DEMO DE CONSOLA del Strategy. Equivale al programa principal del código muestra:
-//
-//   const paquete = new Paqueteria(new EnvioEstandar());
-//   paquete.aplicarEnvio();
-//   paquete.cambiarEnvio(new EnvioExpres());
-//   paquete.aplicarEnvio();
-//
-// Ejecutar con: npm run demo:strategy
-
 const datos: DatosPublicacion = {
   id: 'demo-1',
   precioBase: 200,
-  porcentajeDescuento: 60, // porcentaje máximo
+  porcentajeDescuento: 60,
   estrategiaDescuento: 'caducidad',
   horarioRecoleccion: { fecha: fechaEnDias(0), desde: '19:00', hasta: '20:30' },
   establecimiento: {

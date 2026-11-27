@@ -8,12 +8,6 @@ import type { Mapa } from '../patrones/adapter/mapas/Mapa.js'
 import { googleMapsAdapter } from '../patrones/adapter/mapas/googleMapsAdapter.js'
 import { openStreetMapAdapter } from '../patrones/adapter/mapas/openStreetMapAdapter.js'
 
-// DEMO DE CONSOLA del Adapter. Misma lógica que el Main del código muestra
-// (Scanner + do/while + switch). Se agregó la opción 4 para probar los adaptadores de mapas.
-//
-// Ejecutar con: npm run demo:adapter
-
-// Equivalente a Scanner sc = new Scanner(System.in)
 const sc = createInterface({ input, output })
 const lineas = sc[Symbol.asyncIterator]()
 
@@ -29,7 +23,7 @@ let mensaje: string
 do {
   console.log('\n1. SMS 2.WhatsApp 3.Email 4.Mapas 5.Salir')
   const entrada = await leer('')
-  opc = entrada === null ? 5 : Number(entrada) // fin de la entrada = Salir
+  opc = entrada === null ? 5 : Number(entrada)
   switch (opc) {
     case 1: {
       mensaje = (await leer('Ingrese el mensaje: ')) ?? ''

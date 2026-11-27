@@ -1,4 +1,3 @@
-// Fecha AAAA-MM-DD desplazada "dias" a partir de hoy (0 = hoy, 1 = mañana, -1 = ayer).
 export function fechaEnDias(dias: number): string {
   const fecha = new Date()
   fecha.setDate(fecha.getDate() + dias)
@@ -8,17 +7,14 @@ export function fechaEnDias(dias: number): string {
   return `${anio}-${mes}-${dia}`
 }
 
-// Fecha y hora ISO de hace "minutos" minutos.
 export function haceMinutos(minutos: number): string {
   return new Date(Date.now() - minutos * 60_000).toISOString()
 }
 
-// Nombre corto del mes actual, por ejemplo "Nov".
 export function mesActual(): string {
   return nombreMes(new Date())
 }
 
-// Nombres de los últimos "cantidad" meses; el último es el mes actual.
 export function mesesRecientes(cantidad: number): string[] {
   const salida: string[] = []
   const ahora = new Date()
@@ -33,7 +29,6 @@ function nombreMes(fecha: Date): string {
   return mes.charAt(0).toUpperCase() + mes.slice(1)
 }
 
-// Días que faltan desde hoy hasta "fecha" (AAAA-MM-DD). 0 = hoy, negativo = ya pasó.
 export function diasHasta(fecha: string): number {
   const hoy = Date.parse(fechaEnDias(0))
   return Math.round((Date.parse(fecha) - hoy) / 86_400_000)

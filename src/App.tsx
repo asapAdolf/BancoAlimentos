@@ -18,7 +18,6 @@ import PaginaUbicacion from './pages/PaginaUbicacion'
 import PaginaEstadisticas from './pages/PaginaEstadisticas'
 import PaginaNoEncontrada from './pages/PaginaNoEncontrada'
 
-// Estructura común de las páginas públicas: menú arriba, contenido, pie abajo.
 function LayoutPublico() {
   return (
     <>
@@ -31,7 +30,6 @@ function LayoutPublico() {
   )
 }
 
-// Al cambiar de pantalla, regresa al inicio de la página.
 function ScrollArriba() {
   const { pathname } = useLocation()
   useEffect(() => {
@@ -45,7 +43,7 @@ export default function App() {
     <>
       <ScrollArriba />
       <Routes>
-        {/* Sitio público */}
+        {}
         <Route element={<LayoutPublico />}>
           <Route path="/" element={<PaginaInicio />} />
           <Route path="/login" element={<PaginaLogin />} />
@@ -56,7 +54,7 @@ export default function App() {
           <Route path="/estadisticas" element={<PaginaEstadisticas />} />
         </Route>
 
-        {/* Panel (requiere sesión; PanelLayout redirige al login si no hay) */}
+        {}
         <Route path="/app" element={<PanelLayout />}>
           <Route index element={<PaginaResumen />} />
           <Route path="catalogo" element={<PaginaCatalogo />} />

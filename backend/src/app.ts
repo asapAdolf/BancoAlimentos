@@ -13,7 +13,7 @@ import { manejarErrores } from './rutas/utilidades.js'
 import { SuscripcionServicio } from './servicios/SuscripcionServicio.js'
 
 export function crearApp() {
-  // PATRÓN OBSERVER: los usuarios de ejemplo quedan suscritos a los avisos de nuevos alimentos.
+
   SuscripcionServicio.inicializar()
 
   const app = express()

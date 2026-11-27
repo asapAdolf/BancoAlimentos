@@ -5,8 +5,6 @@ import { generarId } from '../utils/ids.js'
 import { SuscripcionServicio } from './SuscripcionServicio.js'
 import { validarNuevoUsuario } from '../validaciones/validaciones.js'
 
-// Inicio de sesión de DEMOSTRACIÓN (igual que en el Front-End): no se verifican contraseñas.
-// Las peticiones identifican al usuario con el encabezado "x-usuario-id".
 export class UsuarioServicio {
   static iniciarSesion(correo: unknown): Usuario {
     if (typeof correo !== 'string' || !correo.trim()) {
@@ -16,7 +14,6 @@ export class UsuarioServicio {
     const existente = bd.usuarios.find((u) => u.correo === clave)
     if (existente) return existente
 
-    // Con un correo desconocido entra como "Persona", como en el Front-End.
     const nuevo: Usuario = {
       id: generarId('usr'),
       nombre: clave.split('@')[0],
@@ -26,7 +23,7 @@ export class UsuarioServicio {
       canalNotificacion: 'email',
     }
     bd.usuarios.push(nuevo)
-    SuscripcionServicio.suscribir(nuevo) // PATRÓN OBSERVER: recibe avisos de nuevos alimentos
+    SuscripcionServicio.suscribir(nuevo)
     return nuevo
   }
 
@@ -38,7 +35,7 @@ export class UsuarioServicio {
     const nuevo: Usuario = { ...valido, id: generarId('usr') }
     if (!esEstablecimiento(nuevo.tipo)) delete nuevo.nombreEstablecimiento
     bd.usuarios.push(nuevo)
-    if (!esEstablecimiento(nuevo.tipo)) SuscripcionServicio.suscribir(nuevo) // PATRÓN OBSERVER
+    if (!esEstablecimiento(nuevo.tipo)) SuscripcionServicio.suscribir(nuevo)
     return nuevo
   }
 

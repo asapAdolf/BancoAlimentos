@@ -9,7 +9,6 @@ import EstadoVacio from '../components/ui/EstadoVacio'
 import FiltrosCatalogo from '../components/catalog/FiltrosCatalogo'
 import TarjetaAlimento from '../components/catalog/TarjetaAlimento'
 
-// PANTALLA 5: Catálogo de alimentos con buscador y filtros.
 export default function PaginaCatalogo() {
   const { publicaciones } = usePlataforma()
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_INICIALES)
@@ -33,7 +32,6 @@ export default function PaginaCatalogo() {
       return true
     })
 
-    // El orden "recientes" respeta el orden original (lo más nuevo primero).
     if (filtros.orden === 'caducidad') {
       return [...filtradas].sort(
         (a, b) => diasParaCaducar(a.alimento.fechaCaducidad) - diasParaCaducar(b.alimento.fechaCaducidad),

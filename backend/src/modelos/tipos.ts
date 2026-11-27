@@ -1,6 +1,3 @@
-// Tipos compartidos. Usan los mismos valores que el Front-End (src/types/alimento.ts)
-// para que las respuestas de la API se puedan mostrar sin transformarlas.
-
 export type Modalidad = 'venta' | 'descuento' | 'donacion'
 export type EstadoPublicacion = 'disponible' | 'reservado' | 'entregado'
 export type EstrategiaDescuento = 'caducidad' | 'disponibilidad'

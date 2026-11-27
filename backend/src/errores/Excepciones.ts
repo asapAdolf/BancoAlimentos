@@ -1,7 +1,3 @@
-// Excepciones del Back-End. Se nombran igual que en Java para seguir el código muestra
-// (por ejemplo: throw new IllegalArgumentException("Tipo de personaje no válido")).
-// Cada una lleva el código HTTP con el que se responde al cliente.
-
 export class IllegalArgumentException extends Error {
   readonly codigoHttp: number = 400
 

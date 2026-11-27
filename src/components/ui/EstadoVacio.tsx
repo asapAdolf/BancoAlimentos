@@ -7,7 +7,6 @@ interface Props {
   children?: ReactNode
 }
 
-// Mensaje que se muestra cuando una lista no tiene elementos.
 export default function EstadoVacio({ icono, titulo, texto, children }: Props) {
   return (
     <div className="vacio">

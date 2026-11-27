@@ -5,8 +5,6 @@ import type { Usuario } from '../modelos/Usuario.js'
 import type { PublicacionAlimento } from '../patrones/factory/PublicacionAlimento.js'
 import { RegistroDesperdicioEvitado } from '../registro/RegistroDesperdicioEvitado.js'
 
-// BASE DE DATOS EN MEMORIA (inicia limpia sin registros de demostración).
-
 export interface MensajeEnviado {
   canal: string
   destinatario: string

@@ -8,7 +8,6 @@ import { UbicacionServicio } from '../servicios/UbicacionServicio.js'
 import { UsuarioServicio } from '../servicios/UsuarioServicio.js'
 import { parametro, usuarioActual } from './utilidades.js'
 
-// ---------- Autenticación (demostración) ----------
 export const authRutas = Router()
 
 authRutas.post('/login', (req, res) => {
@@ -23,14 +22,12 @@ authRutas.get('/yo', (req, res) => {
   res.json(usuarioActual(req))
 })
 
-// ---------- Reservaciones ----------
 export const reservacionesRutas = Router()
 
 reservacionesRutas.get('/', (req, res) => {
   res.json(PublicacionServicio.listarReservaciones(usuarioActual(req)))
 })
 
-// ---------- Notificaciones (patrón Adapter) ----------
 export const notificacionesRutas = Router()
 
 notificacionesRutas.get('/', (req, res) => {
@@ -45,8 +42,6 @@ notificacionesRutas.patch('/:id/leida', (req, res) => {
   res.json(NotificacionServicio.marcarLeida(req.params.id, usuarioActual(req).id))
 })
 
-// POST /api/notificaciones/enviar { canal: "sms" | "whatsapp" | "email", destinatario, mensaje }
-// Equivale al menú del Main del código muestra (1. SMS 2. WhatsApp 3. Email).
 notificacionesRutas.post('/enviar', (req, res) => {
   const canal = parametro(req.body?.canal)
   const mensaje = parametro(req.body?.mensaje)
@@ -55,33 +50,26 @@ notificacionesRutas.post('/enviar', (req, res) => {
   res.status(201).json(bd.mensajesEnviados[0])
 })
 
-// Historial de mensajes que salieron por los adaptadores.
 notificacionesRutas.get('/enviados', (_req, res) => {
   res.json(bd.mensajesEnviados)
 })
 
-// ---------- Suscripción a nuevos alimentos (patrón Observer) ----------
 export const suscripcionRutas = Router()
 
-// Estado de la suscripción del usuario actual.
 suscripcionRutas.get('/', (req, res) => {
   res.json(SuscripcionServicio.estado(usuarioActual(req)))
 })
 
-// agregarObservador: el usuario empieza a recibir avisos de nuevos alimentos.
 suscripcionRutas.post('/', (req, res) => {
   res.status(201).json(SuscripcionServicio.suscribir(usuarioActual(req)))
 })
 
-// eliminarObservador: el usuario deja de recibir avisos.
 suscripcionRutas.delete('/', (req, res) => {
   res.json(SuscripcionServicio.cancelarSuscripcion(usuarioActual(req)))
 })
 
-// ---------- Ubicación (patrón Adapter de mapas) ----------
 export const ubicacionRutas = Router()
 
-// GET /api/ubicacion?direccion=...&proveedor=google|openstreetmap
 ubicacionRutas.get('/', (req, res) => {
   res.json(UbicacionServicio.ubicar(parametro(req.query.direccion) ?? '', parametro(req.query.proveedor)))
 })
@@ -90,7 +78,6 @@ ubicacionRutas.get('/establecimientos', (req, res) => {
   res.json(UbicacionServicio.ubicarEstablecimientos(parametro(req.query.proveedor)))
 })
 
-// GET /api/ubicacion/ruta?origen=...&destino=...
 ubicacionRutas.get('/ruta', (req, res) => {
   res.json(
     UbicacionServicio.calcularRuta(
@@ -101,7 +88,6 @@ ubicacionRutas.get('/ruta', (req, res) => {
   )
 })
 
-// GET /api/ubicacion/publicacion/:id?origen=...
 ubicacionRutas.get('/publicacion/:id', (req, res) => {
   res.json(
     UbicacionServicio.rutaHaciaPublicacion(
@@ -112,7 +98,6 @@ ubicacionRutas.get('/publicacion/:id', (req, res) => {
   )
 })
 
-// ---------- Impacto (RegistroDesperdicioEvitado) ----------
 export const impactoRutas = Router()
 
 impactoRutas.get('/', (_req, res) => {

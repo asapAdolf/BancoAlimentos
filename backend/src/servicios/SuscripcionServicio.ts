@@ -10,20 +10,10 @@ export interface EstadoSuscripcion {
   totalSuscritos: number
 }
 
-// Servicio que usa el PATRÓN OBSERVER para avisar de nuevos alimentos disponibles.
-// Equivale al "programa principal" del código muestra:
-//
-//   const inf1 = new Influencer("Influencer 1");
-//   const us1 = new Usuario("Usuario 1");
-//   inf1.agregarObservador(us1)
-//   inf1.notificar("Nuevo post")
-//
-// Personas y organizaciones quedan suscritas al registrarse y pueden darse de baja.
 export class SuscripcionServicio {
   static catalogo: CatalogoAlimentos = new CatalogoAlimentos('Rescate Alimentario')
   private static observadores = new Map<string, UsuarioObservador>()
 
-  // Suscribe a los usuarios que ya existen (se llama una vez al iniciar el servidor).
   static inicializar(): void {
     for (const usuario of bd.usuarios) {
       if (!esEstablecimiento(usuario.tipo)) SuscripcionServicio.suscribir(usuario)
@@ -58,7 +48,6 @@ export class SuscripcionServicio {
     }
   }
 
-  // Se llama al publicar: el catálogo notifica a todos los observadores.
   static notificarNuevoAlimento(publicacion: PublicacionAlimento): number {
     return SuscripcionServicio.catalogo.nuevoAlimento(publicacion)
   }

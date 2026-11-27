@@ -22,7 +22,6 @@ interface Elemento {
 
 type Filtro = 'todas' | 'reservado' | 'entregado'
 
-// PANTALLA 9: Reservaciones (las que hice o las que recibí, según el tipo de cuenta).
 export default function PaginaReservaciones() {
   const { usuario } = useAuth()
   const { reservaciones, publicaciones, confirmarEntrega } = usePlataforma()
@@ -33,7 +32,6 @@ export default function PaginaReservaciones() {
   const esNegocio = !!usuario && esEstablecimiento(usuario.tipo)
   const miNombreEst = usuario ? nombreDeEstablecimiento(usuario).toLowerCase() : ''
 
-  // Une cada reservación con su publicación y se queda con las del usuario actual.
   const mias: Elemento[] = reservaciones
     .map((reserva) => ({ reserva, pub: publicaciones.find((p) => p.id === reserva.publicacionId) }))
     .filter((x): x is Elemento => !!x.pub)

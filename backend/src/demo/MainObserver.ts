@@ -4,9 +4,6 @@ import { CatalogoAlimentos } from '../patrones/observer/CatalogoAlimentos.js'
 import { UsuarioObservador } from '../patrones/observer/UsuarioObservador.js'
 import { fechaEnDias } from '../utils/fechas.js'
 
-// Script de prueba en consola del patrón Observer.
-// Ejecutar con: npm run demo:observer
-
 const cat1 = new CatalogoAlimentos('Rescate Alimentario')
 
 const usuarioEmail: Usuario = {

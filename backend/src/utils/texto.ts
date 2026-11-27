@@ -1,5 +1,3 @@
-// Equivalente al String.equalsIgnoreCase() de Java.
-// Además ignora acentos, para que "donación" y "donacion" sean iguales.
 export function equalsIgnoreCase(a: string, b: string): boolean {
   return normalizar(a) === normalizar(b)
 }

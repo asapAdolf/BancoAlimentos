@@ -1,7 +1,5 @@
 import type { CategoriaAlimento } from '../types/alimento'
 
-// Fotografías de Unsplash. Si alguna deja de cargar, la interfaz muestra una imagen de respaldo.
-// Para cambiar una foto, reemplaza el identificador (la parte "photo-...") por otro de unsplash.com.
 const u = (id: string, ancho = 800) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${ancho}&q=70`
 

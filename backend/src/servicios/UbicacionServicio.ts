@@ -5,9 +5,6 @@ import { googleMapsAdapter } from '../patrones/adapter/mapas/googleMapsAdapter.j
 import { openStreetMapAdapter } from '../patrones/adapter/mapas/openStreetMapAdapter.js'
 import { PublicacionServicio } from './PublicacionServicio.js'
 
-// Servicio que usa el PATRÓN ADAPTER para los mapas.
-// El proveedor se elige con la variable de entorno PROVEEDOR_MAPAS ("google" u "openstreetmap").
-// Cambiar de proveedor no obliga a tocar el resto del código: todo trabaja con la interfaz Mapa.
 export class UbicacionServicio {
   static crearMapa(proveedor: string = process.env.PROVEEDOR_MAPAS ?? 'google'): Mapa {
     switch (proveedor.trim().toLowerCase()) {
@@ -36,7 +33,6 @@ export class UbicacionServicio {
     return UbicacionServicio.crearMapa(proveedor).calcularRuta(origen, destino)
   }
 
-  // Ubicación de todos los establecimientos, para dibujar el mapa.
   static ubicarEstablecimientos(proveedor?: string) {
     const mapa = UbicacionServicio.crearMapa(proveedor)
     return bd.establecimientos.map((establecimiento) => ({
@@ -45,7 +41,6 @@ export class UbicacionServicio {
     }))
   }
 
-  // Ruta desde la dirección del usuario hasta el punto de recolección de una publicación.
   static rutaHaciaPublicacion(publicacionId: string, origen: string, proveedor?: string) {
     const publicacion = PublicacionServicio.obtener(publicacionId)
     return {

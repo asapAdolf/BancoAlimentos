@@ -1,7 +1,6 @@
 import { CheckCircle2, Info, AlertCircle } from 'lucide-react'
 import { usePlataforma } from '../../context/PlataformaContext'
 
-// Mensajes emergentes en la esquina de la pantalla.
 export default function Toasts() {
   const { mensajes } = usePlataforma()
 

@@ -5,7 +5,6 @@ import { parametro, usuarioActual } from './utilidades.js'
 
 export const publicacionesRutas = Router()
 
-// GET /api/publicaciones?busqueda=&categoria=&modalidad=&precioMax=&zona=&disponibilidad=&orden=
 publicacionesRutas.get('/', (req, res) => {
   const precioMax = parametro(req.query.precioMax)
   const filtros: FiltrosCatalogo = {
@@ -20,7 +19,6 @@ publicacionesRutas.get('/', (req, res) => {
   res.json(PublicacionServicio.listar(filtros))
 })
 
-// GET /api/publicaciones/mias — publicaciones del establecimiento que inició sesión
 publicacionesRutas.get('/mias', (req, res) => {
   res.json(PublicacionServicio.listarDelUsuario(usuarioActual(req)))
 })
@@ -29,7 +27,6 @@ publicacionesRutas.get('/:id', (req, res) => {
   res.json(PublicacionServicio.obtener(req.params.id))
 })
 
-// POST /api/publicaciones — usa PublicacionFactory según "modalidad"
 publicacionesRutas.post('/', (req, res) => {
   const usuario = usuarioActual(req)
   PublicacionServicio.verificarPuedePublicar(usuario)
