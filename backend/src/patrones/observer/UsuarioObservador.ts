@@ -3,20 +3,6 @@ import { NotificacionServicio } from '../../servicios/NotificacionServicio.js'
 import type { PublicacionAlimento } from '../factory/PublicacionAlimento.js'
 import type { Observador } from './Observador.js'
 
-// PATRÓN OBSERVER — Observador concreto.
-// En el código muestra:
-//
-//   class Usuario implements Observador {
-//     private nomUsuario: string;
-//     constructor(nomUsuario: string) { this.nomUsuario = nomUsuario; }
-//     actualizar(mensaje: String) {
-//       console.log(`${this.nomUsuario} recibio: ${mensaje}`);
-//     }
-//   }
-//
-// Aquí se llama "UsuarioObservador" porque "Usuario" ya es el modelo de la cuenta.
-// Cuando recibe el aviso, además de imprimirlo, lo guarda en sus notificaciones y lo envía
-// por su canal preferido (SMS, WhatsApp o correo) usando el PATRÓN ADAPTER.
 export class UsuarioObservador implements Observador {
   private nomUsuario: string
   private usuario: Usuario

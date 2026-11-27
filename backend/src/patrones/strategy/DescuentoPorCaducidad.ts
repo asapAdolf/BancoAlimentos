@@ -3,13 +3,6 @@ import type { EstrategiaDescuento } from '../../modelos/tipos.js'
 import { diasHasta } from '../../utils/fechas.js'
 import { porcentajeDe, type DescuentoStrategy } from './DescuentoStrategy.js'
 
-// PATRÓN STRATEGY — Estrategia concreta (como "EnvioEstandar implements EnvioStrategy").
-// Entre más cerca está la fecha de caducidad, mayor es el descuento:
-//
-//   caduca hoy (o ya caducó) -> 100% del máximo
-//   caduca mañana            ->  75% del máximo
-//   caduca en 2 días         ->  50% del máximo
-//   caduca en 3 días o más   ->  25% del máximo
 export class DescuentoPorCaducidad implements DescuentoStrategy {
   calcularDescuento(alimento: Alimento, porcentajeMaximo: number): number {
     const dias = diasHasta(alimento.fechaCaducidad)

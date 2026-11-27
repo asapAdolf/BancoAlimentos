@@ -5,8 +5,6 @@ import type { HorarioRecoleccion } from '../../modelos/HorarioRecoleccion.js'
 import type { EstadoPublicacion, Modalidad } from '../../modelos/tipos.js'
 import type { DatosPublicacion, PublicacionAlimento, PublicacionDTO } from './PublicacionAlimento.js'
 
-// PATRÓN FACTORY METHOD — Producto concreto (como "Mago implements Personajes").
-// Venta normal: el precio final es el precio base.
 export class PublicacionVenta implements PublicacionAlimento {
   id: string
   alimento: Alimento

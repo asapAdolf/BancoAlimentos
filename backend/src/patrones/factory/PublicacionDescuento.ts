@@ -14,21 +14,6 @@ import {
 
 export { DESCUENTO_MAXIMO, DESCUENTO_MINIMO }
 
-// PATRÓN FACTORY METHOD — Producto concreto (como "Arquero implements Personajes").
-// Venta con descuento: el precio final se reduce según el porcentaje que calcula la estrategia.
-//
-// PATRÓN STRATEGY — Contexto. Cumple el papel de "Paqueteria" / "Negocio" del código muestra:
-//
-//   class Paqueteria
-//   {
-//     private envio : EnvioStrategy;
-//     constructor(envio:EnvioStrategy) { this.envio = envio; }
-//     cambiarEnvio(envio:EnvioStrategy):void { this.envio = envio; }
-//     aplicarEnvio():void { this.envio.calcularCosto(); }
-//   }
-//
-// La publicación guarda una DescuentoStrategy y le delega el cálculo del porcentaje.
-// Se puede cambiar la estrategia en cualquier momento con cambiarEstrategia().
 export class PublicacionDescuento implements PublicacionAlimento {
   id: string
   alimento: Alimento
@@ -37,7 +22,7 @@ export class PublicacionDescuento implements PublicacionAlimento {
   estadoActual: EstadoPublicacion
   precioBase: number
   fechaPublicacion: string
-  porcentajeMaximo: number // tope que eligió el establecimiento
+  porcentajeMaximo: number
   private estrategia: DescuentoStrategy
 
   constructor(datos: DatosPublicacion) {
@@ -69,7 +54,6 @@ export class PublicacionDescuento implements PublicacionAlimento {
     }
   }
 
-  // Equivale a cambiarEnvio(envio) / cambiarEstrategia(estrategia).
   cambiarEstrategia(estrategia: DescuentoStrategy): void {
     this.estrategia = estrategia
   }
@@ -78,7 +62,6 @@ export class PublicacionDescuento implements PublicacionAlimento {
     return this.estrategia
   }
 
-  // Equivale a aplicarEnvio() / aplicarEstrategia(): delega el cálculo en la estrategia actual.
   aplicarEstrategia(): number {
     return this.estrategia.calcularDescuento(this.alimento, this.porcentajeMaximo)
   }

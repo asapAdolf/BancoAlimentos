@@ -1,7 +1,3 @@
-// Utilidades para SIMULAR los servicios externos de mapas (no se llama a ninguna API real).
-// Convierte una dirección en coordenadas fijas cercanas al centro de Puebla, siempre las mismas
-// para la misma dirección, y calcula distancias en línea recta.
-
 const LATITUD_CENTRO = 19.0414
 const LONGITUD_CENTRO = -98.2063
 
@@ -18,7 +14,6 @@ export function coordenadasSimuladas(direccion: string): [number, number] {
   ]
 }
 
-// Distancia en kilómetros entre dos coordenadas (fórmula de Haversine).
 export function distanciaKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const radioTierra = 6371
   const aRadianes = (grados: number) => (grados * Math.PI) / 180

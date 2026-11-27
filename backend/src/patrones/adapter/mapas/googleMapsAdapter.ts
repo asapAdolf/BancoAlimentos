@@ -1,9 +1,6 @@
 import { GoogleMaps } from './GoogleMaps.js'
 import type { Mapa, Ruta, Ubicacion } from './Mapa.js'
 
-// PATRÓN ADAPTER — Adaptador de Google Maps.
-// Misma estructura que "smsAdapter" del código muestra: guarda una instancia del servicio
-// externo y traduce cada llamada de la interfaz Mapa al método equivalente de GoogleMaps.
 export class googleMapsAdapter implements Mapa {
   private googleMaps: GoogleMaps = new GoogleMaps()
 
@@ -17,8 +14,8 @@ export class googleMapsAdapter implements Mapa {
     return {
       origen: this.obtenerUbicacion(origen),
       destino: this.obtenerUbicacion(destino),
-      distanciaKm: Math.round(resultado.distanceMeters / 100) / 10, // metros -> km
-      minutosEstimados: Math.round(resultado.durationSeconds / 60), // segundos -> minutos
+      distanciaKm: Math.round(resultado.distanceMeters / 100) / 10,
+      minutosEstimados: Math.round(resultado.durationSeconds / 60),
       proveedor: 'Google Maps',
     }
   }

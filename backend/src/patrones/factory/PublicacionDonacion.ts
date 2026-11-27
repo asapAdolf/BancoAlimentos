@@ -4,8 +4,6 @@ import type { HorarioRecoleccion } from '../../modelos/HorarioRecoleccion.js'
 import type { EstadoPublicacion, Modalidad } from '../../modelos/tipos.js'
 import type { DatosPublicacion, PublicacionAlimento, PublicacionDTO } from './PublicacionAlimento.js'
 
-// PATRÓN FACTORY METHOD — Producto concreto (como "Guerrero implements Personajes").
-// Donación: el alimento se entrega gratis, sin importar el precio que se haya enviado.
 export class PublicacionDonacion implements PublicacionAlimento {
   id: string
   alimento: Alimento

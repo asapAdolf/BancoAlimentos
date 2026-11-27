@@ -1,8 +1,6 @@
 import type { Mapa, Ruta, Ubicacion } from './Mapa.js'
 import { OpenStreetMap } from './OpenStreetMap.js'
 
-// PATRÓN ADAPTER — Adaptador de OpenStreetMap.
-// Traduce la interfaz Mapa a los métodos buscar() y ruta() del servicio externo.
 export class openStreetMapAdapter implements Mapa {
   private openStreetMap: OpenStreetMap = new OpenStreetMap()
 
