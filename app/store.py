@@ -79,8 +79,57 @@ def reset():
     admin_email = os.getenv('ADMIN_EMAIL', 'admin@bancoalimentos.mx').strip().lower()
     admin_password = os.getenv('ADMIN_PASSWORD', 'admin1234')
 
-    S.ESTABLECIMIENTOS = []
+    S.ESTABLECIMIENTOS = [
+        {
+            'id': 'est-01',
+            'nombre': 'Empresa Demo',
+            'giro': 'Panadería',
+            'email': 'empresa@demo.mx',
+            'direccion': 'Av. Principal 100, Col. Centro',
+            'zona': 'Centro',
+            'punto': 'Mostrador principal',
+            'telefono': '2225554433',
+        }
+    ]
     S.USUARIOS = {
+        'cliente@demo.mx': {
+            'email': 'cliente@demo.mx',
+            'nombre': 'Cliente Demo',
+            'rol': 'cliente',
+            'telefono': '2221234567',
+            'activo': True,
+            'creado': _dia(0),
+            'password_hash': '',
+        },
+        'empresa@demo.mx': {
+            'email': 'empresa@demo.mx',
+            'nombre': 'Empresa Demo',
+            'rol': 'empresa',
+            'telefono': '2225554433',
+            'activo': True,
+            'creado': _dia(0),
+            'est_id': 'est-01',
+            'password_hash': '',
+        },
+        'transportista@demo.mx': {
+            'email': 'transportista@demo.mx',
+            'nombre': 'Transportista Demo',
+            'rol': 'transportista',
+            'telefono': '2227778899',
+            'activo': True,
+            'creado': _dia(0),
+            'vehiculo': 'Camioneta de reparto',
+            'password_hash': '',
+        },
+        'admin@demo.mx': {
+            'email': 'admin@demo.mx',
+            'nombre': 'Administrador Demo',
+            'rol': 'administrador',
+            'telefono': '2220000000',
+            'activo': True,
+            'creado': _dia(0),
+            'password_hash': '',
+        },
         admin_email: {
             'email': admin_email,
             'nombre': 'Administrador',
@@ -89,7 +138,7 @@ def reset():
             'activo': True,
             'creado': _dia(0),
             'password_hash': generate_password_hash(admin_password),
-        }
+        },
     }
     S.PUBLICACIONES = []
     S.RESERVACIONES = []
@@ -105,10 +154,62 @@ def reset():
     }
 
 def get_usuario(email):
-    return S.USUARIOS.get(email)
+    if not email:
+        return None
+    email_clean = email.strip().lower()
+    u = S.USUARIOS.get(email_clean)
+    if u:
+        return u
+    try:
+        from .models import Usuario, Rol, UsuarioRol
+        db_user = Usuario.query.filter_by(email=email_clean).first()
+        if db_user:
+            rol_nombre = 'cliente'
+            ur = UsuarioRol.query.filter_by(usuarioid=db_user.usuarioid).first()
+            if ur:
+                r = Rol.query.get(ur.rolid)
+                if r:
+                    nom = r.nombre.lower()
+                    if 'admin' in nom:
+                        rol_nombre = 'administrador'
+                    elif 'transp' in nom:
+                        rol_nombre = 'transportista'
+                    elif 'estab' in nom or 'empresa' in nom:
+                        rol_nombre = 'empresa'
+                    else:
+                        rol_nombre = 'cliente'
+            u = {
+                'email': db_user.email,
+                'nombre': db_user.nombre,
+                'rol': rol_nombre,
+                'telefono': db_user.telefono or '',
+                'activo': db_user.activo,
+                'creado': _dia(0),
+                'password_hash': db_user.passwordhash,
+            }
+            if rol_nombre == 'empresa':
+                if not S.ESTABLECIMIENTOS:
+                    S.ESTABLECIMIENTOS.append({
+                        'id': 'est-01',
+                        'nombre': 'Establecimiento ' + db_user.nombre,
+                        'giro': 'Comercio',
+                        'email': db_user.email,
+                        'direccion': 'Dirección registrada',
+                        'zona': 'Centro',
+                        'punto': 'Entrada principal',
+                        'telefono': db_user.telefono or '',
+                    })
+                u['est_id'] = S.ESTABLECIMIENTOS[0]['id']
+            elif rol_nombre == 'transportista':
+                u['vehiculo'] = 'Vehículo de reparto'
+            S.USUARIOS[email_clean] = u
+            return u
+    except Exception:
+        pass
+    return None
 
 def autenticar_usuario(email, password):
-    u = S.USUARIOS.get(email.strip().lower())
+    u = get_usuario(email)
     if not u:
         return None
     pw_hash = u.get('password_hash')

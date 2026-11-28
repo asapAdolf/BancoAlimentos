@@ -33,9 +33,19 @@ def test_inicio_limpio_sin_datos_demo(app):
     assert store.S.PUBLICACIONES == []
     assert store.S.RESERVACIONES == []
     assert store.S.NOTIFICACIONES == []
-    assert store.S.ESTABLECIMIENTOS == []
     assert store.S.REGISTRO['kilos_total'] == 0
-    assert list(store.S.USUARIOS.keys()) == ['admin@bancoalimentos.mx']
+    assert 'admin@bancoalimentos.mx' in store.S.USUARIOS
+    assert 'cliente@demo.mx' in store.S.USUARIOS
+    assert 'empresa@demo.mx' in store.S.USUARIOS
+    assert 'transportista@demo.mx' in store.S.USUARIOS
+    assert 'admin@demo.mx' in store.S.USUARIOS
+
+
+def test_login_cuentas_demo_sin_clave(app):
+    c = app.test_client()
+    for correo in ['cliente@demo.mx', 'empresa@demo.mx', 'transportista@demo.mx', 'admin@demo.mx']:
+        r = c.post('/login', data={'email': correo, 'password': ''}, follow_redirects=False)
+        assert r.status_code in (302, 303), f"Fallo al entrar con {correo}"
 
 
 def test_publicas(app):

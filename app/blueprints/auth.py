@@ -9,6 +9,12 @@ bp = Blueprint('auth', __name__)
 
 CORREO = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
+CUENTAS_DEMO = [
+    ('cliente@demo.mx', 'Cliente', 'shopping-basket'),
+    ('empresa@demo.mx', 'Empresa', 'store'),
+    ('transportista@demo.mx', 'Transportista', 'truck'),
+    ('admin@demo.mx', 'Administrador', 'shield-check'),
+]
 ROLES_REGISTRO = ('cliente', 'empresa', 'transportista')
 
 
@@ -44,7 +50,7 @@ def login():
                 session['email'] = email
                 flash(f'¡Bienvenido, {existente["nombre"].split(" ")[0]}!', 'exito')
                 return redirect(_destino_seguro(request.args.get('next')))
-    return render_template('auth/login.html', errores=errores, email=email)
+    return render_template('auth/login.html', errores=errores, email=email, cuentas=CUENTAS_DEMO)
 
 
 @bp.route('/registro', methods=['GET', 'POST'])
